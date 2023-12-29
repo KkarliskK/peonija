@@ -8,8 +8,8 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 
-I used theese commands for install:
-~npm install
-~npm run dev  <--- to start the development server
-~npm install react-router-dom    <--- for routing
-~npm add --dev sass sass-loader@latest      <--- to resolve sass problems
+I used theese commands for install:  <br>
+~npm install  <br> 
+~npm run dev  <--- to start the development server  <br>
+~npm install react-router-dom    <--- for routing  <br>
+~npm add --dev sass sass-loader@latest      <--- to resolve sass problems  <br>
