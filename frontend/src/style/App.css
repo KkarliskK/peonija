@@ -1,13 +1,24 @@
 #root {
   max-width: 1920px;
-  margin: 0 ;
-  text-align: center;
+  height: 100vh;
+  margin: 0;
 }
 
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+html {
+  scroll-behavior: smooth;
 }
+
+body {
+  background-color: rgb(255, 255, 255);
+  color: rgb(33, 37, 41);
+  font-family: Inter, sans-serif;
+}
+
+.sticky {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it's above other content */
+}
+
 

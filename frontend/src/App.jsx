@@ -1,4 +1,4 @@
-import Header from './components/Header'
+
 import './style/App.css'
 import Error404 from './view/Error404'
 import LandingPage from './view/LandingPage'
@@ -10,7 +10,6 @@ function App() {
   return (
     <>
       <BrowserRouter>
-      <Header />
         <Routes>
           <Route path="/" element={<LandingPage />}/>
           <Route path="/login" element={<Login />}/>
