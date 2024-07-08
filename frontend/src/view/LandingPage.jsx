@@ -5,6 +5,7 @@ import landing_photo from '../assets/PEONIJA-5.jpg';
 import logo from '../assets/Peonija_logo.png';
 import Font, { Text } from 'react-font'
 import About from './About';
+import Footer from '../components/Footer';
 
 function LandingPage() {
   return (
@@ -18,6 +19,7 @@ function LandingPage() {
           </div>
         </div>
         <About />
+        <Footer />
     </>
   )
 }
