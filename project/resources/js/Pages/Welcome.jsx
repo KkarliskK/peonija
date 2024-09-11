@@ -1,72 +1,96 @@
 import { Link, Head } from '@inertiajs/react';
+import peony from '../../assets/peony.png';
 import logo from '../../assets/Peonija_logo.png';
 import css from '../../css/Background.module.css';
 import About from './About';
 import { TiArrowSortedDown } from "react-icons/ti";
+import Graphic from './Graphic';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     return (
         <>
 <Head title="Sveicināti" />
-<header className="grid grid-cols-2 items-center gap-2 py-5 lg:grid-cols-3">
-    <div className="flex lg:justify-center lg:col-start-2">
+<header className="flex h-2/5 justify-center items-center  ">
+    <div className="flex lg:justify-start">
         {/**logo goes here**/}
-        peonija logo
+        <img className='w-full sm:w-1/6' src={logo} alt="peonija logo" />
+        <nav className="-mx-3 flex flex-1 justify-center gap-14">
+            {auth.user ? (
+                <>
+                    <Link
+                        href={route('dashboard')}
+                        className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        {auth.user.name}
+                    </Link>
+                    
+                    {/* Add more buttons here */}
+                    {/* <Link
+                        href={route('')}
+                        className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        Profils
+                    </Link> */}
+                    
+                    <Link
+                        href={route('logout')}
+                        className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                        method="post" as="button" // if using a POST request for logout
+                    >
+                        Izrakstīties
+                    </Link>
+                </>
+            ) : (
+                <>
+                    <button
+                        onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })}
+                        className="flex justify-center items-center rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        Sākums
+                    </button>
+                    <button
+                        onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
+                        className="flex justify-center items-center rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        Par Mums
+                    </button>
+                    <button
+                        onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                        className="flex justify-center items-center rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        Kontakti
+                    </button>
+                    <Link
+                        href={route('login')}
+                        className="flex justify-center items-center rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        Pieslēgties
+                    </Link>
+                    <Link
+                        href={route('register')}
+                        className="flex justify-center items-center rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                    >
+                        Reģistrēties
+                    </Link>
+                </>
+            )}
+        </nav>
     </div>
-    <nav className="-mx-3 flex flex-1 justify-end">
-        {auth.user ? (
-            <>
-                <Link
-                    href={route('dashboard')}
-                    className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                >
-                    {auth.user.name}
-                </Link>
-                
-                {/* Add more buttons here */}
-                {/* <Link
-                    href={route('')}
-                    className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                >
-                    Profils
-                </Link> */}
-                
-                <Link
-                    href={route('logout')}
-                    className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                    method="post" as="button" // if using a POST request for logout
-                >
-                    Izrakstīties
-                </Link>
-            </>
-        ) : (
-            <>
-                <Link
-                    href={route('login')}
-                    className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                >
-                    Pieslēgties
-                </Link>
-                <Link
-                    href={route('register')}
-                    className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                >
-                    Reģistrēties
-                </Link>
-            </>
-        )}
-    </nav>
 </header>
 
         <main className="mt-6">
-            <div className={`${css.background} h-[75dvh] bg-gray-50 text-black/50 dark:bg-black dark:text-white/50`}>
+            <div id='home' className={`${css.background} h-[75dvh] text-black/50 dark:bg-black dark:text-white/50`}>
                 <div className={`flex flex-col h-full w-full justify-center items-center shadow-lg`}>
-                    <img src={logo} className=' sm:w-4/5 lg:w-2/5 mt-8 '/>
-                    <p className={`text-white my-4 mx-2 text-lg text-center`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
-                    <button className={`bg-white rounded mx-2 my-2 p-3 shadow-lg font-semibold uppercase transition duration-300 ease-in-out hover:shadow-xl sm:my-4`}>Apskatīt Veikalu</button>
+                    <div className='flex flex-col items-start justify-center'>
+                        <img src={peony} className=' sm:w-4/5 lg:w-2/5 mt-8 absolute top-32 -left-52 '/>
+                        <h1 className='uppercase text-8xl font-semibold tracking-widest text-black'>Peonija</h1>
+                        <p className={`text-black mt-5 text-xl text-center`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
+                        <p className='mt-12 text-black text-lg text-center'>Ziedu veikals Cēsīs, </p>
+                        <button className={`bg-white rounded mx-2 my-2 p-3 shadow-lg font-semibold uppercase transition duration-300 ease-in-out hover:shadow-xl sm:my-4`}>Apskatīt Veikalu</button>
+                    </div>
                 </div>
             </div>
-            <div className='w-full py-5 flex items-center justify-center'>
+            <div className='w-full flex items-center justify-center'>
                 <TiArrowSortedDown className={`${css.arrow} m-5 p-2`} size={38}/>
                 <h1 
                     className='uppercase font-semibold text-2xl cursor-pointer'
@@ -77,7 +101,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <TiArrowSortedDown className={`${css.arrow} m-5 p-2`} size={38}/>
             </div>
         </main>
-        <About />
+        <About id='about' />
+        <Graphic />
+        {/* <Shop /> */}
+        {/* <Contact id='contact' /> */}
         <footer className="py-16 text-center text-sm text-black dark:text-white/70">
             Laravel v{laravelVersion} (PHP v{phpVersion})
         </footer>

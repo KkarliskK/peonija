@@ -3,7 +3,6 @@ import { Link, Head } from '@inertiajs/react';
 export default function About({ auth }) {
     return (
         <>
-            <Head title="Par Mums" />
             <main id='about' className='h-dvh mt-12'>
                 <div className='flex w-full justify-center items-center'>
                     <h1 className='font-semibold text-5xl uppercase'>Par Mums</h1>
