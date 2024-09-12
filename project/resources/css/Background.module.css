@@ -13,3 +13,28 @@
       transform: translateY(-5px);
     }
   }
+
+  /* Add this in your CSS file */
+.button_slide_effect {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.button_slide_effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 150%;
+  background-color: #ec4899; /* Tailwind's pink-500 */
+  border-radius: 50%; /* Makes the sliding element circular/rounded */
+  z-index: -1;
+  transition: transform 0.5s ease-in-out;
+  transform: translate(-150%, 150%); /* Start offscreen */
+}
+
+.button_slide_effect:hover::before {
+  transform: translate(0, 0);
+}

@@ -16,6 +16,9 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
         },
+        colors: {
+            accent: '#d6016d',
+        },
     },
 
     plugins: [forms],
