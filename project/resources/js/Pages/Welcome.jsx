@@ -7,8 +7,14 @@ import { TiArrowSortedDown } from "react-icons/ti";
 import Graphic from './Graphic';
 import { useEffect, useState } from 'react';
 import Special from './Special';
+import Contact from './Contact';
+import { route } from 'ziggy-js';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
+
+    // console.log(route()); // To list all routes available
+    // console.log(route('admin.dashboard'));
+
 
     const [isOpen, setIsOpen] = useState(false);
     const toggleMenu = () => {
@@ -48,20 +54,30 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <nav className="hidden sm:flex flex-1 justify-center gap-8 items-center">
                         {auth.user ? (
                             <>
-                                <Link
-                                    href={route('dashboard')}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white ring-1 ring-transparent transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                <button
+                                    onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })}
+                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
                                 >
-                                    {auth.user.name}
-                                </Link>
-
-                                <Link
-                                    href={route('logout')}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white ring-1 ring-transparent transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                    method="post" as="button"
+                                    Sākums
+                                </button>
+                                <button
+                                    onClick={() => document.getElementById('special_orders').scrollIntoView({ behavior: 'smooth' })}
+                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
                                 >
-                                    Izrakstīties
-                                </Link>
+                                    Piedāvājumi
+                                </button>
+                                <button
+                                    onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
+                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                >
+                                    Par Mums
+                                </button>
+                                <button
+                                    onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                >
+                                    Kontakti
+                                </button>
                             </>
                         ) : (
                             <>
@@ -128,13 +144,28 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     <>
                                         <Link
                                             href={route('dashboard')}
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white ring-1 ring-transparent transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
                                         >
                                             {auth.user.name}
                                         </Link>
+                                        <button
+                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                        >
+                                            Galerija
+                                        </button>
+                                        <button
+                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                        >
+                                            Blogs
+                                        </button>
+                                        <button
+                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                        >
+                                            Kontakti
+                                        </button>
                                         <Link
                                             href={route('logout')}
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white ring-1 ring-transparent transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
                                             method="post" as="button"
                                         >
                                             Izrakstīties
@@ -212,7 +243,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         <Special id='special_orders' />
         <About id='about' />
         <Graphic />        
-        {/* <Contact id='contact' /> */}
+        <Contact id='contact' />
         {/* <Shop /> */}
         <footer className="py-16 text-center text-sm text-black dark:text-white/70">
             Laravel v{laravelVersion} (PHP v{phpVersion})
