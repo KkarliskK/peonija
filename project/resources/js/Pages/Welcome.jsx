@@ -8,218 +8,142 @@ import Graphic from './Graphic';
 import { useEffect, useState } from 'react';
 import Special from './Special';
 import Contact from './Contact';
-import { route } from 'ziggy-js';
+import Dropdown from '@/Components/Dropdown';
+
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
-    // console.log(route()); // To list all routes available
-    // console.log(route('admin.dashboard'));
-
+    const handleScroll = (e, targetId) => {
+        e.preventDefault();
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     const [isOpen, setIsOpen] = useState(false);
-    const toggleMenu = () => {
-        setIsOpen(!isOpen);
-    };
 
-    const [darkMode, setDarkMode] = useState(false);
-
-    useEffect(() => {
-        const savedMode = localStorage.getItem('darkMode');
-        if (savedMode === 'enabled') {
-            setDarkMode(true);
-            document.documentElement.classList.add('dark');
-        }
-    }, []);
-
-    const toggleDarkMode = () => {
-        if (darkMode) {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('darkMode', 'disabled');
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('darkMode', 'enabled');
-        }
-        setDarkMode(!darkMode);
-    };
-
+    const toggleMenu = () => setIsOpen(!isOpen);
+    
     return (
         <>
             <Head title="Sveicināti" />
-            <header className="flex h-2/5 justify-center items-center">
-                <div className="flex lg:justify-start w-full">
-                    {/** Logo **/}
-                    <img className='w-full sm:w-1/6' src={logo} alt="peonija logo" />
-                    
-                    {/* Desktop Links */}
-                    <nav className="hidden sm:flex flex-1 justify-center gap-8 items-center">
-                        {auth.user ? (
-                            <>
-                                <button
-                                    onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Sākums
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('special_orders').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Piedāvājumi
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Par Mums
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Kontakti
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Sākums
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('special_orders').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Piedāvājumi
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Par Mums
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Kontakti
-                                </button>
-                                <Link
-                                    href={route('login')}
-                                    className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Pieslēgties
-                                </Link>
-                                <Link
-                                    href={route('register')}
-                                    className=" rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                >
-                                    Reģistrēties
-                                </Link>
-                            </>
-                        )}
-                    </nav>
-
-                    {/* Burger Icon (Visible in all views) */}
-                    <div className="block flex items-center ml-auto">
-                        <button onClick={toggleMenu} className="flex items-center p-2 rounded-md focus:outline-none">
-                            <svg
-                                className="w-6 h-6 text-black dark:text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+            <header id='home' className="flex h-2/5 justify-center items-center">
+                <nav className="w-full bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700 relative">
+                    <div className="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-2.5">
+                        <a href="/" className="flex items-center w-5/6 sm:w-1/6">
+                            <img src={logo} className="" alt="Your Logo" />
+                        </a>
+                        <button
+                            onClick={toggleMenu}
+                            type="button"
+                            className="inline-flex items-center p-2 ms-3 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 "
+                            aria-controls="navbar-dropdown"
+                            aria-expanded={isOpen ? 'true' : 'false'}
+                        >
+                            <span className="sr-only">Open main menu</span>
+                            <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
                             </svg>
                         </button>
-                    </div>
-
-                    {/* Dropdown Menu */}
-                    {isOpen && (
-                        <div className="absolute top-16 right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-md z-50 text-center">
-                            <div className="flex flex-col space-y-2 p-2 items-center">
+                        <div className={`fixed top-0 right-0 h-full w-2/3 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'} opacity-100`}>
+                            <button onClick={toggleMenu} className="absolute top-4 right-4 p-2">
+                                <svg className="w-6 h-6 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <nav className="flex flex-col p-6 z-50 items-center bg-white dark:bg-gray-800">
                                 {auth.user ? (
                                     <>
-                                        <Link
-                                            href={route('dashboard')}
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            {auth.user.name}
-                                        </Link>
-                                        <button
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Galerija
-                                        </button>
-                                        <button
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Blogs
-                                        </button>
-                                        <button
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Kontakti
-                                        </button>
-                                        <Link
-                                            href={route('logout')}
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                            method="post" as="button"
-                                        >
-                                            Izrakstīties
-                                        </Link>
+                                        <button onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Sākums</button>
+                                        <button onClick={() => document.getElementById('special').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Piedāvājumi</button>
+                                        <button onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Par Mums</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Kontakti</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Blogs</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Galerija</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Izrakstīties</button>
                                     </>
                                 ) : (
                                     <>
-                                        <button
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Galerija
-                                        </button>
-                                        <button
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Blogs
-                                        </button>
-                                        <button
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Kontakti
-                                        </button>
-                                        <Link
-                                            href={route('login')}
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Pieslēgties
-                                        </Link>
-                                        <Link
-                                            href={route('register')}
-                                            className="w-full rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
-                                        >
-                                            Reģistrēties
-                                        </Link>
-                                        <button
-                                            onClick={toggleDarkMode}
-                                            className={`w-full rounded-md px-3 py-2 transition focus:outline-none focus-visible:ring-[#FF2D20] ${darkMode ? 'text-white bg-black' : 'text-black bg-white'}`}
-                                            >
-                                            {darkMode ? 'Disable Dark Mode' : 'Enable Dark Mode'}
-                                        </button>
+                                        <button onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Sākums</button>
+                                        <button onClick={() => document.getElementById('special').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Piedāvājumi</button>
+                                        <button onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Par Mums</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Kontakti</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Blogs</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Galerija</button>
+                                        <a href="/login" className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Pierakstīties</a>
+                                        <a href="/register" className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Reģistrēties</a>
                                     </>
                                 )}
-                            </div>
+                            </nav>
                         </div>
-                    )}
-                </div>
+                        <div className="hidden w-full md:flex md:justify-center md:items-center" id="navbar-dropdown">
+                            <ul className="flex flex-col justify-center items-center font-medium p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:mt-0 md:text-sm md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700 md:space-x-8">
+                                {auth.user ? (
+                                    <>
+                                        <button onClick={() => document.getElementById('home').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Sākums</button>
+                                        <button onClick={() => document.getElementById('special').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Piedāvājumi</button>
+                                        <button onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Par Mums</button>
+                                        <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Kontakti</button>
+                                        <li>
+                                            <Dropdown>
+                                                <Dropdown.Trigger>
+                                                    <button className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 relative">
+                                                        Dropdown
+                                                        <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/>
+                                                        </svg>
+                                                    </button>
+                                                </Dropdown.Trigger>
+                                                <Dropdown.Content>
+                                                    <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
+                                                    <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
+                                                    <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
+                                                    <Dropdown.Link href="/signout" className="text-gray-700 dark:text-gray-200">Izrakstīties</Dropdown.Link>
+                                                </Dropdown.Content>
+                                            </Dropdown>
+                                        </li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li><a href="#home" onClick={(e) => handleScroll(e, 'home')} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Sākums</a></li>
+                                        <li><a href="#special" onClick={(e) => handleScroll(e, 'special')} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Piedāvājumi</a></li>
+                                        <li><a href="#about" onClick={(e) => handleScroll(e, 'about')} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Par Mums</a></li>
+                                        <li><a href="#contact" onClick={(e) => handleScroll(e, 'contact')} className="rounded-md px-3 py-2 text-black dark:text-white transition hover:text-black/70 dark:hover:text-white/70">Kontakti</a></li>
+                                        <li>
+                                            <Dropdown>
+                                                <Dropdown.Trigger>
+                                                    <button className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 relative">
+                                                        Vairāk
+                                                        <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/>
+                                                        </svg>
+                                                    </button>
+                                                </Dropdown.Trigger>
+                                                <Dropdown.Content>
+                                                    <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
+                                                    <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
+                                                    <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
+                                                    <Dropdown.Link href="/login" className="text-gray-700 dark:text-gray-200">Pieslēgties</Dropdown.Link>
+                                                    <Dropdown.Link href="/register" className="text-gray-700 dark:text-gray-200">Reģistrēties</Dropdown.Link>
+                                                </Dropdown.Content>
+                                            </Dropdown>
+                                        </li>
+                                    </>
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
             </header>
 
+
         <main className="mt-6">
-            <div id='home' className={`${css.background} h-[75dvh] text-black/50 dark:bg-black dark:text-white/50`}>
+            <div className={`${css.background} h-[75dvh] text-black/50 dark:bg-black dark:text-white/50`}>
                 <div className={`flex flex-col h-full w-full justify-center items-center shadow-lg`}>
                     <div className='flex flex-col items-start justify-center'>
-                        <img src={peony} className=' sm:w-4/5 lg:w-2/5 mt-8 absolute top-32 -left-52 '/>
-                        <h1 className='uppercase text-8xl font-semibold tracking-widest text-black'>Peonija</h1>
+                        <img src={peony} className=' sm:w-4/5 lg:w-2/5 mt-8 absolute top-20 -left-32 sm:top-32 sm:-left-52 -z-10 '/>
+                        <h1 className='uppercase text-6xl font-semibold tracking-widest text-black sm:text-8xl'>Peonija</h1>
                         <p className={`text-black mt-5 text-xl text-center`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
                         <p className='mt-12 text-black text-lg text-center'>Ziedu veikals Cēsīs, </p>
                         <button className={`${css.button_slide_effect} text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4`}>
@@ -240,14 +164,15 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <TiArrowSortedDown className={`${css.arrow} m-5 p-2`} size={38}/>
             </div>
         </main>
-        <Special id='special_orders' />
+        <Special id='special' />
         <About id='about' />
         <Graphic />        
         <Contact id='contact' />
         {/* <Shop /> */}
-        <footer className="py-16 text-center text-sm text-black dark:text-white/70">
+        <footer className="py-16 text-center text-sm bg-white dark:bg-gray-800 text-black dark:text-white/70">
             Laravel v{laravelVersion} (PHP v{phpVersion})
         </footer>
+
         </>
     );
 }

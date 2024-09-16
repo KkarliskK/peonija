@@ -1,3 +1,4 @@
+import InstagramEmbed from '@/Components/InstagramPost';
 import { Link, Head } from '@inertiajs/react';
 
 export default function About({ auth }) {
@@ -7,9 +8,9 @@ export default function About({ auth }) {
                 <div className='flex w-full justify-center items-center'>
                     <h1 className='font-semibold text-5xl uppercase'>Par Mums</h1>
                 </div>
-                <div className='flex w-full justify-center items-center h-full'>
+                <div className='flex w-full flex-col justify-center items-center h-full sm:flex-row'>
                     <div className='flex w-full justify-center items-center'>{/**kreisa puse**/}
-
+                        <InstagramEmbed />
                     </div> 
                     <div className='flex w-full justify-center items-center'>{/**laba puse**/}
                         <iframe
