@@ -13,6 +13,27 @@ import Dropdown from '@/Components/Dropdown';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem('theme') === 'dark';
+    });
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+
+        if (darkMode) {
+            root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            root.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [darkMode]);
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+    };
+
+
     const handleScroll = (e, targetId) => {
         e.preventDefault();
         const element = document.getElementById(targetId);
@@ -130,6 +151,12 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                                     <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
                                                     <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
                                                     <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
+                                                    <button 
+                                                        onClick={toggleDarkMode} 
+                                                        className="block w-full px-4 py-3 text-start text-lg leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800 transition duration-150 ease-in-out"
+                                                    >
+                                                        {darkMode ? 'Gaišais režīms' : 'Tumšais režīms'}
+                                                    </button>
                                                     <Dropdown.Link href="/login" className="text-gray-700 dark:text-gray-200">Pieslēgties</Dropdown.Link>
                                                     <Dropdown.Link href="/register" className="text-gray-700 dark:text-gray-200">Reģistrēties</Dropdown.Link>
                                                 </Dropdown.Content>
@@ -144,20 +171,17 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             </header>
 
 
-
-        <main className="mt-6">
-            <div className={`${css.background} h-[75dvh] text-black/50 dark:bg-black dark:text-white/50`}>
+        <main className="mt-6 bg-white text-black/50 dark:bg-gray-900 dark:text-gray-200">
+            <div className={`h-[75dvh]`}>
                 <div className={`flex flex-col h-full w-full justify-center items-center shadow-lg`}>
                     <div className='flex flex-col sm:items-start justify-center items-center'>
-                        <img src={peony} className=' sm:w-4/5 lg:w-2/5 mt-8 absolute top-20 -left-32 sm:top-32 sm:-left-52 -z-10 '/>
-                        <h1 className='uppercase text-6xl font-semibold tracking-widest text-black sm:text-8xl'>Peonija</h1>
-                        <p className={`text-black mt-5 text-xl text-center`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
-                        <p className='mt-12 text-black text-lg text-center'>Ziedu veikals Cēsīs, </p>
+                        <img src={peony} className=' sm:w-4/5 lg:w-2/5 mt-8 absolute top-20 -left-32 sm:top-32 sm:-left-52 -z-10 sm:z-10 '/>
+                        <h1 className='uppercase text-6xl font-semibold tracking-widest text-black sm:text-8xl dark:text-gray-200'>Peonija</h1>
+                        <p className={`text-black mt-5 text-xl text-center dark:text-gray-200`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
+                        <p className='mt-12 text-black text-lg text-center dark:text-gray-200'>Ziedu veikals Cēsīs, </p>
                         <button className={`${css.button_slide_effect} mt-8 text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4`}>
                             Apskatīt Veikalu
                         </button>
-                        
-
                     </div>
                 </div>
             </div>
@@ -176,7 +200,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         <About id='about' />
         <Graphic />        
         <Contact id='contact' />
-        {/* <Shop /> */}
         <footer className="py-16 text-center text-sm bg-white dark:bg-gray-800 text-black dark:text-white/70">
             Laravel v{laravelVersion} (PHP v{phpVersion})
         </footer>
