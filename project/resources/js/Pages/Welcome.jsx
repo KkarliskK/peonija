@@ -156,6 +156,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         <button className={`${css.button_slide_effect} mt-8 text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4`}>
                             Apskatīt Veikalu
                         </button>
+                        
 
                     </div>
                 </div>
