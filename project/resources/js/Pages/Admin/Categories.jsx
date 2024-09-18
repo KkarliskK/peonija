@@ -1,10 +1,12 @@
 import DashboardBox from '@/Components/DashboardBox';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaEdit } from 'react-icons/fa';
 import Popup from '@/Components/Popup';
 import { useState } from 'react';
+import PostNotification from '@/Components/Notification';
+
 
 export default function Categories({ auth, categories = [] }) {  
     const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
@@ -12,6 +14,11 @@ export default function Categories({ auth, categories = [] }) {
     const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
     const [isCategoryListVisible, setIsCategoryListVisible] = useState(false); 
     const [selectedCategory, setSelectedCategory] = useState(null); 
+    const [notifMessage, setNotifMessage] = useState('');  
+    const [isNotifOpen, setIsNotifOpen] = useState(false); 
+    const [notifType, setNotifType] = useState('success'); 
+
+    const closeNotif = () => setIsNotifOpen(false);
 
     // Inertia's useForm hook for form handling
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -60,7 +67,12 @@ export default function Categories({ auth, categories = [] }) {
     const handleAddCategory = (e) => {
         e.preventDefault(); 
         post(route('categories.store'), {  
-            onSuccess: () => handleAddClose()  
+            onSuccess: () => {
+                handleAddClose();
+                setNotifMessage('Veiksmīgi pievienota jauna kategorija!');
+                setNotifType('success');  
+                setIsNotifOpen(true);  
+            }
         });
     };
 
@@ -68,22 +80,38 @@ export default function Categories({ auth, categories = [] }) {
         e.preventDefault(); 
         if (selectedCategory) {
             postEdit(route('categories.update', selectedCategory.id), {  
-                onSuccess: () => handleEditClose()  
-            });
-        }
-    };
-
-    const handleDeleteCategory = () => {
-        if (selectedCategory) {
-            post(route('categories.destroy', selectedCategory.id), {
-                method: 'DELETE',
                 onSuccess: () => {
-                    handleDeleteClose();
-                    handleEditClose(); // Ensure edit popup closes and list reappears
+                    handleEditClose(); 
+                    setNotifMessage('Kategorija veiksmīgi atjaunināta!');
+                    setNotifType('success');  
+                    setIsNotifOpen(true);
+                },
+                onError: () => {
+                    setNotifMessage('Kļūda atjauninot kategoriju');
+                    setNotifType('error');  
+                    setIsNotifOpen(true); 
                 }
             });
         }
     };
+    
+
+    const handleDeleteCategory = (e) => {
+        if (selectedCategory) {
+            e.preventDefault(); 
+            router.delete(route('categories.destroy', selectedCategory.id), {  
+                onSuccess: () => {
+                    setIsEditPopupOpen(false);  
+                    handleDeleteClose();  
+                    setNotifMessage('Kategorija tika izdzēsta!');
+                    setNotifType('success');  
+                    setIsNotifOpen(true);      
+                }
+            });
+        }
+    };
+    
+    
 
     return (
         <AdminLayout
@@ -172,6 +200,15 @@ export default function Categories({ auth, categories = [] }) {
                                 </li>
                             ))}
                         </ul>
+                        <div className='flex w-full items-center justify-center'>
+                            <button 
+                                type="button" 
+                                onClick={handleEditClose} 
+                                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 mr-2"
+                            >
+                                Atcelt
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     selectedCategory && (
@@ -259,6 +296,13 @@ export default function Categories({ auth, categories = [] }) {
                     </button>
                 </div>
             </Popup>
+
+            <PostNotification
+                message={notifMessage} 
+                type={notifType}  
+                isOpen={isNotifOpen} 
+                onClose={closeNotif} 
+            />
         </AdminLayout>
     );
 }

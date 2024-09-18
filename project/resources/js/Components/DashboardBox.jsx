@@ -4,7 +4,7 @@ export default function DashboardBox({ title, description, link, icon: Icon, onC
     return (
         <a 
             href={link} 
-            className="relative flex items-center flex-col justify-center p-6 bg-white dark:bg-gray-800 h-full rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out mt-20"
+            className="relative flex items-center flex-col justify-center p-6 bg-white dark:bg-gray-800 h-full rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out mt-20 cursor-pointer"
             onClick={onClick}
         >
             {Icon && (

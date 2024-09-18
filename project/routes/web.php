@@ -23,6 +23,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/admindashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard'); 
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::get('/admin/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::post('/admin/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
 });
 
 Route::middleware('auth')->group(function () {
