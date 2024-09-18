@@ -5,7 +5,7 @@ import css from '../../css/Background.module.css';
 import About from './About';
 import { TiArrowSortedDown } from "react-icons/ti";
 import Graphic from './Graphic';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Special from './Special';
 import Contact from './Contact';
 import Dropdown from '@/Components/Dropdown';
@@ -45,15 +45,39 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleMenu = () => setIsOpen(!isOpen);
-    
+    const [isDropOpen, setIsDropOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const toggleDropdown = () => {
+        setIsDropOpen(!isDropOpen);
+    };
+
+    // Detects clicking for the dropdown so the arrow can rotate
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropOpen(false);
+            }
+        };
+
+        if (isDropOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropOpen]);
     return (
         <>
             <Head title="Sveicināti" />
             <header id='home' className="flex h-2/5 justify-center items-center">
                 <nav className="w-full bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700 relative">
                     <div className="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-2.5">
-                        <a href="/" className="flex items-center w-5/6 sm:w-1/6">
-                            <img src={logo} className="h-8" alt="Your Logo" />
+                        <a href="/" className="flex items-center">
+                            <img src={logo} className="h-18 sm:h-20" alt="Your Logo" />
                         </a>
                         <button
                             onClick={toggleMenu}
@@ -112,13 +136,30 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         <li>
                                             <Dropdown>
                                                 <Dropdown.Trigger>
-                                                    <button className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-lg px-5 py-2.5 inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 relative">
-                                                        Dropdown
-                                                        <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/>
+                                                    <button
+                                                        ref={dropdownRef}
+                                                        onClick={toggleDropdown}
+                                                        className="w-full text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase sm:py-2 inline-flex items-center relative"
+                                                    >
+                                                        Vairāk
+                                                        <svg
+                                                            className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropOpen ? 'rotate-180' : 'rotate-0'}`}
+                                                            aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 10 6"
+                                                        >
+                                                            <path
+                                                                stroke="currentColor"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth="2"
+                                                                d="m1 1 4 4 4-4"
+                                                            />
                                                         </svg>
                                                     </button>
                                                 </Dropdown.Trigger>
+
                                                 <Dropdown.Content>
                                                     <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
                                                     <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
@@ -140,10 +181,26 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         <li>
                                             <Dropdown>
                                                 <Dropdown.Trigger>
-                                                    <button className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-lg px-5 py-2.5 inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 relative">
+                                                    <button
+                                                        ref={dropdownRef}
+                                                        onClick={toggleDropdown}
+                                                        className="w-full text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase sm:py-2 inline-flex items-center relative"
+                                                    >
                                                         Vairāk
-                                                        <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/>
+                                                        <svg
+                                                            className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropOpen ? 'rotate-180' : 'rotate-0'}`}
+                                                            aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 10 6"
+                                                        >
+                                                            <path
+                                                                stroke="currentColor"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth="2"
+                                                                d="m1 1 4 4 4-4"
+                                                            />
                                                         </svg>
                                                     </button>
                                                 </Dropdown.Trigger>
@@ -175,7 +232,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <div className={`h-[75dvh]`}>
                 <div className={`flex flex-col h-full w-full justify-center items-center shadow-lg`}>
                     <div className='flex flex-col sm:items-start justify-center items-center'>
-                        <img src={peony} className=' sm:w-4/5 lg:w-2/5 mt-8 absolute top-20 -left-32 sm:top-32 sm:-left-52 -z-10 sm:z-10 '/>
+                        <img src={peony} className='hidden sm:block sm:w-4/5 lg:w-2/5 mt-8 absolute top-20 -left-32 sm:top-32 sm:-left-52 -z-10 sm:z-10 '/>
                         <h1 className='uppercase text-6xl font-semibold tracking-widest text-black sm:text-8xl dark:text-gray-200'>Peonija</h1>
                         <p className={`text-black mt-5 text-xl text-center dark:text-gray-200`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
                         <p className='mt-12 text-black text-lg text-center dark:text-gray-200'>Ziedu veikals Cēsīs, </p>

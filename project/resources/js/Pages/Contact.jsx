@@ -3,7 +3,7 @@ import { Link, Head } from '@inertiajs/react';
 export default function Contact({ auth }) {
     return (
         <>
-            <main id='contact' className='h-dvh mt-12'>
+            <main id='contact' className='h-auto sm:h-dvh mt-12'>
                 <div className='flex w-full justify-center items-center'>
                     <h1 className='font-semibold text-5xl uppercase'>Kontakti</h1>
                 </div>
