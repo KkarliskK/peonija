@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\UsrDashboardController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,12 +21,21 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [UsrDashboardController::class, 'index'])->name('dashboard');
+    
     Route::get('/admin/admindashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard'); 
+    
+    // Categories Routes
     Route::post('/admin/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::get('/admin/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-    Route::post('/admin/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::put('/admin/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
+
+    // Manage Products Routes
+    Route::match(['get', 'post'], '/admin/manageproducts/', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

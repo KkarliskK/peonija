@@ -1,26 +1,29 @@
-import DashboardBox from '@/Components/DashboardBox';
-import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, useForm, router } from '@inertiajs/react';
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaEdit } from 'react-icons/fa';
-import Popup from '@/Components/Popup';
+import { IoMdAddCircle } from 'react-icons/io';
 import { useState } from 'react';
+import { Head, useForm, router } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import DashboardBox from '@/Components/DashboardBox';
+import Popup from '@/Components/Popup';
 import PostNotification from '@/Components/Notification';
+import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 
 
 export default function Categories({ auth, categories = [] }) {  
+    const [selectedCategory, setSelectedCategory] = useState(null); 
+    const [subcategories, setSubcategories] = useState([]); 
     const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
     const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
     const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
     const [isCategoryListVisible, setIsCategoryListVisible] = useState(false); 
-    const [selectedCategory, setSelectedCategory] = useState(null); 
+    const [isSubcategorySectionOpen, setIsSubcategorySectionOpen] = useState(true);
     const [notifMessage, setNotifMessage] = useState('');  
     const [isNotifOpen, setIsNotifOpen] = useState(false); 
-    const [notifType, setNotifType] = useState('success'); 
+    const [notifType, setNotifType] = useState('success');  
 
     const closeNotif = () => setIsNotifOpen(false);
 
-    // Inertia's useForm hook for form handling
     const { data, setData, post, processing, reset, errors } = useForm({
         name: '', 
         description: '', 
@@ -31,7 +34,25 @@ export default function Categories({ auth, categories = [] }) {
         description: '',
     });
 
-    // Handlers to open/close the popups
+    // Add new subcategory
+    const addSubcategory = () => {
+        setSubcategories([...subcategories, { name: '', description: '' }]);
+    };
+
+    // Handle subcategory changes
+    const handleSubcategoryChange = (index, field, value) => {
+        const updatedSubcategories = [...subcategories];
+        updatedSubcategories[index][field] = value;
+        setSubcategories(updatedSubcategories);
+    };
+
+    // Remove subcategory
+    const removeSubcategory = (index) => {
+        const updatedSubcategories = subcategories.filter((_, i) => i !== index);
+        setSubcategories(updatedSubcategories);
+    };
+
+    // Open/Close popups
     const handleAddOpen = () => setIsAddPopupOpen(true);
     const handleAddClose = () => {
         reset(); 
@@ -49,10 +70,13 @@ export default function Categories({ auth, categories = [] }) {
     };
 
     const handleCategorySelect = (category) => {
+        console.log('Selected Category:', category);
         setSelectedCategory(category);
         setEditData({ name: category.name, description: category.description });
-        setIsCategoryListVisible(false); 
+        setSubcategories(category.children || []); // Change this line to access `children`
+        setIsCategoryListVisible(false);
     };
+        
 
     const handleDeleteOpen = () => {
         if (selectedCategory) {
@@ -64,9 +88,15 @@ export default function Categories({ auth, categories = [] }) {
         setIsDeleteConfirmationOpen(false);
     };
 
+    // Add Category Handler
     const handleAddCategory = (e) => {
         e.preventDefault(); 
-        post(route('categories.store'), {  
+        post(route('categories.store'), {
+            data: {
+                name: data.name,
+                description: data.description,
+                subcategories: subcategories,
+            },
             onSuccess: () => {
                 handleAddClose();
                 setNotifMessage('Veiksmīgi pievienota jauna kategorija!');
@@ -75,27 +105,37 @@ export default function Categories({ auth, categories = [] }) {
             }
         });
     };
+    
 
+    // Update Category Handler
     const handleUpdateCategory = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
+    
         if (selectedCategory) {
-            postEdit(route('categories.update', selectedCategory.id), {  
+            router.put(route('categories.update', selectedCategory.id), {
+                ...editData,
+                subcategories: subcategories,
+            }, {
                 onSuccess: () => {
-                    handleEditClose(); 
-                    setNotifMessage('Kategorija veiksmīgi atjaunināta!');
-                    setNotifType('success');  
+                    handleEditClose();
+                    setNotifMessage('Kategorija un apakškategorijas veiksmīgi atjauninātas!');
+                    setNotifType('success');
                     setIsNotifOpen(true);
                 },
                 onError: () => {
                     setNotifMessage('Kļūda atjauninot kategoriju');
-                    setNotifType('error');  
-                    setIsNotifOpen(true); 
+                    setNotifType('error');
+                    setIsNotifOpen(true);
                 }
             });
         }
     };
     
+    
+    
+    
 
+    // Delete Category Handler
     const handleDeleteCategory = (e) => {
         if (selectedCategory) {
             e.preventDefault(); 
@@ -110,13 +150,11 @@ export default function Categories({ auth, categories = [] }) {
             });
         }
     };
-    
-    
 
     return (
         <AdminLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Admin Panelis</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Pievienot vai rediģēt kategorijas</h2>}
         >
             <Head title="Kategorijas" />
 
@@ -200,15 +238,6 @@ export default function Categories({ auth, categories = [] }) {
                                 </li>
                             ))}
                         </ul>
-                        <div className='flex w-full items-center justify-center'>
-                            <button 
-                                type="button" 
-                                onClick={handleEditClose} 
-                                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 mr-2"
-                            >
-                                Atcelt
-                            </button>
-                        </div>
                     </div>
                 ) : (
                     selectedCategory && (
@@ -234,7 +263,66 @@ export default function Categories({ auth, categories = [] }) {
                                 {editErrors.description && <span className="text-red-600">{editErrors.description}</span>}
                             </div>
 
-                            <div className="flex justify-between">
+                            {/* Subcategory Section */}
+                            <div className="mb-4 flex flex-col justify-center items-center">
+                                <div className="flex justify-between w-full items-center">
+                                    <h4 className="text-md font-semibold mb-2">Apakškategorijas</h4>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsSubcategorySectionOpen(!isSubcategorySectionOpen)}
+                                        className="flex items-center text-blue-600"
+                                    >
+                                        {isSubcategorySectionOpen ? (
+                                            <>
+                                                <IoMdArrowDropup className="mr-1" /> Slēpt
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoMdArrowDropdown className="mr-1" /> Parādīt
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                                
+                                {isSubcategorySectionOpen && (
+                                    <div className="w-full max-h-64 overflow-y-auto">
+                                        {subcategories.map((subcategory, index) => (
+                                            <div key={index} className="mb-4 p-2 bg-white dark:bg-gray-800 shadow rounded-md">
+                                                <input 
+                                                    type="text" 
+                                                    value={subcategory.name} 
+                                                    onChange={(e) => handleSubcategoryChange(index, 'name', e.target.value)} 
+                                                    placeholder="Apakškategorijas nosaukums"
+                                                    className="w-full p-2 mb-2 border rounded-md dark:bg-gray-700 dark:text-gray-300"
+                                                />
+                                                <textarea 
+                                                    value={subcategory.description} 
+                                                    onChange={(e) => handleSubcategoryChange(index, 'description', e.target.value)} 
+                                                    placeholder="Apakškategorijas apraksts"
+                                                    className="resize-none w-full h-28 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-300"
+                                                />
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => removeSubcategory(index)} 
+                                                    className="text-red-600 mt-2"
+                                                >
+                                                    Dzēst
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <button 
+                                    type="button" 
+                                    onClick={addSubcategory} 
+                                    className="flex items-center text-blue-600 mt-2"
+                                >
+                                    <IoMdAddCircle className="mr-1" /> Pievienot apakškategoriju
+                                </button>
+                            </div>
+
+                            <div className="flex justify-center">
                                 <button 
                                     type="button" 
                                     onClick={handleEditClose} 
@@ -243,65 +331,22 @@ export default function Categories({ auth, categories = [] }) {
                                     Atcelt
                                 </button>
                                 <button 
-                                    type="button" 
-                                    onClick={handleDeleteOpen}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                                >
-                                    Dzēst
-                                </button>
-                                {selectedCategory && (
-                                    <button 
-                                        type="button" 
-                                        onClick={() => post(route('categories.toggleAvailability', selectedCategory.id))}  
-                                        className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
-                                    >
-                                        {selectedCategory.is_available ? 'Neaktīvs' : 'Aktīvs'}
-                                    </button>
-                                )}
-                                <button 
                                     type="submit" 
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                     disabled={processingEdit}  
                                 >
-                                    {processingEdit ? 'Saglabā...' : 'Saglabāt kategoriju'}
+                                    {processingEdit ? 'Saglabā...' : 'Atjaunināt kategoriju'}
                                 </button>
                             </div>
                         </form>
                     )
                 )}
             </Popup>
-
-            {/* Delete Confirmation Popup */}
-            <Popup 
-                isOpen={isDeleteConfirmationOpen} 
-                onClose={handleDeleteClose} 
-                title="Apstiprinājums"
-                onConfirm={handleDeleteCategory}
-            >
-                <p className="text-red-600">Vai jūs tiešām vēlaties dzēst kategoriju "{selectedCategory?.name}"?</p>
-                <div className="flex justify-center mt-4">
-                    <button 
-                        type="button" 
-                        onClick={handleDeleteClose} 
-                        className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 mr-2"
-                    >
-                        Atcelt
-                    </button>
-                    <button 
-                        type="button" 
-                        onClick={handleDeleteCategory} 
-                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                    >
-                        Dzēst
-                    </button>
-                </div>
-            </Popup>
-
             <PostNotification
-                message={notifMessage} 
-                type={notifType}  
-                isOpen={isNotifOpen} 
-                onClose={closeNotif} 
+                isOpen={isNotifOpen}
+                message={notifMessage}
+                type={notifType}
+                onClose={closeNotif}
             />
         </AdminLayout>
     );

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id(); 
             $table->string('name'); 
             $table->text('description')->nullable(); 
-            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade'); // Foreign key to allow subcategories (self-referencing)
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade')->index(); // Foreign key to allow subcategories (self-referencing)
             $table->timestamps(); 
         });
     }

@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id(); 
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade'); 
-            $table->string('name'); //name
-            $table->text('description')->nullable(); //desc
-            $table->decimal('price', 8, 2); //price
-            $table->integer('stock')->default(0); //available or not
-            $table->string('image')->nullable(); // image
-            $table->timestamps(); 
+            $table->id();
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->string('name'); // Product name
+            $table->text('description')->nullable(); // Product description
+            $table->decimal('price', 8, 2); // Product price
+            $table->boolean('is_available')->default(true); // Available or not
+            $table->string('image')->nullable(); // Product image
+            $table->timestamps(); // Created and updated timestamps
         });
     }
 
@@ -31,3 +31,4 @@ return new class extends Migration
         Schema::dropIfExists('products');
     }
 };
+

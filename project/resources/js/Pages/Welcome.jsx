@@ -228,20 +228,41 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             </header>
 
 
-        <main className="mt-6 bg-white text-black/50 dark:bg-gray-900 dark:text-gray-200">
-            <div className={`h-[75dvh]`}>
-                <div className={`flex flex-col h-full w-full justify-center items-center shadow-lg`}>
-                    <div className='flex flex-col sm:items-start justify-center items-center'>
-                        <img src={peony} className='hidden sm:block sm:w-4/5 lg:w-2/5 mt-8 absolute top-20 -left-32 sm:top-32 sm:-left-52 -z-10 sm:z-10 '/>
-                        <h1 className='uppercase text-6xl font-semibold tracking-widest text-black sm:text-8xl dark:text-gray-200'>Peonija</h1>
-                        <p className={`text-black mt-5 text-xl text-center dark:text-gray-200`}>Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde</p>
-                        <p className='mt-12 text-black text-lg text-center dark:text-gray-200'>Ziedu veikals Cēsīs, </p>
-                        <button className={`${css.button_slide_effect} mt-8 text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4`}>
-                            Apskatīt Veikalu
-                        </button>
+            <main className="mt-6 bg-white text-black/50 dark:bg-gray-900 dark:text-gray-200">
+                <div className={`h-auto sm:h-[75dvh]`}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 h-full w-full shadow-lg">
+                        <div className="relative hidden lg:block">
+                            <img
+                                src={peony}
+                                className="absolute w-2/5 top-20 -left-10 lg:w-4/5 lg:top-10 lg:-left-8 -z-10 sm:z-10"
+                                alt="Peony Flower"
+                            />
+                        </div>
+                        <div className="flex flex-col justify-center items-center sm:items-start px-8 lg:px-16">
+                            <h1 className="uppercase text-6xl font-semibold tracking-widest text-black sm:text-8xl dark:text-gray-200">
+                                Peonija
+                            </h1>
+                            <p className="mt-5 text-xl text-black dark:text-gray-200">
+                                Ziedi | Ziedu kompozīcijas | Telpaugi | Ziedu piegāde
+                            </p>
+
+                            <div className="mt-12 w-full lg:w-4/5 text-lg text-black dark:text-gray-200 text-justify sm:text-left">
+                                <p>
+                                    Kā floristi ar vairāk nekā 20 gadu pieredzi, mēs esam izstrādājuši unikālu prasmi un izpratni par ziedu mākslu.
+                                    Mēs sekojam līdzi jaunākajām tendencēm floristikā, vienlaikus saglabājot pārbaudītas vērtības un tehnikas.
+                                    Mūsu veikalā ir pieejami dažādi grieztie ziedi, telpaugi un ar mīlestību veidoti ziedu pušķi. Mēs lepojamies ar mūsu spēju
+                                    radīt ziedu kompozīcijas, kas atspoguļo mūsu klientu individuālās vēlmes un emocijas. Mēs esam gatavi palīdzēt jums izvēlēties ziedus
+                                    jūsu nākamajam īpašajam notikumam vai vienkārši kā dāvanu sev.
+                                </p>
+                            </div>
+                            <button
+                                className={`${css.button_slide_effect} mb-20 mt-8 text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4 sm:mb-2`}>
+                                Apskatīt Veikalu
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+
             <div className='w-full flex items-center justify-center'>
                 <TiArrowSortedDown className={`${css.arrow} m-5 p-2`} size={38}/>
                 <h1 

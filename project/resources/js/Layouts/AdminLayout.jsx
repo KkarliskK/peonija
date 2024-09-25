@@ -24,11 +24,11 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Admin Dashboard
                                 </NavLink>
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Pievienot produktu
-                                </NavLink>
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                <NavLink href={route('products.index')} active={route().current('dashboard')}>
                                     Pārvaldīt produktus
+                                </NavLink>
+                                <NavLink href={route('categories.index')} active={route().current('dashboard')}>
+                                    Pārvaldīt kategorijas
                                 </NavLink>
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Veikala statuss

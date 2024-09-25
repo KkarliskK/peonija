@@ -22,22 +22,22 @@ export default function AdminDashboard({ auth }) {
                         icon={IoIosAddCircleOutline}
                     />
                     <DashboardBox 
-                        title="Pievienot jaunu produktu" 
-                        description="Pievienot produktus interneta veikalam." 
-                        link={route('dashboard')} 
+                        title="Pievienot vai rediģēt produktu" 
+                        description="Pievienot jaunus vai rediģēt esošos produktus interneta veikalam." 
+                        link={route('products.index')} 
                         icon={IoIosAddCircleOutline}
                     />
                     <DashboardBox 
-                        title="Pārvaldīt produktus" 
-                        description="Pārvaldīt produktus, rediģēt, dzēst, izslēgt produktu." 
-                        link={route('dashboard')} 
-                        icon={FaEdit}
+                        title="Veikala statuss" 
+                        description="Pārbaudi vai maini veikala darba laiku un maini veikala statusu (atvērts / slēgts)." 
+                        link={route('products.index')} 
+                        icon={FaStoreAlt}
                     />
                     <DashboardBox 
-                        title="Veikala statuss" 
-                        description="Pārbaudi vai maini veikala statusu (atvērts / slēgts). " 
+                        title="Vēl top" 
+                        description="Tiks izdomāts drīzumā... " 
                         link={route('dashboard')} 
-                        icon={FaStoreAlt}
+                        icon={FaEdit}
                     />
                 </div>
         </AdminLayout>
