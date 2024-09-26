@@ -14,7 +14,7 @@ class Product extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'price', 'is_available', 'image', 'category_id'];
+    protected $fillable = ['name', 'description', 'price', 'is_available', 'category_id', 'image'];
 
     // For available item only sorting
     public function scopeAvailable($query)
@@ -26,5 +26,11 @@ class Product extends Model
     public function scopeUnavailable($query)
     {
         return $query->where('is_available', false);
+    }
+
+    // Define a relationship back to the category
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }
