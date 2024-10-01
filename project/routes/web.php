@@ -6,6 +6,7 @@ use App\Http\Controllers\UsrDashboardController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,6 +36,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
     Route::put('/admin/products/{id}', [ProductController::class, 'update']);
+
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 });
 
 

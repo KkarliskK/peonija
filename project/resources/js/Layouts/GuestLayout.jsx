@@ -5,7 +5,26 @@ import { useState, useEffect, useRef } from 'react';
 import logo from '../../assets/Peonija_logo.png';
 
 export default function GuestLayout({ auth, children }) {
-    const [isOpen, setIsOpen] = useState(false);
+
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem('theme') === 'dark';
+    });
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+
+        if (darkMode) {
+            root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            root.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [darkMode]);
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+    };
     
     const scrollToSection = (id) => {
         const section = document.getElementById(id);
@@ -14,7 +33,33 @@ export default function GuestLayout({ auth, children }) {
         }
     };
 
+    const [isOpen, setIsOpen] = useState(false);
+
     const toggleMenu = () => setIsOpen(!isOpen);
+    const [isDropOpen, setIsDropOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const toggleDropdown = () => {
+        setIsDropOpen(!isDropOpen);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropOpen(false);
+            }
+        };
+
+        if (isDropOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropOpen]);
 
     return (
         <>
@@ -76,26 +121,57 @@ export default function GuestLayout({ auth, children }) {
                                 >
                                     Kontakti
                                 </button>
-
-                                {auth?.user ? (
-                                    <Link
-                                        href={route('logout')}
-                                        method="post"
-                                        as="button"
-                                        className="text-lg text-red-500 dark:text-red-400"
-                                    >
-                                        Izrakstīties
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <a href="/login" className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
-                                            Pierakstīties
-                                        </a>
-                                        <a href="/register" className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
-                                            Reģistrēties
-                                        </a>
-                                    </>
-                                )}
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                        <button
+                                            ref={dropdownRef}
+                                            onClick={toggleDropdown}
+                                            className="w-full text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase sm:py-2 inline-flex items-center relative"
+                                        >
+                                            Vairāk
+                                            <svg
+                                                className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropOpen ? 'rotate-180' : 'rotate-0'}`}
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 10 6"
+                                            >
+                                                <path
+                                                    stroke="currentColor"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="m1 1 4 4 4-4"
+                                                />
+                                            </svg>
+                                        </button>
+                                        </Dropdown.Trigger>
+                                        <Dropdown.Content>
+                                            <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
+                                            <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
+                                            <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
+                                            <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
+                                            {auth?.user ? (
+                                                <Dropdown.Link
+                                                    href={route('logout')}
+                                                    method="post"
+                                                    as="button"
+                                                    className="text-lg text-red-500 dark:text-red-400"
+                                                >
+                                                    Izrakstīties
+                                                </Dropdown.Link>
+                                            ) : (
+                                                <>
+                                                    <Dropdown.Link href="/login" className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
+                                                        Pierakstīties
+                                                    </Dropdown.Link>
+                                                    <Dropdown.Link href="/register" className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
+                                                        Reģistrēties
+                                                    </Dropdown.Link>
+                                                </>
+                                            )}
+                                        </Dropdown.Content>
+                                    </Dropdown>
                             </nav>
                         </div>
                     </div>
