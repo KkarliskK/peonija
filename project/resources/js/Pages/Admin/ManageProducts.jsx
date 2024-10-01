@@ -47,19 +47,19 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     }, []);
 
     const handleEnableDisable = () => {
-        // Implement your enable/disable logic here
+        // need to make on off
         console.log(selectedProduct.is_available === 1 ? 'Disabling product...' : 'Enabling product...');
         setIsMenuOpen(false);
     };
 
     const handleDelete = () => {
-        // Implement your delete logic here
+        // make delete
         console.log('Deleting product...');
         setIsMenuOpen(false);
     };
 
     const handleRemoveFromCategory = () => {
-        // Implement your remove from category logic here
+        //make remove from cat lol
         console.log('Removing product from category...');
         setIsMenuOpen(false);
     };
@@ -97,29 +97,24 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     };
 
     const filteredProducts = products.filter(product => {
-        // Check if a parent category is selected
         if (selectedParentCategory) {
             const subCategoryIds = categories
                 .filter(category => category.parent_id === selectedParentCategory)
                 .map(subCategory => subCategory.id);
             
-            // If a subcategory is selected, filter based on that
             if (selectedSubCategory) {
-                if (product.category_id !== selectedSubCategory) return false; // Must be in the selected subcategory
+                if (product.category_id !== selectedSubCategory) return false; 
             } else {
-                // Must be in the parent category or one of its subcategories
                 if (product.category_id !== selectedParentCategory && !subCategoryIds.includes(product.category_id)) {
-                    return false; // Not in the selected category or its subcategories
+                    return false; 
                 }
             }
         }
     
-        // Now apply the filter based on availability
         if (filter === 'disabled') return product.is_available === 0;  
         if (filter === 'available') return product.is_available === 1; 
         if (filter === 'without-category') return !product.category_id;
     
-        // If no filters are set, return all products
         return true;
     });
     
@@ -162,7 +157,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
             const parentCategory = categories.find(cat => cat.id === selectedParentCategory);
             return parentCategory ? parentCategory.name : 'All Products';
         }
-        return 'Visi produkti'; // Default when no category is selected
+        return 'Visi produkti'; 
     };
     
 
@@ -279,10 +274,9 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                         onClick={() => handleParentCategoryClick(category.id)}
                                         className={`text-sm ${selectedParentCategory === category.id ? 'font-bold text-blue-500' : ''}`}
                                     >
-                                        {category.name} ({category.total_products_count}) {/* Display total product count */}
+                                        {category.name} ({category.total_products_count}) 
                                     </button>
 
-                                    {/* Display children if the parent category is selected */}
                                     {selectedParentCategory === category.id && Array.isArray(category.children) && category.children.length > 0 && (
                                         <ul className="ml-4 mt-2 space-y-1">
                                             {category.children.map(child => (
@@ -291,7 +285,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                                         onClick={() => handleSubCategoryClick(child.id)}
                                                         className={`text-sm ${selectedSubCategory === child.id ? 'font-bold text-blue-500' : ''}`}
                                                     >
-                                                        {child.name} ({child.products_count}) {/* Display child category product count */}
+                                                        {child.name} ({child.products_count}) 
                                                     </button>
                                                 </li>
                                             ))}
@@ -324,14 +318,14 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                     
                     <div className='flex flex-row w-full'>
                         {/* Products List */}
-                        <div className="w-full p-4" style={{ height: '500px', overflowY: 'auto' }}>
+                        <div className="w-full p-4 h-[70dvh]" style={{ overflowY: 'auto' }}>
                             {filteredProducts.length > 0 ? (
                                 <div className="flex flex-col">
                                     {filteredProducts.map(product => (
                                         <div
                                             key={product.id}
                                             className="flex justify-between items-center rounded-md h-24 bg-white p-4 border-2 border-gray-200 dark:bg-gray-700 w-full cursor-pointer"
-                                            onClick={() => handleEditProductClick(product)}  // Click handler
+                                            onClick={() => handleEditProductClick(product)}  
                                         >
                                             {/* Image Container */}
                                             <div className='w-20 h-20 relative block'>
@@ -377,11 +371,11 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                                                 onClick={handleEnableDisable}
                                                                 className={`flex items-center w-full px-4 py-2 text-sm text-center hover:bg-gray-100 ${
                                                                     product.is_available === 0 
-                                                                    ? 'text-red-500 p-2 rounded-md' 
-                                                                    : 'text-green-500 p-2 rounded-md' 
+                                                                    ? 'text-green-500 p-2 rounded-md' 
+                                                                    : 'text-red-500 p-2 rounded-md' 
                                                                 } dark:${product.is_available === 0 ? 'text-red-300' : 'text-green-300'}`}
                                                             >
-                                                                {product.is_available === 0 ? 'Izslēgt' : 'Ieslēgt'} 
+                                                                {product.is_available === 0 ? 'Ieslēgt' : 'Izslēgt'} 
                                                             </button>
                                                             <button
                                                                 onClick={handleDelete}

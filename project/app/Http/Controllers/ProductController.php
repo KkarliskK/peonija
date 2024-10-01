@@ -14,18 +14,16 @@ class ProductController extends Controller
     public function index()
     {
         if (Auth::check() && Auth::user()->is_admin) {
-            // Fetch categories and eager load children and products count
             $categories = Category::with(['children' => function($query) {
-                $query->withCount('products');  // Eager load products count for child categories
+                $query->withCount('products');  
             }])->withCount('products')->get();
     
-            // Manually aggregate products count for parent categories including their children
             foreach ($categories as $category) {
-                $childProductsCount = $category->children->sum('products_count'); // Sum the products in child categories
+                $childProductsCount = $category->children->sum('products_count'); 
                 $category->total_products_count = $category->products_count + $childProductsCount;
             }
     
-            $products = Product::all();  // Fetch all products (or adjust based on your needs)
+            $products = Product::all();  
     
             return Inertia::render('Admin/ManageProducts', [
                 'products' => $products,
@@ -45,12 +43,11 @@ class ProductController extends Controller
         if (Auth::check() && Auth::user()->is_admin) {
             $category = Category::with('subcategories')->findOrFail($categoryId);
             
-            // Get all products for the category and its subcategories
             $products = Product::where('category_id', $categoryId)
                         ->orWhereIn('category_id', $category->subcategories()->pluck('id'))
                         ->get();
             
-            $categories = Category::all(); // Fetch all categories
+            $categories = Category::all(); 
     
             return Inertia::render('Admin/ManageProducts', [
                 'category' => $category,
@@ -78,7 +75,7 @@ class ProductController extends Controller
         return Inertia::render('Error');
     }
 
-    // Only deactivated products
+    // Only disabled products
     public function unavailableProducts()
     {
         if (Auth::check() && Auth::user()->is_admin) {
@@ -118,10 +115,9 @@ class ProductController extends Controller
         ]);
     
         Product::create($request->only(['name', 'description', 'price', 'is_available', 'category_id', 'image']));
-    
-        // Flash a success message
+
         session()->flash('success', 'Product added successfully!');
-    
+
         return redirect()->route('products.index');
     }
     

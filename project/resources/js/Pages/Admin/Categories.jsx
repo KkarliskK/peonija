@@ -73,7 +73,7 @@ export default function Categories({ auth, categories = [] }) {
         console.log('Selected Category:', category);
         setSelectedCategory(category);
         setEditData({ name: category.name, description: category.description });
-        setSubcategories(category.children || []); // Change this line to access `children`
+        setSubcategories(category.children || []); 
         setIsCategoryListVisible(false);
     };
         
