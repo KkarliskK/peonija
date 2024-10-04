@@ -4,9 +4,9 @@ import { IoMdAddCircle } from 'react-icons/io';
 import { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import DashboardBox from '@/Components/DashboardBox';
-import Popup from '@/Components/Popup';
-import PostNotification from '@/Components/Notification';
+import DashboardBox from '@/Components/Modals/DashboardBox';
+import Popup from '@/Components/Modals/Popup';
+import PostNotification from '@/Components/Modals/Notification';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 
 

@@ -1,11 +1,11 @@
-import DashboardBox from '@/Components/DashboardBox';
+import DashboardBox from '@/Components/Modals/DashboardBox';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaEdit } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
-import PostNotification from '@/Components/Notification';
-import Checkbox from '@/Components/Checkbox';
+import PostNotification from '@/Components/Modals/Notification';
+import Checkbox from '@/Components/Buttons/Checkbox';
 import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
 import { IoTrashOutline } from 'react-icons/io5';
 

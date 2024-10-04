@@ -1,4 +1,4 @@
-import DashboardBox from '@/Components/DashboardBox';
+import DashboardBox from '@/Components/Modals/DashboardBox';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
 import { FaStoreAlt, FaEdit } from 'react-icons/fa';

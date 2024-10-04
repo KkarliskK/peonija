@@ -18,7 +18,7 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                                     .filter(product => product.category_id === category.id)
                                     .map(product => (
                                         <div key={product.id} className="border rounded-lg p-4">
-                                            <img src={`/images/${product.image}`} alt={product.name} className="mb-4" />
+                                            <img src={`${product.image}`} alt={product.name} className="mb-4" />
                                             <h3 className="text-xl font-medium">{product.name}</h3>
                                             <p className="text-gray-500">{product.description}</p>
                                             <p className="text-lg font-bold mt-4">€{product.price}</p>

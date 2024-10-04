@@ -139,5 +139,15 @@ class ProductController extends Controller
         ]);
     }
 
+    public function top(Request $request)
+    {
+        $top_products = Product::orderBy('times_purchased', 'desc')->limit(3)->get();
+    
+        return Inertia::render('Welcome', [
+            'top_products' => $top_products,
+        ]);
+    }
+    
+
 
 }

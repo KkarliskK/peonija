@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('price', 8, 2); // Product price
             $table->boolean('is_available')->default(true); // Available or not
             $table->string('image')->nullable(); // Product image
+            $table->integer('times_purchased')->default(0);//count for how many times this product is purchased
             $table->timestamps(); // Created and updated timestamps
         });
     }

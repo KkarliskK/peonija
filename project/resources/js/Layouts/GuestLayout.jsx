@@ -1,8 +1,8 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
-import Dropdown from '@/Components/Dropdown';
+import Dropdown from '@/Components/Buttons/Dropdown';
 import { useState, useEffect, useRef } from 'react';
-import logo from '../../assets/Peonija_logo.png';
+import logo from '../../assets/Peonija_logo.webp';
 
 export default function GuestLayout({ auth, children }) {
 
@@ -63,7 +63,7 @@ export default function GuestLayout({ auth, children }) {
 
     return (
         <>
-            <header id="home" className="sticky top-0 z-50 bg-white shadow-md dark:bg-gray-900">
+            <header id="home" className="sticky top-0 z-50 shadow-sm bg-white dark:bg-gray-900">
                 <nav className="w-full bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700 relative">
                     <div className="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-2.5">
                         <a href="/" className="flex items-center">
@@ -87,7 +87,7 @@ export default function GuestLayout({ auth, children }) {
                         {/* Menu for mobile and desktop */}
                         <div
                             id="navbar-dropdown"
-                            className={`fixed md:relative md:flex md:items-center top-0 right-0 h-full md:h-auto w-11/12 md:w-auto bg-white dark:bg-gray-900 shadow-lg md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 z-50 ${isOpen ? 'translate-x-0' : 'translate-x-full'} `}
+                            className={`fixed md:relative md:flex md:items-center top-0 right-0 h-full md:h-auto w-11/12 md:w-auto dark:bg-gray-900 shadow-lg md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 z-50 ${isOpen ? 'translate-x-0' : 'translate-x-full'} `}
                         >
                             <button onClick={toggleMenu} className="absolute top-4 right-4 p-2 md:hidden text-gray-500 dark:text-gray-400">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@ export default function GuestLayout({ auth, children }) {
                                         <button
                                             ref={dropdownRef}
                                             onClick={toggleDropdown}
-                                            className="w-full text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase sm:py-2 inline-flex items-center relative"
+                                            className="w-full text-black rounded-3xl p-3 font-semibold uppercase sm:py-2 inline-flex items-center relative"
                                         >
                                             Vairāk
                                             <svg
@@ -151,6 +151,7 @@ export default function GuestLayout({ auth, children }) {
                                             <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
                                             <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
                                             <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
+                                            <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">Gaišais režīms</Dropdown.Link>
                                             {auth?.user ? (
                                                 <Dropdown.Link
                                                     href={route('logout')}
@@ -180,8 +181,8 @@ export default function GuestLayout({ auth, children }) {
 
             <div>{children}</div>
 
-            <footer className="py-16 text-center text-sm bg-white dark:bg-gray-800 text-black dark:text-white/70">
-                <p>Footer</p>
+            <footer className="py-16 text-center text-sm bg-stone-100 dark:bg-gray-800 text-black dark:text-white/70">
+                <p>footer</p>
             </footer>
         </>
     );

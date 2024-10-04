@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import logo from '../../assets/Peonija_logo.png';
-import Dropdown from '@/Components/Dropdown';
+import Dropdown from '@/Components/Buttons/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';

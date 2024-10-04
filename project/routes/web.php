@@ -22,7 +22,6 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [UsrDashboardController::class, 'index'])->name('dashboard');
-    
     Route::get('/admin/admindashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard'); 
     
     // Categories Routes
@@ -39,6 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 });
+
+Route::get('/', [ProductController::class, 'top'])->name('products.top');
+
 
 
 Route::middleware('auth')->group(function () {
