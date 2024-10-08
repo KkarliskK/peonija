@@ -36,9 +36,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
     Route::put('/admin/products/{id}', [ProductController::class, 'update']);
 
-    Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+    
 });
-
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/', [ProductController::class, 'top'])->name('products.top');
 
 

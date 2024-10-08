@@ -12,8 +12,8 @@ export default function About({ auth }) {
                 <div className='flex w-full flex-col justify-center items-center h-full sm:flex-row sm:space-x-6 '>
                     {/* Center section - Text */}
                     <div className='w-full sm:w-1/2 p-4 sm:p-6 text-center sm:text-left ml-28'>
-                        <h1 className='font-semibold text-4xl sm:text-5xl uppercase'>Par Mums</h1>
-                        <p className='text-xl leading-relaxed text-left mt-8'>
+                        <h1 className='font-semibold text-4xl sm:text-5xl uppercase dark:text-white'>Par Mums</h1>
+                        <p className='text-xl leading-relaxed text-left mt-8 dark:text-white'>
                             Kā floristi ar vairāk nekā 20 gadu pieredzi, mēs esam izstrādājuši unikālu prasmi un izpratni par ziedu mākslu.
                             Mēs sekojam līdzi jaunākajām tendencēm floristikā, vienlaikus saglabājot pārbaudītas vērtības un tehnikas.
                             Mūsu veikalā ir pieejami dažādi grieztie ziedi, telpaugi un ar mīlestību veidoti ziedu pušķi. Mēs lepojamies ar mūsu spēju
@@ -43,7 +43,11 @@ export default function About({ auth }) {
                 </div>
                 <div className='absolute flex justify-end items-end bottom-0 right-0 w-full h-1/5 -z-10'>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                        <path fill="#fc61b6" fill-opacity="1" d="M0,320L60,309.3C120,299,240,277,360,245.3C480,213,600,171,720,160C840,149,960,171,1080,160C1200,149,1320,107,1380,85.3L1440,64L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"  width="40%" height="100%"></path>
+                        <path 
+                            fill="#fc61b6" fill-opacity="1" 
+                            d="M0,320L60,309.3C120,299,240,277,360,245.3C480,213,600,171,720,160C840,149,960,171,1080,160C1200,149,1320,107,1380,85.3L1440,64L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"  
+                            width="40%" height="100%"
+                        ></path>
                     </svg>
                 </div> 
             </main>

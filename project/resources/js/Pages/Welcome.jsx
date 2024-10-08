@@ -46,13 +46,15 @@ export default function Welcome({ auth, top_products }) {
                                 <p>
                                     Kā floristi ar vairāk nekā 20 gadu pieredzi, mēs esam izstrādājuši unikālu prasmi un izpratni par ziedu mākslu.
                                     Mēs sekojam līdzi jaunākajām tendencēm floristikā... 
-                                    <a onClick={() => scrollToSection('about')} className='text-black font-semibold cursor-pointer'>Lasīt vairāk</a>
+                                    <a onClick={() => scrollToSection('about')} className='text-black font-semibold cursor-pointer dark:text-white'>Lasīt vairāk</a>
                                 </p>
                             </div>
-                            <button
-                                className={`${css.button_slide_effect} mb-20 mt-8 text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4 sm:mb-2`}>
+                            <Link
+                                className={`${css.button_slide_effect} mb-20 mt-8 text-black bg-white border-2 border-accent rounded-3xl p-3 shadow-xl font-semibold uppercase transition duration-300 ease-in-out hover:text-white sm:my-4 sm:mb-2`}
+                                href='/shop'
+                            >
                                 Apskatīt Veikalu
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

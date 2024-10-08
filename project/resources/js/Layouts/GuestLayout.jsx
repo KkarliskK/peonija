@@ -182,7 +182,30 @@ export default function GuestLayout({ auth, children }) {
             <div>{children}</div>
 
             <footer className="py-16 text-center text-sm bg-stone-100 dark:bg-gray-800 text-black dark:text-white/70">
-                <p>footer</p>
+                <div className='flex sm:flex-row flex-col justify-center items-center w-full'>
+                    <div className='flex flex-col justify-center items-start p-2 m-2'>
+                        <p>Sākums</p>
+                        <p>Populāri piedāvājumi</p>
+                        <p>Par mums</p>
+                        <p>Blogs</p>
+                        <p>Galerija</p>
+                        <p>Interneta veikals</p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+                        <h3 className='font-semibold text-md'>Noteikumi un BUJ</h3>
+                        <p>Privātuma politika</p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+                        <h3 className='font-semibold text-md'>Sazinies ar mums</h3>
+                        <p>Adrese: Uzvaras Bulvāris 1B, Cēsis</p>
+                        <p>Mobilais: <a href='tel:+37129484017'>+371 29484071</a></p>
+                        <p>E-pasts: <a href="mailto: zieduveikalspeonija@gmail.com">zieduveikalspeonija@gmail.com</a></p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+                        <p>© Peonija, SIA</p>
+                        <p>2021-2024</p>
+                    </div>
+                </div>
             </footer>
         </>
     );
