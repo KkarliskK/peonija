@@ -11,7 +11,7 @@ export default function About({ auth }) {
                 </div>
                 <div className='flex w-full flex-col justify-center items-center h-full sm:flex-row sm:space-x-6 '>
                     {/* Center section - Text */}
-                    <div className='w-full sm:w-1/2 p-4 sm:p-6 text-center sm:text-left ml-28'>
+                    <div className='w-full sm:w-1/2 p-4 sm:p-6 text-center sm:text-left sm:ml-28 ml-0'>
                         <h1 className='font-semibold text-4xl sm:text-5xl uppercase dark:text-white'>Par Mums</h1>
                         <p className='text-xl leading-relaxed text-left mt-8 dark:text-white'>
                             Kā floristi ar vairāk nekā 20 gadu pieredzi, mēs esam izstrādājuši unikālu prasmi un izpratni par ziedu mākslu.
@@ -23,7 +23,7 @@ export default function About({ auth }) {
                     </div>
                     {/* Right section - Google Maps */}
                     <div className='flex w-full justify-center items-center'>
-                        <div className='flex w-full justify-center items-center mb-8 sm:mb-0'>
+                        <div className='flex w-full justify-center items-center mb-8 sm:mb-0 sm:flex-row flex-col'>
                             <div className='flex w-full h-full justify-center items-center m-4 p-4'>
                                 <iframe
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1077.3084952933568!2d25.275523764778672!3d57.3143973355247!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46ebe14c2c16877b%3A0xa15c4ff5796a32a!2sPeonija!5e0!3m2!1slv!2slv!4v1720449909782!5m2!1slv!2slv"

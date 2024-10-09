@@ -10,7 +10,7 @@ export default function Special({ offers }) {
                     <div className='flex mt-8 w-full justify-center items-center'>
                         <h1 className='font-semibold text-4xl sm:text-5xl uppercase text-center dark:text-white'>Populāri Piedāvājumi</h1>
                     </div>
-                    <div className='flex flex-col sm:flex-row w-full justify-center items-center h-full'>
+                    <div className='flex flex-col sm:flex-row w-full justify-center items-center h-full p-6 sm:p-12'>
                         {offers.length === 0 ? ( 
                             <p>No products available</p>
                         ) : (

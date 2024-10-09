@@ -62,7 +62,7 @@ export default function Authenticated({ auth, header, children }) {
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <img src={logo} className="h-18 sm:h-20" alt="Your Logo" />                               
+                                    <img src={logo} loading='lazy' className="h-18 sm:h-20" alt="Your Logo" />                               
                                 </Link>
                             </div>
 

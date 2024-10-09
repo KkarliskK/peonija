@@ -34,7 +34,7 @@
     @inertia
 
     <!-- Include Vite-generated JavaScript -->
-    <script type="module" src="{{ mix('resources/js/app.js') }}"></script>
+    <script type="module" src="{{ mix('resources/js/app.jsx') }}"></script>
 </body>
 
 </html>

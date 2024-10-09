@@ -10,4 +10,10 @@ export default defineConfig({
         }),
         react(),
     ],
+    build: {
+        outDir: 'public/build',  
+    },
+    server: {
+        historyApiFallback: true, 
+    },
 });
