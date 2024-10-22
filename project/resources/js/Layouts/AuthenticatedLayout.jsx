@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import logo from '../../assets/Peonija_logo.webp';
 import Dropdown from '@/Components/Buttons/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import NavLink from '@/Components/Buttons/NavLink';
+import ResponsiveNavLink from '@/Components/Input/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 
-export default function Authenticated({ auth, header, children }) {
+export default function Authenticated({ auth, header, children}) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     const [darkMode, setDarkMode] = useState(() => {
@@ -54,9 +54,10 @@ export default function Authenticated({ auth, header, children }) {
         };
     }, [isDropOpen]);
 
+
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex justify-between flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
+            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-2">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
@@ -65,10 +66,19 @@ export default function Authenticated({ auth, header, children }) {
                                     <img src={logo} loading='lazy' className="h-18 sm:h-20" alt="Your Logo" />                               
                                 </Link>
                             </div>
-
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
+                                    Panelis
+                                </NavLink>
+                            </div>
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink href={route('shop.index')} active={route().current('shop.index')}>
+                                    Interneta veikals 
+                                </NavLink>
+                            </div>
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink href={route('cart.index')} active={route().current('cart.index')}>
+                                    Iepirkuma Grozs 
                                 </NavLink>
                             </div>
                         </div>
@@ -80,7 +90,7 @@ export default function Authenticated({ auth, header, children }) {
                                         <button
                                             ref={dropdownRef}
                                             onClick={toggleDropdown}
-                                            className="w-full text-black rounded-3xl p-3 font-semibold uppercase sm:py-2 inline-flex items-center relative"
+                                            className="w-full text-black rounded-3xl p-3 sm:py-2 inline-flex items-center relative"
                                         >
                                             Vairāk
                                             <svg
@@ -101,9 +111,9 @@ export default function Authenticated({ auth, header, children }) {
                                         </button>
                                         </Dropdown.Trigger>
                                         <Dropdown.Content>
+                                            <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
                                             <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
                                             <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
-                                            <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Veikals</Dropdown.Link>
                                             <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
                                             <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
                                                 Gaišais režīms
@@ -185,6 +195,34 @@ export default function Authenticated({ auth, header, children }) {
             )}
 
             <main>{children}</main>
+
+
+            <footer className="py-16 text-center text-sm h-auto bg-white dark:bg-gray-800 text-black dark:text-white/70">
+                <div className='flex sm:flex-row flex-col justify-center items-center w-full'>
+                    <div className='flex flex-col justify-center items-start p-2 m-2'>
+                        <p>Sākums</p>
+                        <p>Populāri piedāvājumi</p>
+                        <p>Par mums</p>
+                        <p>Blogs</p>
+                        <p>Galerija</p>
+                        <p>Interneta veikals</p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+                        <h3 className='font-semibold text-md'>Noteikumi un BUJ</h3>
+                        <p>Privātuma politika</p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+                        <h3 className='font-semibold text-md'>Sazinies ar mums</h3>
+                        <p>Adrese: Uzvaras Bulvāris 1B, Cēsis</p>
+                        <p>Mobilais: <a href='tel:+37129484017'>+371 29484071</a></p>
+                        <p>E-pasts: <a href="mailto: zieduveikalspeonija@gmail.com">zieduveikalspeonija@gmail.com</a></p>
+                    </div>
+                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+                        <p>© Peonija, SIA</p>
+                        <p>2021-2024</p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

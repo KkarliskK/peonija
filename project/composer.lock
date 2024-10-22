@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "940a6dea4acc6e6662fc35b0a8bd0bf9",
+    "content-hash": "ec2890d97837165e6593b4868ee31317",
     "packages": [
         {
             "name": "brick/math",
@@ -1127,6 +1127,44 @@
             "time": "2024-06-13T01:25:09+00:00"
         },
         {
+            "name": "klix/klix-sdk-php",
+            "version": "3.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/klix-app/merchant-api-php.git",
+                "reference": "722dc0c3f7b65c44650fd0fe71ba1aca6cdf7d6a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/klix-app/merchant-api-php/zipball/722dc0c3f7b65c44650fd0fe71ba1aca6cdf7d6a",
+                "reference": "722dc0c3f7b65c44650fd0fe71ba1aca6cdf7d6a",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "netresearch/jsonmapper": "^4.0",
+                "php": ">=7.2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Klix\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "support": {
+                "issues": "https://github.com/klix-app/merchant-api-php/issues",
+                "source": "https://github.com/klix-app/merchant-api-php/tree/3.1.2"
+            },
+            "time": "2024-05-08T15:33:25+00:00"
+        },
+        {
             "name": "laravel/framework",
             "version": "v11.22.0",
             "source": {
@@ -2163,6 +2201,57 @@
                 }
             ],
             "time": "2024-08-19T06:22:39+00:00"
+        },
+        {
+            "name": "netresearch/jsonmapper",
+            "version": "v4.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cweiske/jsonmapper.git",
+                "reference": "8e76efb98ee8b6afc54687045e1b8dba55ac76e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cweiske/jsonmapper/zipball/8e76efb98ee8b6afc54687045e1b8dba55ac76e5",
+                "reference": "8e76efb98ee8b6afc54687045e1b8dba55ac76e5",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-pcre": "*",
+                "ext-reflection": "*",
+                "ext-spl": "*",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~7.5 || ~8.0 || ~9.0 || ~10.0",
+                "squizlabs/php_codesniffer": "~3.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "JsonMapper": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "OSL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Weiske",
+                    "email": "cweiske@cweiske.de",
+                    "homepage": "http://github.com/cweiske/jsonmapper/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Map nested JSON structures onto PHP classes",
+            "support": {
+                "email": "cweiske@cweiske.de",
+                "issues": "https://github.com/cweiske/jsonmapper/issues",
+                "source": "https://github.com/cweiske/jsonmapper/tree/v4.5.0"
+            },
+            "time": "2024-09-08T10:13:13+00:00"
         },
         {
             "name": "nette/schema",
@@ -3248,6 +3337,65 @@
                 }
             ],
             "time": "2024-04-27T21:32:50+00:00"
+        },
+        {
+            "name": "stripe/stripe-php",
+            "version": "v16.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stripe/stripe-php.git",
+                "reference": "47c55a5a8414d1d7584e6bbfb3e8179f3c43d83a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/47c55a5a8414d1d7584e6bbfb3e8179f3c43d83a",
+                "reference": "47c55a5a8414d1d7584e6bbfb3e8179f3c43d83a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "3.5.0",
+                "phpstan/phpstan": "^1.2",
+                "phpunit/phpunit": "^5.7 || ^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stripe\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stripe and contributors",
+                    "homepage": "https://github.com/stripe/stripe-php/contributors"
+                }
+            ],
+            "description": "Stripe PHP Library",
+            "homepage": "https://stripe.com/",
+            "keywords": [
+                "api",
+                "payment processing",
+                "stripe"
+            ],
+            "support": {
+                "issues": "https://github.com/stripe/stripe-php/issues",
+                "source": "https://github.com/stripe/stripe-php/tree/v16.1.0"
+            },
+            "time": "2024-10-03T22:48:28+00:00"
         },
         {
             "name": "symfony/clock",

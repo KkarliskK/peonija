@@ -20,6 +20,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     const [isFormVisible, setIsFormVisible] = useState(false);  
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null); 
+
     const menuRef = useRef(null);
 
     const toggleMenu = (product) => {
@@ -180,6 +181,14 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                     setIsNotifOpen(true);
                     setIsFormVisible(false);  
                     setSelectedProductForEdit(null); 
+                    setData({ 
+                        name: '',
+                        description: '',
+                        price: '',
+                        is_available: false,
+                        category_id: selectedSubCategory || selectedParentCategory || '',
+                        image: ''
+                    });
                     reset();  
                     router.get('/admin/manageproducts', {}, { replace: true });
                 },
@@ -204,6 +213,14 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                     setNotifType('success');
                     setIsNotifOpen(true);
                     setIsFormVisible(false);
+                    setData({ 
+                        name: '',
+                        description: '',
+                        price: '',
+                        is_available: false,
+                        category_id: selectedSubCategory || selectedParentCategory || '',
+                        image: ''
+                    });
                     reset();
                     router.get('/admin/manageproducts', {}, { replace: true });
                 },

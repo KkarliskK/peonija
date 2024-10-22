@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import Dropdown from '@/Components/Buttons/Dropdown';
 import { useState, useEffect, useRef } from 'react';
 import logo from '../../assets/Peonija_logo.webp';
+import NavLink from '@/Components/Buttons/NavLink';
 
 export default function GuestLayout({ auth, children }) {
 
@@ -87,7 +88,7 @@ export default function GuestLayout({ auth, children }) {
                         {/* Menu for mobile and desktop */}
                         <div
                             id="navbar-dropdown"
-                            className={`fixed md:relative md:flex md:items-center top-0 right-0 h-full md:h-auto w-11/12 md:w-auto dark:bg-gray-900 shadow-lg md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 z-50 ${isOpen ? 'translate-x-0' : 'translate-x-full'} `}
+                            className={`fixed md:relative md:flex md:items-center top-0 right-0 h-full md:h-auto w-11/12 md:w-auto bg-white dark:bg-gray-900 shadow-lg md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 z-50 ${isOpen ? 'translate-x-0' : 'translate-x-full'} `}
                         >
                             <button onClick={toggleMenu} className="absolute top-4 right-4 p-2 md:hidden text-gray-500 dark:text-gray-400">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,36 +98,48 @@ export default function GuestLayout({ auth, children }) {
                             
                             {/* Navigation Links */}
                             <nav className="flex flex-col md:flex-row md:space-x-4 mt-12 md:mt-0 p-6 md:p-0 space-y-4 md:space-y-0">
-                                <button
-                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                                    className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+                                <NavLink
+                                    to="#"  
+                                    onClick={(e) => {
+                                        e.preventDefault(); 
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });  
+                                    }}
                                 >
                                     Sākums
-                                </button>
-                                <button
-                                    onClick={() => scrollToSection('special_orders')}
-                                    className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+                                </NavLink>
+                                <NavLink
+                                    to="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();  
+                                        scrollToSection('special_orders');  
+                                    }}
                                 >
                                     Piedāvājumi
-                                </button>
-                                <button
-                                    onClick={() => scrollToSection('about')}
-                                    className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+                                </NavLink>
+                                <NavLink
+                                    to="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();  
+                                        scrollToSection('about');  
+                                    }}
                                 >
                                     Par Mums
-                                </button>
-                                <button
-                                    onClick={() => scrollToSection('contact')}
-                                    className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+                                </NavLink>
+                                <NavLink
+                                    to="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();  
+                                        scrollToSection('contact');  
+                                    }}
                                 >
                                     Kontakti
-                                </button>
+                                </NavLink>
                                     <Dropdown>
                                         <Dropdown.Trigger>
                                         <button
                                             ref={dropdownRef}
                                             onClick={toggleDropdown}
-                                            className="w-full text-black rounded-3xl p-3 font-semibold uppercase sm:py-2 inline-flex items-center relative"
+                                            className="w-full text-black rounded-3xl p-3 text-lg sm:py-2 inline-flex items-center relative"
                                         >
                                             Vairāk
                                             <svg
@@ -147,9 +160,10 @@ export default function GuestLayout({ auth, children }) {
                                         </button>
                                         </Dropdown.Trigger>
                                         <Dropdown.Content>
+                                            <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
                                             <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
                                             <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
-                                            <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
+                                            <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Piedāvājumi</Dropdown.Link>
                                             <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
                                             <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">Gaišais režīms</Dropdown.Link>
                                             {auth?.user ? (

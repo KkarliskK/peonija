@@ -1,7 +1,7 @@
 import DashboardBox from '@/Components/Modals/DashboardBox';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
-import { FaStoreAlt, FaEdit } from 'react-icons/fa';
+import { FaStoreAlt, FaTv } from 'react-icons/fa';
 import { IoIosAddCircleOutline } from "react-icons/io";
 
 
@@ -34,10 +34,10 @@ export default function AdminDashboard({ auth }) {
                         icon={FaStoreAlt}
                     />
                     <DashboardBox 
-                        title="Vēl top" 
-                        description="Tiks izdomāts drīzumā... " 
-                        link={route('dashboard')} 
-                        icon={FaEdit}
+                        title="Slaidrāde" 
+                        description="Slaidrāde veikala TV" 
+                        link={route('dashboard')} //add a slideshow page here
+                        icon={FaTv}
                     />
                 </div>
         </AdminLayout>

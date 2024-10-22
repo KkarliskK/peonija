@@ -1,0 +1,19 @@
+
+
+-> make accent colors ✅
+-> primary colors 
+-> secondary colors
+-> header nav buttons track where u are and has a different style ✅
+-> make a paginator ✅
+-> fix a paginator
+-> split up shop page to components
+-> split up header layouts to components
+-> Find a way to store images in database
+-> Make checkout page
+-> Make a complete order page
+-> Make a order histroy page
+-> Make the liking and saving functions work
+-> Make the login and register
+-> Make so when order has been successful the user gets sent to order history to see that order was successful
+-> Make the slideshow for the shops TV
+-> Make the shops working hours for real (if shop is closed the time is tomorrows opening time)

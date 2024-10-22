@@ -1,12 +1,11 @@
 import { Link, Head, useForm } from '@inertiajs/react';
 import React, { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/Input/InputLabel';
+import TextInput from '@/Components/Input/TextInput';
 import { MdEmail } from "react-icons/md";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import css from '../../css/Contact.module.css';
-import InputError from '@/Components/Buttons/InputError';
 
 export default function Contact({ auth }) {
 

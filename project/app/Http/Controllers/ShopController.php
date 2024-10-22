@@ -14,18 +14,24 @@ class ShopController extends Controller
         $categories = Category::with(['children' => function($query) {
             $query->withCount('products');
         }])->withCount('products')->get();
-
+    
         foreach ($categories as $category) {
             $childProductsCount = $category->children->sum('products_count'); 
             $category->total_products_count = $category->products_count + $childProductsCount;
         }
-
-        $products = Product::all();
-
+    
+        $products = Product::paginate(8);
+    
         return Inertia::render('Shop/ShopView', [
-            'products' => $products,
+            'products' => $products->items(), 
+            'pagination' => [
+                'currentPage' => $products->currentPage(),
+                'lastPage' => $products->lastPage(),
+                'total' => $products->total(),
+            ],
             'categories' => $categories,
             'auth' => Auth::user(),
         ]);
     }
+    
 }

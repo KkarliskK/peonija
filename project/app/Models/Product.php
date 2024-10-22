@@ -33,4 +33,9 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'likes', 'product_id', 'user_id');
+    }
 }

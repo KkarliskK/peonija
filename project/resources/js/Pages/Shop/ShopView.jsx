@@ -1,41 +1,71 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useState } from 'react';
 import { FaAngleLeft } from "react-icons/fa6";
 import { FaSearch, FaFilter, FaFolderOpen } from "react-icons/fa";
 import OfferCard from '@/Components/Modals/OfferCard'; 
+import ProductModal from '@/Components/Modals/ProductModal';  
+import PostNotification from '@/Components/Modals/Notification';
 
-export default function ShopView({ auth, categories = [], products = [] }) {
+export default function ShopView({ auth, categories = [], products = [], pagination }) {
     const [selectedParentCategory, setSelectedParentCategory] = useState(null);  
     const [selectedSubCategory, setSelectedSubCategory] = useState(null); 
     const [filter, setFilter] = useState('all'); 
     const [searchQuery, setSearchQuery] = useState(''); 
-    const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
+    const [isSidebarMinimized, setIsSidebarMinimized] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [cart, setCart] = useState([]);
+    const [notifMessage, setNotifMessage] = useState('');  
+    const [isNotifOpen, setIsNotifOpen] = useState(false); 
+    const [notifType, setNotifType] = useState('success');  
+    const [currentPage, setCurrentPage] = useState(pagination.currentPage); 
+    const itemsPerPage = 8; 
+
+    const closeNotif = () => setIsNotifOpen(false);
+
+    const openModal = (product) => {
+        setSelectedProduct(product);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setSelectedProduct(null);
+        setIsModalOpen(false);
+    };
+
+    // Function to add product to cart
+    const addToCart = async (product, quantity) => {
+        try {
+            await Inertia.post('/cart/add', {
+                product_id: product.id,
+                quantity: quantity,
+            });
+    
+            setCart((prevCart) => {
+                const existingItem = prevCart.find((item) => item.product.id === product.id);
+                if (existingItem) {
+                    return prevCart.map((item) =>
+                        item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+                    );
+                } else {
+                    return [...prevCart, { product, quantity }];
+                }
+            });
+    
+            setNotifMessage(<>Pasūtījums veiksmīgi pievienots <Link className='underline' href="/cart">grozam</Link>!</>);            
+            setNotifType('success');
+            setIsNotifOpen(true);
+        } catch (error) {
+            setNotifMessage('Neizdevās pievienot pasūtījumu.');
+            setNotifType('error');
+            setIsNotifOpen(true);
+        }
+    };
+    
 
     const parentCategories = categories.filter(category => !category.parent_id);
-    
-    const handleParentCategoryClick = (categoryId) => {
-        setSelectedParentCategory(categoryId);
-        setSelectedSubCategory(null);  
-        setFilter('all'); 
-    };
-
-    const handleSubCategoryClick = (categoryId) => {
-        setSelectedSubCategory(categoryId);
-        setFilter('all'); 
-    };
-
-    const handleFilterChange = (filterType) => {
-        if (filterType === 'all') {
-            setSelectedParentCategory(null);
-            setSelectedSubCategory(null);
-        }
-        setFilter(filterType);
-    };
-
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-    };
 
     const filteredProducts = products.filter(product => {
         if (selectedParentCategory) {
@@ -100,17 +130,70 @@ export default function ShopView({ auth, categories = [], products = [] }) {
     
         return title; 
     };
+
+
+    const renderPagination = () => {
+        const paginationItems = [];
+
+        if (currentPage > 1) {
+            paginationItems.push(
+                <button
+                    key="prev"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="mx-1 p-2 rounded bg-gray-200 hover:bg-gray-300"
+                >
+                     Iepriekšējā lapa
+                </button>
+            );
+        }
+        for (let i = 1; i <= pagination.lastPage; i++) {
+            paginationItems.push(
+                <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={`mx-1 p-2 rounded ${currentPage === i ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                >
+                    {i}
+                </button>
+            );
+        }
+        if (currentPage < pagination.lastPage) {
+            paginationItems.push(
+                <button
+                    key="next"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="mx-1 p-2 rounded bg-gray-200 hover:bg-gray-300"
+                >
+                    Nākamā lapa
+                </button>
+            );
+        }
+
+        return paginationItems;
+    };
+
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        Inertia.get('/shop', {
+            page,
+            category: selectedParentCategory || null,
+            subcategory: selectedSubCategory || null,
+            search: searchQuery, 
+            filter 
+        }, { preserveState: true }); 
+    };
     
     return (
         <>
             <Head title="Veikals" />
             <AuthenticatedLayout auth={auth}>
-                <div className="flex w-full h-screen">
+                <div className="flex w-full h-auto min-h-screen">
                     {/* Sidebar */}
-                    <div className={`transition-width duration-300 ${isSidebarMinimized ? 'w-16' : 'w-1/5'} h-screen border-2 border-gray-200 p-4 bg-gray-100 dark:bg-gray-800`}>
-                        <div className="flex items-center justify-between mb-4">
+                    <div className={`transition-all duration-300 h-dvh ${isSidebarMinimized ? 'sm:w-16 w-0' : 'sm:w-2/6 w-full sm:relative absolute z-10'} h-screen border-2 p-2 border-gray-100 bg-gray-50 dark:bg-gray-800`}>
+                        <div className={`flex items-center mb-4 ${isSidebarMinimized ? 'justify-center' : 'justify-end'}`}>
                             <button onClick={() => setIsSidebarMinimized(!isSidebarMinimized)} className="p-2">
-                                <FaAngleLeft className={`transform transition-transform duration-300 ${isSidebarMinimized ? 'rotate-180' : ''}`} />
+                                <FaAngleLeft size={24} className={`transform transition-transform duration-300 ${isSidebarMinimized ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
 
@@ -123,11 +206,11 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                                     <div className="relative w-full">
                                         <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2" />
                                         <input
-                                            className='rounded-lg border outline-none bg-gray-200 p-2 pl-8 w-full' // Add padding-left to prevent overlap
+                                            className='rounded-full border-none outline-none bg-gray-200 p-2 pl-8 w-full' 
                                             type='text'
                                             placeholder='Meklē Produktu šeit...'
                                             value={searchQuery} 
-                                            onChange={handleSearchChange} 
+                                            onChange={e => setSearchQuery(e.target.value)} 
                                         />   
                                     </div>
                                 )}
@@ -143,32 +226,36 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                             <ul className={`mt-2 space-y-2`}>
                                 <li>
                                     <button
-                                        onClick={() => handleFilterChange('all')}
-                                        className={`text-sm ${filter === 'all' ? 'font-bold text-blue-500' : ''}`}
+                                        onClick={() => {
+                                            setFilter('all')
+                                            setSelectedParentCategory(null); 
+                                            setSelectedSubCategory(null); 
+                                        }}
+                                        className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'all' ? 'font-bold bg-slate-200' : ''}`}
                                     >
                                         Visi produkti
                                     </button>
                                 </li>
                                 <li>
                                     <button
-                                        onClick={() => handleFilterChange('popular')}
-                                        className={`text-sm ${filter === 'popular' ? 'font-bold text-blue-500' : ''}`}
+                                        onClick={() => setFilter('popular')}
+                                        className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'popular' ? 'font-bold bg-slate-200' : ''}`}
                                     >
                                         Populārākās preces
                                     </button>
                                 </li>
                                 <li>
                                     <button
-                                        onClick={() => handleFilterChange('price-asc')}
-                                        className={`text-sm ${filter === 'price-asc' ? 'font-bold text-blue-500' : ''}`}
+                                        onClick={() => setFilter('price-asc')}
+                                        className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'price-asc' ? 'font-bold bg-slate-200' : ''}`}
                                     >
                                         Cenas, sākot no zemākās
                                     </button>
                                 </li>
                                 <li>
                                     <button
-                                        onClick={() => handleFilterChange('price-desc')}
-                                        className={`text-sm ${filter === 'price-desc' ? 'font-bold text-blue-500' : ''}`}
+                                        onClick={() => setFilter('price-desc')}
+                                        className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'price-desc' ? 'font-bold bg-slate-200' : ''}`}
                                     >
                                         Cenas, sākot no augstākās
                                     </button>
@@ -186,8 +273,11 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                                 {parentCategories.map(category => (
                                     <li key={category.id}>
                                         <button
-                                            onClick={() => handleParentCategoryClick(category.id)}
-                                            className={`text-sm ${selectedParentCategory === category.id ? 'font-bold text-blue-500' : ''}`}
+                                            onClick={() => {
+                                                setSelectedParentCategory(category.id);
+                                                setSelectedSubCategory(null); 
+                                            }}
+                                            className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${selectedParentCategory === category.id ? 'font-bold bg-slate-200' : ''}`}
                                         >
                                             {category.name} ({category.total_products_count}) 
                                         </button>
@@ -197,7 +287,7 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                                                 {category.children.map(child => (
                                                     <li key={child.id}>
                                                         <button
-                                                            onClick={() => handleSubCategoryClick(child.id)}
+                                                            onClick={() => setSelectedSubCategory(child.id)}
                                                             className={`text-sm ${selectedSubCategory === child.id ? 'font-bold text-blue-500' : ''}`}
                                                         >
                                                             {child.name} ({child.products_count}) 
@@ -210,43 +300,52 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                                 ))}
                             </ul>
                         </div>
-
-                        {/* Minimized Icons */}
-                        {isSidebarMinimized && (
-                            <div className="flex flex-col items-center">
-                                <button onClick={() => setIsSidebarMinimized(false)} className="p-2" aria-label="Open Search">
-                                    <FaSearch />
-                                </button>
-                                <button onClick={() => setIsSidebarMinimized(false)} className="p-2" aria-label="Filter Products">
-                                    <FaFilter />
-                                </button>
-                                <button className="p-2" onClick={() => setIsSidebarMinimized(false)} aria-label="Filter Categories">
-                                    <FaFolderOpen />
-                                </button>
-                            </div>
-                        )}
                     </div>
 
                     {/* Products section */}
-                    <section className="w-full p-8 bg-white dark:bg-gray-700">
+                    <section className={`w-full p-8 dark:bg-gray-700 ${isSidebarMinimized ? '' : 'ml-0'} `}>
                         <h2 className="text-xl font-semibold mb-4">{selectedCategoryName()}</h2> 
                         {sortedProducts.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {sortedProducts.map(product => (
-                                    <OfferCard 
-                                        className='w-full'
-                                        key={product.id}
-                                        image={product.image} 
-                                        name={product.name}
-                                        price={`${product.price} EUR`} 
-                                    />
+                                    <div 
+                                        key={product.id} 
+                                        onClick={() => openModal(product)}
+                                        className="cursor-pointer"
+                                    >
+                                        <OfferCard 
+                                            className='w-full'
+                                            image={product.image} 
+                                            name={product.name}
+                                            price={`${product.price} €`} 
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         ) : (
-                            <p>No products found.</p>
+                            <p>Netika atrasts neviens produkts.</p>
                         )}
+
+                        <div className="flex justify-center mt-4">
+                            {renderPagination()}
+                        </div>
                     </section>
+
+                    {/* Modal for product details */}
+                    {isModalOpen && (
+                        <ProductModal 
+                            product={selectedProduct} 
+                            closeModal={closeModal} 
+                            addToCart={addToCart}  
+                        />
+                    )}
                 </div>
+                <PostNotification
+                    isOpen={isNotifOpen}
+                    message={notifMessage}
+                    type={notifType}
+                    onClose={closeNotif}
+                />
             </AuthenticatedLayout>
         </>
     );

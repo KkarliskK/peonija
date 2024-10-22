@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import logo from '../../assets/Peonija_logo.png';
 import Dropdown from '@/Components/Buttons/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import NavLink from '@/Components/Buttons/NavLink';
+import ResponsiveNavLink from '@/Components/Input/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 
 export default function Authenticated({ user, header, children }) {

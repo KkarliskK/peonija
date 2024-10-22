@@ -147,6 +147,14 @@ class ProductController extends Controller
             'top_products' => $top_products,
         ]);
     }
+
+    public function show($id)
+    {
+        $product = Product::findOrFail($id); 
+        return Inertia::render('Shop/ProductView', [
+            'product' => $product,
+        ]);
+    }
     
 
 

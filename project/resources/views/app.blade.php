@@ -33,8 +33,9 @@
     <!-- Inertia renders your React components -->
     @inertia
 
-    <!-- Include Vite-generated JavaScript -->
-    <script type="module" src="{{ mix('resources/js/app.jsx') }}"></script>
+    <!-- Stripe JavaScript Library -->
+    <script src="https://js.stripe.com/v3/"></script>
+
 </body>
 
 </html>

@@ -48,7 +48,22 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->is_admin ?? false; // Return false if is_admin is null
+        return $this->is_admin ?? false;
+    }
+
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function likes()
+    {
+        return $this->belongsToMany(Product::class, 'likes', 'user_id', 'product_id');
     }
     
 }

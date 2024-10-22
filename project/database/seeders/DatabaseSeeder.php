@@ -41,6 +41,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Skaistas Puķes',
                 'description' => 'A wonderful bouquet of flowers.',
                 'price' => 10.99, 
+                'quantity' => 69,
                 'image' => 'https://imageproxy.wolt.com/menu/menu-images/shared/5fac1c6a-cc06-11ee-a2d7-ae38fb6c5916_red_roses__2__photoroom.png?w=960',
                 'times_purchased' => 3, 
             ]);
