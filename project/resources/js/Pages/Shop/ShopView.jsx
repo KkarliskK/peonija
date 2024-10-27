@@ -306,7 +306,7 @@ export default function ShopView({ auth, categories = [], products = [], paginat
                     <section className={`w-full p-8 dark:bg-gray-700 ${isSidebarMinimized ? '' : 'ml-0'} `}>
                         <h2 className="text-xl font-semibold mb-4">{selectedCategoryName()}</h2> 
                         {sortedProducts.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[70dvh]">
                                 {sortedProducts.map(product => (
                                     <div 
                                         key={product.id} 
@@ -336,7 +336,8 @@ export default function ShopView({ auth, categories = [], products = [], paginat
                         <ProductModal 
                             product={selectedProduct} 
                             closeModal={closeModal} 
-                            addToCart={addToCart}  
+                            addToCart={addToCart} 
+                            auth={auth} 
                         />
                     )}
                 </div>

@@ -19,6 +19,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone_number',
         'password',
         'is_admin',
     ];
@@ -64,6 +65,11 @@ class User extends Authenticatable
     public function likes()
     {
         return $this->belongsToMany(Product::class, 'likes', 'user_id', 'product_id');
+    }
+    
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
     }
     
 }

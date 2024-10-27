@@ -63,7 +63,7 @@ export default function Authenticated({ auth, header, children}) {
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <img src={logo} loading='lazy' className="h-18 sm:h-20" alt="Your Logo" />                               
+                                    <img src={logo} loading='lazy' className="h-16 sm:h-20" alt="Your Logo" />                               
                                 </Link>
                             </div>
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -81,6 +81,11 @@ export default function Authenticated({ auth, header, children}) {
                                     Iepirkuma Grozs 
                                 </NavLink>
                             </div>
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink href={route('order.history')} active={route().current('order.history')}>
+                                    Pirkumu vēsture 
+                                </NavLink>
+                            </div>
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
@@ -90,7 +95,7 @@ export default function Authenticated({ auth, header, children}) {
                                         <button
                                             ref={dropdownRef}
                                             onClick={toggleDropdown}
-                                            className="w-full text-black rounded-3xl p-3 sm:py-2 inline-flex items-center relative"
+                                            className="w-full text-black rounded-3xl p-3 sm:py-2 inline-flex items-center relative dark:text-gray-200"
                                         >
                                             Vairāk
                                             <svg
@@ -112,8 +117,7 @@ export default function Authenticated({ auth, header, children}) {
                                         </Dropdown.Trigger>
                                         <Dropdown.Content>
                                             <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
-                                            <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Blogs</Dropdown.Link>
-                                            <Dropdown.Link href="#" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
+                                            <Dropdown.Link href="/galerija" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
                                             <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
                                             <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
                                                 Gaišais režīms
@@ -130,10 +134,10 @@ export default function Authenticated({ auth, header, children}) {
                                                 </Dropdown.Link>
                                             ) : (
                                                 <>
-                                                    <Dropdown.Link href="/login" className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
+                                                    <Dropdown.Link href="/login" className="text-gray-700 dark:text-gray-200 ">
                                                         Pierakstīties
                                                     </Dropdown.Link>
-                                                    <Dropdown.Link href="/register" className="text-lg text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
+                                                    <Dropdown.Link href="/register" className="text-gray-700 dark:text-gray-200 ">
                                                         Reģistrēties
                                                     </Dropdown.Link>
                                                 </>
@@ -173,15 +177,24 @@ export default function Authenticated({ auth, header, children}) {
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
+                            Profila Panelis
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('shop.index')} active={route().current('shop.index')}>
+                            Interneta Veikals
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('cart.index')} active={route().current('cart.index')}>
+                            Iepirkumu Grozs
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('gallery.index')} active={route().current('gallery.index')}>
+                            Galerija
                         </ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('profile.edit')}>Profils</ResponsiveNavLink>
                             <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
+                                Izrakstīties
                             </ResponsiveNavLink>
                         </div>
                     </div>

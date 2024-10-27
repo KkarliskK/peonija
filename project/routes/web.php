@@ -33,6 +33,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::put('/admin/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
 
+    //for saving image path
+    Route::get('/products/images', [ProductController::class, 'fetchImages']);
+
+
     // Manage Products Routes
     Route::match(['get', 'post'], '/admin/manageproducts/', [ProductController::class, 'index'])->name('products.index');
     Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
@@ -43,7 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'store'])->name('cart.store');
     Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/item/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
     //checkout routes
@@ -52,6 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/checkout/create-session', [CheckoutController::class, 'createCheckoutSession'])->name('checkout.createSession');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
+    Route::get('/order-history', [CheckoutController::class, 'history'])->name('order.history');
     
 
     //liking products
@@ -61,11 +67,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
 });
 
+
 //shop routes
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/', [ProductController::class, 'top'])->name('products.top');
 Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-
 
 
 Route::middleware('auth')->group(function () {
@@ -73,6 +79,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/galerija', function () {
+    return Inertia::render('Shop/Gallery'); 
+})->name('gallery.index');
 
 
 // Fallback route for 404 page

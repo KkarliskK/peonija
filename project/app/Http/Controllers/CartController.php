@@ -13,6 +13,11 @@ class CartController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login'); 
+        }
+        
         $cart = Cart::with('items.product')->firstOrCreate([
             'user_id' => Auth::id(),
         ]);
@@ -21,6 +26,7 @@ class CartController extends Controller
             'cartItems' => $cart->items,
         ]);
     }
+    
     
 
     public function store(Request $request)
@@ -65,9 +71,8 @@ class CartController extends Controller
             return redirect()->route('cart.index')->withErrors(['error' => 'No active cart found.']);
         }
     
-        // Then check for the cart item
         $cartItem = CartItem::where('id', $cartItemId)
-            ->where('cart_id', $cart->id) // Ensure the item belongs to the user's cart
+            ->where('cart_id', $cart->id) 
             ->first();
     
         if ($cartItem) {
@@ -79,32 +84,19 @@ class CartController extends Controller
     
         return redirect()->route('cart.index')->withErrors(['error' => 'Item not found in cart.']);
     }
-    
 
-    // Remove an item from the cart
-    public function remove($cartItemId)
+    public function remove($id)
     {
-        $cartItem = CartItem::where('id', $cartItemId)
-            ->where('cart_id', Auth::user()->cart->id)
-            ->first();
+        $cartItem = CartItem::find($id);
 
         if ($cartItem) {
             $cartItem->delete();
-            // Refresh the cart items after removal
-            $cartItems = Auth::user()->cart->items()->with('product')->get();
-
-            // Return updated cart items and success message
-            return redirect()->route('cart.index')->with([
-                'cartItems' => $cartItems,
-                'success' => 'Item removed from cart successfully!',
-            ]);
+            return redirect()->route('cart.index')->with('success', 'Successfully removed product from cart!');
         }
 
-        // Flash an error message if the item was not found
-        return redirect()->route('cart.index')->withErrors([
-            'error' => 'Item not found in cart.',
-        ]);
+        return redirect()->route('cart.index')->withErrors(['error' => 'Can not delete product from cart.']);
     }
+    
 
     // Clear the cart
     public function clear()

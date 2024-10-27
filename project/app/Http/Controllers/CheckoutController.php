@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use App\Models\Order; 
 use Stripe\Stripe;
 use App\Models\OrderItem; 
 use Stripe\Checkout\Session;
 use App\Models\Cart;
-use App\Mail\NewOrderNotification;
+use App\Mail\OrderNotification;
 use App\Mail\OrderReceipt;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -49,25 +49,26 @@ class CheckoutController extends Controller
         return 100.00; 
     }
 
-    public function history()
-    {
-        // Get the orders for the authenticated user
-        $orders = Order::with('items.product')
-            ->where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Pass the orders to the Inertia component
-        return inertia('OrderHistory', ['orders' => $orders]);
-    }
-
     public function createCheckoutSession(Request $request)
     {
-        Stripe::setApiKey(env('STRIPE_SECRET')); // Set the Stripe secret key from .env
+        Stripe::setApiKey(env('STRIPE_SECRET')); 
     
         $request->validate([
             'cartItems' => 'required|array',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'mobile' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
         ]);
+    
+        // Store checkout data in session
+        $request->session()->put('checkout_data', [
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'mobile' => $request->input('mobile'),
+            'address' => $request->input('address'),
+        ]);
+        $request->session()->put('cartItems', $request->input('cartItems'));
     
         $lineItems = [];
         foreach ($request->cartItems as $item) {
@@ -98,25 +99,72 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'Failed to create session: ' . $e->getMessage()], 500);
         }
     }
+    
 
-public function success()
-{
-    $userId = auth()->id();
+    public function success(Request $request)
+    {
+        $userId = auth()->id();
 
-    // Retrieve the last order
-    $order = Order::where('user_id', $userId)->latest()->first();
+        $user = auth()->user();
+    
+        // Retrieve cart items and checkout data from session
+        $cartItems = $request->session()->get('cartItems', []);
+        $checkoutData = $request->session()->get('checkout_data', []);
+    
+        if (empty($cartItems) || empty($checkoutData)) {
+            return redirect()->route('shop.index')->with('error', 'Your cart is empty or session data is missing.');
+        }
+    
+        // Calculate total price
+        $totalPrice = array_reduce($cartItems, function ($total, $item) {
+            return $total + ($item['product']['price'] * $item['quantity']);
+        }, 0);
+    
+        // Create the order
+        $order = Order::create([
+            'user_id' => $userId,
+            'name' => $user->name,
+            'email' => $user->email,
+            'mobile' => $checkoutData['mobile'],
+            'address' => $checkoutData['address'],
+            'payment_method' => 'stripe',
+            'total_price' => $totalPrice,
+        ]);
 
-    // Delete the cart items for the user
-    Cart::where('user_id', $userId)->delete();
+        // Insert order items
+        foreach ($cartItems as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item['product']['id'],
+                'quantity' => $item['quantity'],
+                'price' => (float)$item['product']['price'],
+            ]);
+        }
 
-    // Send email to the shop
-    Mail::to('zieduveikalspeonija@gmail.com')->send(new NewOrderNotification($order));
+        // Clear cart items for the user after order completion
+        Cart::where('user_id', $userId)->delete();
 
-    // Send receipt to the customer using the email stored in the order
-    Mail::to($order->email)->send(new OrderReceipt($order));
+        // Optionally, remove cart session data
+        $request->session()->forget('cartItems');
+    
+        return inertia('Shop/Success', [
+            'order' => $order->load('items.product'),
+        ]);
+    }
 
-    return inertia('Shop/Success');
-}
+    public function history()
+    {
+        $orders = Order::with('items.product')
+            ->where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Pass the orders to the Inertia component
+        return inertia('Shop/OrderHistory', ['orders' => $orders]);
+    }
+
+    
+    
 
 
     public function cancel()

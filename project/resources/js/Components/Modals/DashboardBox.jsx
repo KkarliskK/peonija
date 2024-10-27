@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function DashboardBox({ title, description, link, icon: Icon, onClick}) {
+export default function DashboardBox({ title, description, link, icon: Icon, onClick, className}) {
     return (
         <a 
             href={link} 

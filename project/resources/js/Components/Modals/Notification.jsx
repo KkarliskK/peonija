@@ -20,7 +20,7 @@ export default function PostNotification({ message, type = 'success', isOpen, on
 
     return (
         <div
-            className={`fixed top-5 right-5 ${bgColor} text-white p-4 rounded shadow-lg flex justify-between items-center
+            className={`popup fixed top-5 right-5 ${bgColor} text-white p-4 rounded shadow-lg flex justify-between items-center
             transition-transform duration-300 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}
             transition-opacity duration-300 ease-in-out ${visible ? 'opacity-100' : 'opacity-0'}`}
         >

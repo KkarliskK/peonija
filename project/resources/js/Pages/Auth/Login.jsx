@@ -5,6 +5,9 @@ import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/Input/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import background from '../../../assets/PEONIJA-5-dark.webp';
+import logo from '../../../assets/Peonija_logo.webp';
+import { FaFacebook, FaInstagram } from "react-icons/fa";
+
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -13,7 +16,7 @@ export default function Login({ status, canResetPassword }) {
         remember: false,
     });
 
-    const submit = (e) => {
+    const submit = (e) => { 
         e.preventDefault();
 
         post(route('login'), {
@@ -28,14 +31,21 @@ export default function Login({ status, canResetPassword }) {
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
 
             <div className='flex justify-center items-center w-full h-screen bg-gray-100'>
-                <div className='flex bg-white rounded-md w-2/5 h-2/5 shadow-md bg-cover bg-no-repeat'>
-                    <div className='flex justify-center p-2 w-full rounded-l-md' style={{ backgroundImage: `url(${background})` }}>
-                        <h1 className='mt-8 font-semibold text-2xl text-white'>Sveicināts atpakaļ!</h1>
+                <div className='flex sm:flex-row flex-col bg-white rounded-md sm:w-3/6 w-11/12 sm:h-3/6 h-auto shadow-md '>
+                    <div className='flex flex-col justify-between items-center p-2 w-full rounded-l-md bg-cover bg-center bg-no-repeat' style={{ backgroundImage: `url(${background})` }}>
+                        <h1 className='sm:mt-40 mt-2 font-semibold sm:text-5xl text-4xl text-white text-center'>Sveicināts atpakaļ!</h1>
+                        <div className='flex sm:flex-row flex-col w-full my-4'>{/* social media links box */}
+                            <a className='flex items-center justify-center text-white' href='https://www.facebook.com/Peoniijaa/'><FaFacebook className='mx-2' size={32} />facebook</a>
+                            <Link className="flex items-center justify-center" href='/'>
+                                <img className='sm:h-18 sm:w-18 w-3/5' src={logo} alt="Peonija logotips" />
+                            </Link>
+                            <a className='flex items-center justify-center text-white' href='https://www.instagram.com/ziedu.veikals.peonija/'><FaInstagram className='mx-2' size={32} />instagram</a>
+                        </div>
                     </div>
 
-                    <form className='flex flex-col w-full p-8' onSubmit={submit}>
+                    <form className='flex flex-col justify-center w-full p-8' onSubmit={submit}>
                         <div>
-                            <InputLabel htmlFor="email" value="e-pasts" />
+                            <InputLabel htmlFor="email" value="E-pasta adrese" />
 
                             <TextInput
                                 id="email"
@@ -95,7 +105,7 @@ export default function Login({ status, canResetPassword }) {
                                     Vai Tev vēl nav profila?
                                 </Link>
                             </div>
-                            <PrimaryButton type="submit" className="ms-4 w-2/5 justify-center" disabled={processing}>
+                            <PrimaryButton type="submit" className="ms-4 sm:w-2/5 w-auto justify-center" disabled={processing}>
                                 Pieslēgties
                             </PrimaryButton>
                         </div>

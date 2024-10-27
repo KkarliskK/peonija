@@ -14,7 +14,7 @@ class Product extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'description', 'price', 'is_available', 'category_id', 'image'];
+    protected $fillable = ['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image'];
 
     // For available item only sorting
     public function scopeAvailable($query)

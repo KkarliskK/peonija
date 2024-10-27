@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -102,6 +104,32 @@ class ProductController extends Controller
         }
     }
 
+    public function fetchImages()
+    {
+        $baseDirectory = public_path('gallery'); 
+        $files = File::allFiles($baseDirectory); 
+    
+        $imagesByCategory = [];
+    
+        foreach ($files as $file) {
+            // Assuming images are organized in a directory structure like:
+            // gallery/category/image.jpg
+            $pathParts = explode('/', $file->getRelativePathname());
+            $category = $pathParts[0]; // Get the first part as the category
+    
+            // Initialize the category if it doesn't exist
+            if (!isset($imagesByCategory[$category])) {
+                $imagesByCategory[$category] = [];
+            }
+    
+            // Add the image URL to the category
+            $imagesByCategory[$category][] = asset('gallery/' . $file->getRelativePathname());
+        }
+    
+        return response()->json($imagesByCategory);
+    }
+    
+
     // Create a new product
     public function store(Request $request)
     {
@@ -111,10 +139,11 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'is_available' => 'required|boolean',
             'category_id' => 'required|exists:categories,id' ,
-            'image' => 'required'
+            'image' => 'nullable',
+            'quantity' => 'min:0|required'
         ]);
     
-        Product::create($request->only(['name', 'description', 'price', 'is_available', 'category_id', 'image']));
+        Product::create($request->only(['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image']));
 
         session()->flash('success', 'Product added successfully!');
 
@@ -126,7 +155,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $product->update($request->only(['name', 'description', 'price', 'is_available', 'category_id', 'image']));
+        $product->update($request->only(['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image']));
 
         $products = Product::all();
         $category_id = $request->query('category_id'); 

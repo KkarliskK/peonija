@@ -20,8 +20,31 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     const [isFormVisible, setIsFormVisible] = useState(false);  
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null); 
-
     const menuRef = useRef(null);
+    const [images, setImages] = useState([]); 
+    const [imagesByCategory, setImagesByCategory] = useState({});
+    const [selectedImage, setSelectedImage] = useState('');
+
+    useEffect(() => {
+        const fetchImages = async () => {
+            const response = await fetch('/products/images'); 
+            if (!response.ok) {
+                console.error('Error fetching images:', response.statusText);
+                return; // Exit if the response is not okay
+            }
+            const imagesData = await response.json();
+            setImagesByCategory(imagesData); // Set images by category
+        };
+
+        fetchImages();
+    }, []);
+
+
+
+    const handleImageSelect = (imageUrl) => {
+        setSelectedImage(imageUrl); 
+        setData('image', imageUrl); 
+    };
 
     const toggleMenu = (product) => {
         if (selectedProduct === product) {
@@ -70,7 +93,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         description: '', 
         price: '',
         is_available: false,
-        category_id: selectedSubCategory || selectedParentCategory || ''  
+        quantity: '',
+        category_id: selectedSubCategory || selectedParentCategory || '' ,
+        image: '', // Add image field
+
     });
 
     const parentCategories = categories.filter(category => !category.parent_id);
@@ -133,6 +159,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
             description: product.description,
             price: product.price,
             is_available: product.is_available,
+            quantity: product.quantity,
             category_id: product.category_id,
             image: product.image,
         });
@@ -164,6 +191,16 @@ export default function ManageProducts({ auth, categories = [], products = [] })
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        console.log({
+            name: data.name,
+            description: data.description,
+            price: data.price,
+            is_available: data.is_available,
+            quantity: data.quantity,
+            category_id: data.category_id,
+            image: selectedImage, 
+        });
     
         if (selectedProductForEdit) {
             // Edit a product
@@ -172,8 +209,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                 description: data.description,
                 price: data.price,
                 is_available: data.is_available,
+                quantity: data.quantity,
                 category_id: data.category_id,
-                image: data.image
+                image: selectedImage,
+
             }, {
                 onSuccess: () => {
                     setNotifMessage('Product updated successfully!');
@@ -186,8 +225,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                         description: '',
                         price: '',
                         is_available: false,
+                        quantity: '',
                         category_id: selectedSubCategory || selectedParentCategory || '',
-                        image: ''
+                        image: '',
+
                     });
                     reset();  
                     router.get('/admin/manageproducts', {}, { replace: true });
@@ -205,8 +246,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                 description: data.description,
                 price: data.price,
                 is_available: data.is_available,
+                quantity: data.quantity,
                 category_id: data.category_id,
-                image: data.image
+                image: selectedImage,
+
             }, {
                 onSuccess: () => {
                     setNotifMessage('Product added successfully!');
@@ -218,8 +261,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                         description: '',
                         price: '',
                         is_available: false,
+                        quantity: '',
                         category_id: selectedSubCategory || selectedParentCategory || '',
-                        image: ''
+                        image: '',
+
                     });
                     reset();
                     router.get('/admin/manageproducts', {}, { replace: true });
@@ -461,6 +506,16 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                             onChange={e => setData('is_available', e.target.checked)}
                                         />
                                     </div>
+                                    <div>
+                                        <label>Skaits</label>
+                                        <input
+                                            type="number"
+                                            value={data.quantity}
+                                            onChange={e => setData('quantity', e.target.value)}
+                                            required
+                                            className="w-full border border-gray-300 rounded-md p-2"
+                                        />
+                                    </div>
                                     {/* Dropdown for Category Selection */}
                                     <div>
                                         <label>Kategorija</label>
@@ -485,15 +540,27 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                         </select>
                                     </div>
                                     <div>
-                                        <label>Bilde</label>
-                                        <input
-                                            type="text"
-                                            value={data.image}
-                                            onChange={e => setData('image', e.target.value)}
-                                            required
-                                            className="w-full border border-gray-300 rounded-md p-2"
-                                        />
+                                    <label>Izvēlies bildi</label>
+                                    <div className="flex flex-wrap">
+                                        {Object.entries(imagesByCategory).map(([category, images]) => (
+                                            <div key={category} className="w-full mb-4">
+                                                <h4 className="font-semibold text-lg">{category}</h4>
+                                                <div className="flex flex-wrap">
+                                                    {images.map((image, index) => (
+                                                        <div key={index} className="m-2">
+                                                            <img
+                                                                src={image}
+                                                                alt={`Image from ${category}`}
+                                                                className={`h-20 w-20 cursor-pointer ${selectedImage === image ? 'border-2 border-blue-500' : 'border-2 border-transparent'}`}
+                                                                onClick={() => handleImageSelect(image)} // Select image on click
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
+                                </div>
 
                                     <div className="mt-4">
                                         <button
