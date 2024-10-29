@@ -17,7 +17,6 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
-
     /**
      * Get the parent category for the subcategory.
      */

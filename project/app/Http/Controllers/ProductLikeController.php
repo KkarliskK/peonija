@@ -9,19 +9,21 @@ use App\Models\Product;
 class ProductLikeController extends Controller
 {
 
-    public function like(Product $product)
+    public function toggleLike(Request $request, $id)
     {
         $user = auth()->user();
-        $liked = $user->likes()->toggle($product->id);
+        $product = Product::findOrFail($id);
         
-        $likeCount = $product->likes()->count();
-
-        return Inertia::render('ShopView', [
-            'product' => [
-                'id' => $product->id,
-                'liked' => !empty($liked['attached']),
-                'like_count' => $likeCount,
-            ],
-        ]);
+        $like = Like::where('user_id', $user->id)->where('product_id', $id)->first();
+    
+        if ($like) {
+            $like->delete();
+            $liked = false;
+        } else {
+            Like::create(['user_id' => $user->id, 'product_id' => $id]);
+            $liked = true;
+        }
+    
+        return redirect()->back();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -35,15 +36,27 @@ class CartController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
-    
+
         $user = auth()->user();
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
         $cartItem = CartItem::where('cart_id', $cart->id)
                               ->where('product_id', $validated['product_id'])
                               ->first();
-    
+
+        $product = Product::find($validated['product_id']);
+        if ($product->quantity < $validated['quantity']) {
+            return response()->json(['error' => 'Requested quantity exceeds available stock.'], 400);
+        }
+
         if ($cartItem) {
-            $cartItem->quantity += $validated['quantity'];
+            $newQuantity = $cartItem->quantity + $validated['quantity'];
+
+            // Check again if the new quantity exceeds available stock
+            if ($product->quantity < $newQuantity) {
+                return response()->json(['error' => 'Requested quantity exceeds available stock.'], 400);
+            }
+
+            $cartItem->quantity = $newQuantity;
             $cartItem->save();
         } else {
             CartItem::create([
@@ -52,7 +65,7 @@ class CartController extends Controller
                 'quantity' => $validated['quantity'],
             ]);
         }
-    
+
         return Inertia::render('Shop/ShopView', [
             'cartItems' => $cart->items,
         ]);
@@ -64,26 +77,28 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
     
-        // Retrieve the user's cart
         $cart = Auth::user()->cart;
     
         if (!$cart) {
             return redirect()->route('cart.index')->withErrors(['error' => 'No active cart found.']);
         }
     
-        $cartItem = CartItem::where('id', $cartItemId)
-            ->where('cart_id', $cart->id) 
+        $cartItem = CartItem::where('product_id', $cartItemId)
+            ->where('cart_id', $cart->id)
             ->first();
     
-        if ($cartItem) {
-            $cartItem->quantity = $validated['quantity'];
-            $cartItem->save();
-            
-            return redirect()->route('cart.index')->with('success', 'Quantity updated successfully!');
+        if (!$cartItem) {
+            return redirect()->route('cart.index')->withErrors(['error' => 'Item not found in cart.']);
         }
     
-        return redirect()->route('cart.index')->withErrors(['error' => 'Item not found in cart.']);
+        $cartItem->quantity = $validated['quantity'];
+        $cartItem->save();
+    
+        return redirect()->route('cart.index')->with('success', 'Quantity updated successfully!');
     }
+    
+    
+    
 
     public function remove($id)
     {

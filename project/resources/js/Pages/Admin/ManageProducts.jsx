@@ -30,10 +30,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
             const response = await fetch('/products/images'); 
             if (!response.ok) {
                 console.error('Error fetching images:', response.statusText);
-                return; // Exit if the response is not okay
+                return; 
             }
             const imagesData = await response.json();
-            setImagesByCategory(imagesData); // Set images by category
+            setImagesByCategory(imagesData); 
         };
 
         fetchImages();
@@ -88,15 +88,30 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         setIsMenuOpen(false);
     };
 
-    const { data, setData, post, reset } = useForm({
+    // Move the resetForm function outside the handleSubmit
+    const resetForm = () => {
+        setData({ 
+            name: '',
+            description: '',
+            price: '',
+            is_available: false,
+            quantity: '',
+            category_id: selectedSubCategory || selectedParentCategory || '' ,
+            image: '',
+        });
+        setSelectedImage(''); 
+        setIsFormVisible(false); 
+        console.log("Form reset"); 
+    };
+
+    const { data, setData, post } = useForm({
         name: '',
         description: '', 
         price: '',
         is_available: false,
         quantity: '',
         category_id: selectedSubCategory || selectedParentCategory || '' ,
-        image: '', // Add image field
-
+        image: '', 
     });
 
     const parentCategories = categories.filter(category => !category.parent_id);
@@ -152,7 +167,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     };
 
     const handleEditProductClick = (product) => {
-        setSelectedProductForEdit(product);  
+        setSelectedProductForEdit(product);
         setIsFormVisible(true);  
         setData({  
             name: product.name,
@@ -161,8 +176,10 @@ export default function ManageProducts({ auth, categories = [], products = [] })
             is_available: product.is_available,
             quantity: product.quantity,
             category_id: product.category_id,
-            image: product.image,
+            image: product.image,  
         });
+        
+        setSelectedImage(product.image);
     
         const category = categories.find(cat => cat.id === product.category_id);
         if (category) {
@@ -188,93 +205,64 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         return 'Visi produkti'; 
     };
     
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        console.log({
-            name: data.name,
-            description: data.description,
-            price: data.price,
-            is_available: data.is_available,
-            quantity: data.quantity,
-            category_id: data.category_id,
-            image: selectedImage, 
-        });
     
-        if (selectedProductForEdit) {
-            // Edit a product
-            router.put(`/admin/products/${selectedProductForEdit.id}`, { 
-                name: data.name,
-                description: data.description,
-                price: data.price,
-                is_available: data.is_available,
-                quantity: data.quantity,
-                category_id: data.category_id,
-                image: selectedImage,
 
-            }, {
-                onSuccess: () => {
-                    setNotifMessage('Product updated successfully!');
-                    setNotifType('success');
-                    setIsNotifOpen(true);
-                    setIsFormVisible(false);  
-                    setSelectedProductForEdit(null); 
-                    setData({ 
-                        name: '',
-                        description: '',
-                        price: '',
-                        is_available: false,
-                        quantity: '',
-                        category_id: selectedSubCategory || selectedParentCategory || '',
-                        image: '',
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        try {
+            if (selectedProductForEdit) {
+                // Edit a product
+                const response = await axios.put(`/admin/products/${selectedProductForEdit.id}`, {
+                    name: data.name,
+                    description: data.description,
+                    price: data.price,
+                    is_available: data.is_available,
+                    quantity: data.quantity,
+                    category_id: data.category_id,
+                    image: selectedImage,
+                });
+    
+                setNotifMessage('Produkts veiksmīgi atjaunināts!');
+                setNotifType('success');
+                setIsNotifOpen(true);
+                resetForm();
 
-                    });
-                    reset();  
+                setTimeout(() => {
                     router.get('/admin/manageproducts', {}, { replace: true });
-                },
-                onError: () => {
-                    setNotifMessage('Failed to update product.');
-                    setNotifType('error');
-                    setIsNotifOpen(true);
+                }, 3000); 
+            } else {
+                // Add a new product
+                const response = await axios.post('/admin/products', {
+                    name: data.name,
+                    description: data.description,
+                    price: data.price,
+                    is_available: data.is_available,
+                    quantity: data.quantity,
+                    category_id: data.category_id,
+                    image: selectedImage,
+                });
+
+                console.log("Add product response:", response);
+
+                if (response.data && response.data.message) {
+                    setNotifMessage(response.data.message); 
+                } else {
+                    setNotifMessage('Produkts veiksmīgi pievienots!'); 
                 }
-            });
-        } else {
-            // Add a new product
-            post('/admin/products', {
-                name: data.name,
-                description: data.description,
-                price: data.price,
-                is_available: data.is_available,
-                quantity: data.quantity,
-                category_id: data.category_id,
-                image: selectedImage,
+                setNotifType('success');
+                setIsNotifOpen(true); 
+                resetForm();
 
-            }, {
-                onSuccess: () => {
-                    setNotifMessage('Product added successfully!');
-                    setNotifType('success');
-                    setIsNotifOpen(true);
-                    setIsFormVisible(false);
-                    setData({ 
-                        name: '',
-                        description: '',
-                        price: '',
-                        is_available: false,
-                        quantity: '',
-                        category_id: selectedSubCategory || selectedParentCategory || '',
-                        image: '',
-
-                    });
-                    reset();
+                setTimeout(() => {
                     router.get('/admin/manageproducts', {}, { replace: true });
-                },
-                onError: () => {
-                    setNotifMessage('Failed to add product.');
-                    setNotifType('error');
-                    setIsNotifOpen(true);
-                }
-            });
+                }, 3000); 
+            }
+        } catch (error) {
+            console.error("Kļūda pievienojot produktu:", error);
+            setNotifMessage(selectedProductForEdit ? 'Neizdevās atjaunināt produktu.' : 'Neizdevās pievienot produktu.');
+            setNotifType('error');
+            setIsNotifOpen(true);
         }
     };
     
@@ -334,7 +322,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                 <li key={category.id}>
                                     <button
                                         onClick={() => handleParentCategoryClick(category.id)}
-                                        className={`text-sm ${selectedParentCategory === category.id ? 'font-bold text-blue-500' : ''}`}
+                                        className={`text-sm category-button ${selectedParentCategory === category.id ? 'font-bold text-blue-500' : ''}`}
                                     >
                                         {category.name} ({category.total_products_count}) 
                                     </button>
@@ -370,7 +358,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                         {/* Only show the Add Product button if a category is selected */}
                         {(selectedParentCategory || selectedSubCategory) && (
                             <button
-                                className="mt-4 flex items-center justify-center p-2 bg-blue-500 text-white rounded-md w-1/5"
+                                className=" new-product mt-4 flex items-center justify-center p-2 bg-blue-500 text-white rounded-md w-1/5"
                                 onClick={handleAddProduct} 
                             >
                                 <IoIosAddCircleOutline className="mr-2" /> Pievienot jaunu produktu
@@ -473,6 +461,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                     <div>
                                         <label>Nosaukums</label>
                                         <input
+                                            id='name'
                                             type="text"
                                             value={data.name}
                                             onChange={e => setData('name', e.target.value)}
@@ -483,6 +472,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                     <div>
                                         <label>Apraksts</label>
                                         <textarea
+                                            id='description'
                                             value={data.description}
                                             onChange={e => setData('description', e.target.value)}
                                             required
@@ -492,6 +482,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                     <div>
                                         <label>Cena</label>
                                         <input
+                                            id='price'
                                             type="number"
                                             value={data.price}
                                             onChange={e => setData('price', e.target.value)}
@@ -500,15 +491,18 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                         />
                                     </div>
                                     <div>
-                                        <label>Pieejams</label>
-                                        <Checkbox
-                                            checked={data.is_available}
-                                            onChange={e => setData('is_available', e.target.checked)}
-                                        />
+                                        <label className='flex items-center'>
+                                            <Checkbox
+                                                checked={data.is_available}
+                                                onChange={e => setData('is_available', e.target.checked)}
+                                            />
+                                            <span className='mx-2'>Pieejams</span>
+                                        </label>
                                     </div>
                                     <div>
                                         <label>Skaits</label>
                                         <input
+                                            id='quantity'
                                             type="number"
                                             value={data.quantity}
                                             onChange={e => setData('quantity', e.target.value)}
@@ -523,12 +517,12 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                             value={data.category_id}
                                             onChange={e => setData('category_id', e.target.value)}
                                             required
-                                            className="w-full border border-gray-300 rounded-md p-2"
+                                            className="categories-select w-full border border-gray-300 rounded-md p-2"
                                         >
                                             <option value="">Izvēlieties kategoriju</option>
                                             {/* Render only the selected parent category and its subcategories */}
                                             {selectedParentCategory && (
-                                                <option key={selectedParentCategory} value={selectedParentCategory}>
+                                                <option className='option' key={selectedParentCategory} value={selectedParentCategory}>
                                                     {parentCategories.find(cat => cat.id === selectedParentCategory)?.name}
                                                 </option>
                                             )}
@@ -547,7 +541,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                                 <h4 className="font-semibold text-lg">{category}</h4>
                                                 <div className="flex flex-wrap">
                                                     {images.map((image, index) => (
-                                                        <div key={index} className="m-2">
+                                                        <div key={index} className="m-2 image">
                                                             <img
                                                                 src={image}
                                                                 alt={`Image from ${category}`}

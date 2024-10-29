@@ -17,9 +17,12 @@ export default function Special({ offers }) {
                             offers.map((product, index) => (
                                 <OfferCard
                                     key={index}
-                                    image={product.image}
+                                    image={product.image} 
                                     name={product.name}
-                                    price={product.price}
+                                    price={`${product.price} €`} 
+                                    isAvailable={product.is_available} 
+                                    initialLikesCount={product.likes_count} 
+                                    quantity={product.quantity}
                                 />
                             ))
                         )}

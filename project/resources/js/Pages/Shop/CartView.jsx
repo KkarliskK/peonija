@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Inertia } from '@inertiajs/inertia'; // For navigation
-import { Head, Link, usePage } from '@inertiajs/react'; // Import usePage
+import { useState } from 'react';
+import { Inertia } from '@inertiajs/inertia';
+import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { MdEdit } from "react-icons/md";
 import { IoTrashOutline } from 'react-icons/io5';
@@ -13,9 +13,15 @@ const CartPage = ({ auth, cartItems }) => {
     const [selectedItem, setSelectedItem] = useState(null);
 
     const handleOpenModal = (item) => {
-        setSelectedItem(item);
+        setSelectedItem({
+            ...item,
+            availableQuantity: item.product.quantity 
+            
+        });
+        console.log(item.product.quantity);
         setIsModalOpen(true);
     };
+    
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
@@ -23,6 +29,7 @@ const CartPage = ({ auth, cartItems }) => {
     };
 
     const handleUpdateQuantity = (id, newQuantity) => {
+        console.log(`Updating Item ID: ${id}, New Quantity: ${newQuantity}`);
         Inertia.post(`/cart/update/${id}`, { quantity: newQuantity }, {
             onSuccess: () => {
                 console.log(`Quantity for item ${id} updated to ${newQuantity}`);
@@ -38,9 +45,25 @@ const CartPage = ({ auth, cartItems }) => {
         if (confirmDelete) {
             Inertia.post(`/cart/remove/${item.id}`, {
                 onSuccess: () => {
+                    console.log(`Item ${item.product.name} deleted from cart.`);
                 },
                 onError: (error) => {
                     console.error("Failed to delete item:", error);
+                }
+            });
+        }
+    };
+
+    const handleClearCart = () => {
+        const confirmClear = window.confirm("Vai tiešām vēlaties iztukšot grozu?");
+    
+        if (confirmClear) {
+            Inertia.post('/cart/clear', {}, {
+                onSuccess: () => {
+                    console.log('Cart cleared successfully');
+                },
+                onError: (error) => {
+                    console.error("Failed to clear cart:", error);
                 }
             });
         }
@@ -50,7 +73,6 @@ const CartPage = ({ auth, cartItems }) => {
         <>
             <Head title="Tavs Grozs" />
             <AuthenticatedLayout auth={auth}>
-
                 {/* Cart Items List */}
                 <div className="w-full p-4 h-auto min-h-[50dvh]">
                     {cartItems.length > 0 ? (
@@ -91,8 +113,8 @@ const CartPage = ({ auth, cartItems }) => {
                     <Link className="mx-4" href='checkout'>
                         <PrimaryButton>Turpināt pasūtījumu</PrimaryButton>
                     </Link>
-                    <DangerButton className='mx-4'>Iztukšot grozu</DangerButton>
-                </div>
+                    <DangerButton className='mx-4' onClick={handleClearCart}>Iztukšot grozu</DangerButton>
+                    </div>
 
                 {/* Modal for Deleting Item and Editing Quantity */}
                 {isModalOpen && selectedItem && (

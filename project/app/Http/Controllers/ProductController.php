@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Like;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -138,18 +139,20 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'is_available' => 'required|boolean',
-            'category_id' => 'required|exists:categories,id' ,
+            'category_id' => 'required|exists:categories,id',
             'image' => 'nullable',
             'quantity' => 'min:0|required'
         ]);
     
-        Product::create($request->only(['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image']));
-
-        session()->flash('success', 'Product added successfully!');
-
-        return redirect()->route('products.index');
-    }
+        // Create the product
+        $product = Product::create($request->only(['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image']));
     
+        // Return a JSON response
+        return response()->json([
+            'message' => 'Produkts veiksmīgi pievienots!',
+            'product' => $product,
+        ], 201); // 201 Created
+    }
 
     public function update(Request $request, $id)
     {
@@ -183,6 +186,24 @@ class ProductController extends Controller
         return Inertia::render('Shop/ProductView', [
             'product' => $product,
         ]);
+    }
+
+    public function toggleLike(Request $request, $id)
+    {
+        $user = auth()->user();
+        $product = Product::findOrFail($id);
+        
+        $like = Like::where('user_id', $user->id)->where('product_id', $id)->first();
+    
+        if ($like) {
+            $like->delete();
+            $liked = false;
+        } else {
+            Like::create(['user_id' => $user->id, 'product_id' => $id]);
+            $liked = true;
+        }
+    
+        return redirect()->back();
     }
     
 

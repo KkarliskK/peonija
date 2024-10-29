@@ -184,6 +184,7 @@ export default function Categories({ auth, categories = [] }) {
                     <div className="mb-4">
                         <label className="block text-gray-700 dark:text-gray-300">Kategorija</label>
                         <input 
+                            id="name"
                             type="text" 
                             value={data.name} 
                             onChange={(e) => setData('name', e.target.value)} 
@@ -195,6 +196,7 @@ export default function Categories({ auth, categories = [] }) {
                     <div className="mb-4">
                         <label className="block text-gray-700 dark:text-gray-300">Kategorijas apraksts (nav obligāts)</label>
                         <textarea 
+                            id="description"
                             value={data.description} 
                             onChange={(e) => setData('description', e.target.value)} 
                             className="resize-none w-full h-56 p-2 border rounded-md dark:bg-gray-700 dark:text-gray-300"

@@ -14,13 +14,17 @@
 -> Finish success page ✅
 -> Make order history page ✅
 -> Make Gallery page ✅
+-> fix a paginator in store page ✅
 -> Find a way to store images in database ✅
--> Make checkout page 
--> Make editing product's count in cart 
--> Make the liking and saving functions work
+-> split up shop page to components ✅
+-> Make the liking product ✅
+-> make so the unavailable products are darker then the available or maybe even say izpardots over them ✅
+-> Make checkout page ✅
+-> Make deleting all cart in the cart page ✅
+-> Make editing product's count in cart page ✅
+-> Make so liked products save in profile
+-> make deleting products in admin page
 -> Make the slideshow for the shops TV
 -> Make the shops working hours for real (if shop is closed the time is tomorrows opening time)
--> fix a paginator
--> split up shop page to components
 -> split up manage product page to components
 -> split up header layouts to components

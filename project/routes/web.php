@@ -48,7 +48,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cart/add', [CartController::class, 'store'])->name('cart.store');
     Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
     //checkout routes
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -58,21 +58,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 
     Route::get('/order-history', [CheckoutController::class, 'history'])->name('order.history');
-    
-
-    //liking products
-    Route::post('/products/{product}/like', [ProductLikeController::class, 'like'])->name('like.like');
-
-
-    
 });
-
 
 //shop routes
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/', [ProductController::class, 'top'])->name('products.top');
-Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
+//shop liking function with atuh validation
+Route::middleware('auth')->group(function () {
+    Route::post('/products/{id}/like', [ProductController::class, 'toggleLike']);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

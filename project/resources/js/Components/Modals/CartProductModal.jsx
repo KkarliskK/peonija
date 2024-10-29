@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { IoMdClose, IoMdRemove, IoMdAdd } from "react-icons/io";
-import { Inertia } from '@inertiajs/inertia'; // Import Inertia for navigation
+import { Inertia } from '@inertiajs/inertia'; 
 import BuyButton from '@/Components/Buttons/BuyButton';
 
-export default function CartProductModal({ product, closeModal, quantity, updateQuantity }) {
+export default function CartProductModal({ product, closeModal, quantity, updateQuantity, availableQuantity }) {
     const [loading, setLoading] = useState(false);
     const [quantityState, setQuantity] = useState(quantity || 1);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         setQuantity(quantity);
@@ -13,13 +14,19 @@ export default function CartProductModal({ product, closeModal, quantity, update
 
     const handleQuantityChange = (change) => {
         setQuantity((prev) => Math.max(1, prev + change));
+        setErrorMessage(''); // Clear error message on quantity change
     };
-    
+
     const handleSaveQuantity = () => {
+        if (quantityState > availableQuantity) {
+            setErrorMessage(`Maksimālais pieejamais daudzums ir ${availableQuantity}`);
+            return; // Prevent saving if validation fails
+        }
+        
         setLoading(true);
         updateQuantity(product.id, quantityState);
         closeModal();
-        setLoading(false); 
+        setLoading(false);
     };
 
     return (
@@ -52,6 +59,8 @@ export default function CartProductModal({ product, closeModal, quantity, update
                         </button>
                     </div>
                 </div>
+                {/* Error Message */}
+                {errorMessage && <p className="text-red-500 text-center mb-2">{errorMessage}</p>}
                 <div className="flex justify-center items-center w-full mb-4 p-6">
                     <BuyButton 
                         className={`text-white p-4 mx-4 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} 

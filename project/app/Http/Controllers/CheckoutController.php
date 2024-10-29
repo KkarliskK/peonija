@@ -95,7 +95,6 @@ class CheckoutController extends Controller
     
             return response()->json(['sessionId' => $session->id]);
         } catch (\Exception $e) {
-            \Log::error('Stripe Error: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to create session: ' . $e->getMessage()], 500);
         }
     }
@@ -104,22 +103,21 @@ class CheckoutController extends Controller
     public function success(Request $request)
     {
         $userId = auth()->id();
-
         $user = auth()->user();
-    
+        
         // Retrieve cart items and checkout data from session
         $cartItems = $request->session()->get('cartItems', []);
         $checkoutData = $request->session()->get('checkout_data', []);
-    
+        
         if (empty($cartItems) || empty($checkoutData)) {
             return redirect()->route('shop.index')->with('error', 'Your cart is empty or session data is missing.');
         }
-    
+        
         // Calculate total price
         $totalPrice = array_reduce($cartItems, function ($total, $item) {
             return $total + ($item['product']['price'] * $item['quantity']);
         }, 0);
-    
+        
         // Create the order
         $order = Order::create([
             'user_id' => $userId,
@@ -130,8 +128,8 @@ class CheckoutController extends Controller
             'payment_method' => 'stripe',
             'total_price' => $totalPrice,
         ]);
-
-        // Insert order items
+    
+        // Insert order items and update product quantities
         foreach ($cartItems as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -139,18 +137,31 @@ class CheckoutController extends Controller
                 'quantity' => $item['quantity'],
                 'price' => (float)$item['product']['price'],
             ]);
+    
+            // Update product quantity
+            $product = \App\Models\Product::find($item['product']['id']);
+            
+            if ($product) { 
+                $product->quantity -= $item['quantity']; 
+                
+                // Check if quantity goes below zero
+                if ($product->quantity < 0) {
+                    $product->quantity = 0; 
+                }
+                
+                $product->save(); 
+            }
         }
-
+    
         // Clear cart items for the user after order completion
         Cart::where('user_id', $userId)->delete();
-
-        // Optionally, remove cart session data
         $request->session()->forget('cartItems');
-    
+        
         return inertia('Shop/Success', [
             'order' => $order->load('items.product'),
         ]);
     }
+    
 
     public function history()
     {

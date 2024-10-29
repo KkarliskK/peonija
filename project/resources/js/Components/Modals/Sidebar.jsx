@@ -1,30 +1,19 @@
-import { FaSearch, FaFilter, FaFolderOpen, FaAngleLeft } from "react-icons/fa";
-import { useState } from "react";
+// Sidebar.jsx
+import { FaAngleLeft, FaSearch, FaFilter, FaFolderOpen } from "react-icons/fa";
 
-export default function Sidebar({ 
-    categories, 
-    filter, 
-    setFilter, 
-    selectedParentCategory, 
-    setSelectedParentCategory, 
-    selectedSubCategory, 
-    setSelectedSubCategory, 
-    searchQuery, 
-    setSearchQuery, 
-    isSidebarMinimized, 
-    setIsSidebarMinimized 
-}) {
+const Sidebar = ({ isSidebarMinimized, setIsSidebarMinimized, searchQuery, setSearchQuery, filter, setFilter, categories, selectedParentCategory, setSelectedParentCategory, selectedSubCategory, setSelectedSubCategory }) => {
     const parentCategories = categories.filter(category => !category.parent_id);
 
     return (
-        <div className={`transition-width duration-300 h-dvh ${isSidebarMinimized ? 'w-16' : 'w-1/5'} h-screen border-2 p-2 border-gray-100 bg-gray-50 dark:bg-gray-800`}>
+        <div className={`transition-all duration-300 h-dvh ${isSidebarMinimized ? 'sm:w-16 w-0' : 'sm:w-2/6 w-full sm:relative absolute z-10'} h-screen border-2 p-2 border-gray-100 bg-gray-50 dark:bg-gray-800`}>
             <div className={`flex items-center mb-4 ${isSidebarMinimized ? 'justify-center' : 'justify-end'}`}>
                 <button onClick={() => setIsSidebarMinimized(!isSidebarMinimized)} className="p-2">
                     <FaAngleLeft size={24} className={`transform transition-transform duration-300 ${isSidebarMinimized ? 'rotate-180' : ''}`} />
                 </button>
             </div>
-
+            
             <div className={`mb-4 ${isSidebarMinimized ? 'hidden' : ''}`}>
+                {/* Search Bar */}
                 <div className={`flex justify-center items-center w-full my-4`}>
                     {isSidebarMinimized ? (
                         <FaSearch className="mr-2" />
@@ -43,6 +32,7 @@ export default function Sidebar({
                 </div>
             </div>
 
+            {/* Filter Section */}
             <div className={`mb-4 ${isSidebarMinimized ? 'hidden' : ''}`}>
                 <div className="flex items-center">
                     <FaFilter className="mr-2" />
@@ -50,44 +40,29 @@ export default function Sidebar({
                 </div>
                 <ul className={`mt-2 space-y-2`}>
                     <li>
-                        <button
-                            onClick={() => {
-                                setFilter('all')
-                                setSelectedParentCategory(null); 
-                                setSelectedSubCategory(null); 
-                            }}
-                            className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'all' ? 'font-bold bg-slate-200' : ''}`}
-                        >
+                        <button onClick={() => { setFilter('all'); setSelectedParentCategory(null); setSelectedSubCategory(null); }} className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'all' ? 'font-bold bg-slate-200' : ''}`}>
                             Visi produkti
                         </button>
                     </li>
                     <li>
-                        <button
-                            onClick={() => setFilter('popular')}
-                            className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'popular' ? 'font-bold bg-slate-200' : ''}`}
-                        >
+                        <button onClick={() => setFilter('popular')} className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'popular' ? 'font-bold bg-slate-200' : ''}`}>
                             Populārākās preces
                         </button>
                     </li>
                     <li>
-                        <button
-                            onClick={() => setFilter('price-asc')}
-                            className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'price-asc' ? 'font-bold bg-slate-200' : ''}`}
-                        >
+                        <button onClick={() => setFilter('price-asc')} className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'price-asc' ? 'font-bold bg-slate-200' : ''}`}>
                             Cenas, sākot no zemākās
                         </button>
                     </li>
                     <li>
-                        <button
-                            onClick={() => setFilter('price-desc')}
-                            className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'price-desc' ? 'font-bold bg-slate-200' : ''}`}
-                        >
+                        <button onClick={() => setFilter('price-desc')} className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${filter === 'price-desc' ? 'font-bold bg-slate-200' : ''}`}>
                             Cenas, sākot no augstākās
                         </button>
                     </li>
                 </ul>
             </div>
 
+            {/* Categories Section */}
             <div className={`mb-4 ${isSidebarMinimized ? 'hidden' : ''}`}>
                 <div className="flex items-center">
                     <FaFolderOpen className="mr-2" />
@@ -97,15 +72,11 @@ export default function Sidebar({
                     {parentCategories.map(category => (
                         <li key={category.id}>
                             <button
-                                onClick={() => {
-                                    setSelectedParentCategory(category.id);
-                                    setSelectedSubCategory(null); 
-                                }}
+                                onClick={() => { setSelectedParentCategory(category.id); setSelectedSubCategory(null); }}
                                 className={`text-sm w-full rounded-lg bg-gray-50 p-2 text-start ${selectedParentCategory === category.id ? 'font-bold bg-slate-200' : ''}`}
                             >
                                 {category.name} ({category.total_products_count}) 
                             </button>
-
                             {selectedParentCategory === category.id && Array.isArray(category.children) && category.children.length > 0 && (
                                 <ul className="ml-4 mt-2 space-y-1">
                                     {category.children.map(child => (
@@ -126,4 +97,6 @@ export default function Sidebar({
             </div>
         </div>
     );
-}
+};
+
+export default Sidebar;

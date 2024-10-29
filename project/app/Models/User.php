@@ -64,7 +64,7 @@ class User extends Authenticatable
 
     public function likes()
     {
-        return $this->belongsToMany(Product::class, 'likes', 'user_id', 'product_id');
+        return $this->belongsToMany(Product::class, 'likes')->withTimestamps();
     }
     
     public function cart()

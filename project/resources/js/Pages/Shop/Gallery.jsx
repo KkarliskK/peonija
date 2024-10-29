@@ -7,9 +7,9 @@ export default function Gallery({ auth }) {
     const [loading, setLoading] = useState(true);
     const [selectedSubcategory, setSelectedSubcategory] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 6; // Number of images per page
-    const [modalImage, setModalImage] = useState(null); // State for the modal image
-    const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+    const itemsPerPage = 8; 
+    const [modalImage, setModalImage] = useState(null); 
+    const [isModalOpen, setIsModalOpen] = useState(false); 
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -63,7 +63,7 @@ export default function Gallery({ auth }) {
         <>
             <Head title="Galerija" />
             <AuthenticatedLayout auth={auth}>
-                <div className="gallery">
+                <div className="gallery p-4">
                     {loading ? (
                         <p className="text-lg text-gray-700">Lūdzu, uzgaidiet...</p>
                     ) : (
