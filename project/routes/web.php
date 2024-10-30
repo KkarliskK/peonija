@@ -58,6 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 
     Route::get('/order-history', [CheckoutController::class, 'history'])->name('order.history');
+
+    Route::get('/saved-products', [ProductController::class, 'savedProducts'])->name('products.savedProducts');
 });
 
 //shop routes

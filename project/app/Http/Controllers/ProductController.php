@@ -205,6 +205,17 @@ class ProductController extends Controller
     
         return redirect()->back();
     }
+
+    public function savedProducts(Request $request)
+    {
+        $user = $request->user();
+        $likedProducts = $user->likedProducts()->with('category')->get();
+    
+        return Inertia::render('Shop/SavedProducts', [
+            'auth' => $user,
+            'likedProducts' => $likedProducts
+        ]);
+    }
     
 
 
