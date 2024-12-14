@@ -11,6 +11,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductLikeController;
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -36,6 +37,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //for saving image path
     Route::get('/products/images', [ProductController::class, 'fetchImages']);
 
+    //to get images for the slideshow
+    Route::get('/slideshow', [ImageController::class, 'index'])->name('slideshow.index');
+    Route::get('/categories/{category}/images', [ImageController::class, 'getCategoryImages'])->name('categories.images');
 
     // Manage Products Routes
     Route::match(['get', 'post'], '/admin/manageproducts/', [ProductController::class, 'index'])->name('products.index');

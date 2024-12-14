@@ -48,10 +48,10 @@ export default function Contact({ auth }) {
 
     return (
         <>
-            <main id='contact' className='h-auto sm:h-dvh mt-12'>
+            <main id='contact' className='h-auto sm:h-dvh'>
             <div className='flex w-full justify-center items-center h-full'>
-                <div className='flex w-full justify-center items-center flex-col h-full mt-12'>
-                <div className='w-full flex items-center justify-center my-24'>
+                <div className='flex w-full justify-center items-center flex-col h-full '>
+                <div className='w-full flex items-center justify-center mb-24'>
                     <h1 className='font-semibold text-5xl uppercase text-center dark:text-white'>Kontakti</h1>
                 </div>
                 <div className={`grid sm:grid-cols-2 items-center gap-16 p-8 mx-auto max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-md text-[#333] font-[sans-serif] dark:bg-gray-700 dark:text-white`}>

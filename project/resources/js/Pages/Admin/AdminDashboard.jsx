@@ -36,7 +36,7 @@ export default function AdminDashboard({ auth }) {
                     <DashboardBox 
                         title="Slaidrāde" 
                         description="Slaidrāde veikala TV" 
-                        link={route('dashboard')} //add a slideshow page here
+                        link={route('slideshow.index')}
                         icon={FaTv}
                     />
                 </div>

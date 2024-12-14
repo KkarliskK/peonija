@@ -58,7 +58,7 @@ export default function ProductModal({ product, closeModal, addToCart, auth }) {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="flex justify-center items-center flex-col bg-white rounded-lg shadow-md relative sm:w-2/5 w-full">
+            <div className="flex justify-center items-center flex-col bg-white rounded-lg shadow-md relative sm:w-2/5 w-11/12">
                 <button className="absolute top-0 right-0 text-red-600 bg-violet-300 p-2 rounded-bl-[25px] " onClick={closeModal}>
                     <IoMdClose size={34} />
                 </button>

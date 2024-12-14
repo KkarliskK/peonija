@@ -113,17 +113,14 @@ class ProductController extends Controller
         $imagesByCategory = [];
     
         foreach ($files as $file) {
-            // Assuming images are organized in a directory structure like:
-            // gallery/category/image.jpg
+
             $pathParts = explode('/', $file->getRelativePathname());
-            $category = $pathParts[0]; // Get the first part as the category
+            $category = $pathParts[0]; 
     
-            // Initialize the category if it doesn't exist
             if (!isset($imagesByCategory[$category])) {
                 $imagesByCategory[$category] = [];
             }
     
-            // Add the image URL to the category
             $imagesByCategory[$category][] = asset('gallery/' . $file->getRelativePathname());
         }
     
@@ -134,7 +131,7 @@ class ProductController extends Controller
     // Create a new product
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
@@ -144,21 +141,30 @@ class ProductController extends Controller
             'quantity' => 'min:0|required'
         ]);
     
-        // Create the product
-        $product = Product::create($request->only(['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image']));
+        $product = Product::create($data);
     
         // Return a JSON response
         return response()->json([
             'message' => 'Produkts veiksmīgi pievienots!',
             'product' => $product,
-        ], 201); // 201 Created
+        ], 201);
     }
 
     public function update(Request $request, $id)
     {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'is_available' => 'required|boolean',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable',
+            'quantity' => 'min:0|required'
+        ]);
+
         $product = Product::findOrFail($id);
 
-        $product->update($request->only(['name', 'description', 'price', 'is_available', 'quantity', 'category_id', 'image']));
+        $product->update($data);
 
         $products = Product::all();
         $category_id = $request->query('category_id'); 

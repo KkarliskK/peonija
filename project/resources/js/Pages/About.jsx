@@ -35,7 +35,7 @@ export default function About({ auth }) {
                                     aria-label="Google Map location of Peonija flower shop" 
                                 ></iframe>
                             </div>
-                            <div className='flex w-full h-full justify-center items-center m-4 p-4'>
+                            <div className='flex sm:w-full w-4/5 h-full justify-center items-center sm:m-4 sm:p-4 px-4'>
                                 <InstagramEmbed />
                             </div>
                         </div>
