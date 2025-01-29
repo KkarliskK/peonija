@@ -219,7 +219,7 @@ export default function Slideshow({ auth, categories }) {
                         <div className="absolute flex justify-around w-2/6 h-24 top-0 right-0 bg-gradient-to-br from-violet-200 to-pink-100 text-black p-2 rounded-md shadow-lg">
                             <div className='flex justify-center items-center flex-col'>
                                 <p className='text-2xl'>{currentDate}</p>
-                                <p className='text-xl'><strong>Šodienas vārda dienas:</strong> {todayNamedays}</p>
+                                <p className='text-xl'><strong>Šodien vārda dienu svin:</strong> {todayNamedays}</p>
                             </div>
                             <div className='flex justify-center items-center h-full'>
                                 <p className='text-4xl'>{currentTime}</p>

@@ -3,9 +3,10 @@ import React, { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import InputLabel from '@/Components/Input/InputLabel';
 import TextInput from '@/Components/Input/TextInput';
-import { MdEmail } from "react-icons/md";
+import { MdEmail, MdLocationOn, MdPhone, MdAccessTime } from "react-icons/md";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
-import css from '../../css/Contact.module.css';
+import { AiFillLike } from "react-icons/ai";
+
 
 export default function Contact({ auth }) {
 
@@ -48,73 +49,129 @@ export default function Contact({ auth }) {
 
     return (
         <>
-            <main id='contact' className='h-auto sm:h-dvh'>
-            <div className='flex w-full justify-center items-center h-full'>
-                <div className='flex w-full justify-center items-center flex-col h-full '>
-                <div className='w-full flex items-center justify-center mb-24'>
-                    <h1 className='font-semibold text-5xl uppercase text-center dark:text-white'>Kontakti</h1>
-                </div>
-                <div className={`grid sm:grid-cols-2 items-center gap-16 p-8 mx-auto max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-md text-[#333] font-[sans-serif] dark:bg-gray-700 dark:text-white`}>
-                    <div>
-                    <h1 className="text-3xl font-extrabold">Sazinies ar mums!</h1>
-                    <p className="text-sm text-gray-400 mt-3">Vai Tev ir kāds īpašs pasūtījums ko vēlies izpildīt? Tad droši sazinies ar mums!</p>
-                    <ul className="mt-12">
-                        <li className="flex items-center">
-                        <div className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center dark:bg-gray-700">
-                            <MdEmail size={32} color='#007bff' />
-                        </div>
-                        <a href="mailto:zieduveikalspeonija@gmail.com" className="text-[#007bff] text-sm ml-3">
-                            <small className="block">e-pasts</small>
-                            <strong>zieduveikalspeonija@gmail.com</strong>
-                        </a>
-                        </li>
-                    </ul>
-                    <ul className="flex mt-12 space-x-4">
-                        <li className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center dark:bg-gray-700">
-                        <a href="https://www.facebook.com/Peoniijaa/">
-                            <FaFacebook size={32} color='#007bff' />
-                        </a>
-                        </li>
-                        <li className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center dark:bg-gray-700">
-                        <a href="https://www.instagram.com/ziedu.veikals.peonija/">
-                            <FaInstagram size={32} color="#007bff" />
-                        </a>
-                        </li>
-                    </ul>
-                    </div>
+            <main id='contact' className='min-h-dvh bg-gradient-to-b from-primary-pink to-accent'>
+  <div className='container mx-auto px-4 py-16'>
+    {/* Hero Section */}
+    <div className='w-full flex flex-col items-center justify-center mb-16 text-white'>
+      <h1 className='font-semibold text-5xl uppercase text-center mb-4'>Kontakti</h1>
+      <p className='text-lg text-center max-w-2xl'>Mēs priecājamies par katru klientu un esam gatavi palīdzēt izveidot Jūsu sapņu ziedu pušķi!</p>
+    </div>
 
-                    <form ref={form} className="ml-auto space-y-4" onSubmit={sendEmail}>
-                    <TextInput
-                        className="w-full rounded-md py-2.5 px-4 border text-sm"
-                        type="text"
-                        name="user_name"
-                        id='user_name'
-                        placeholder="Vārds"
-                    />
-
-                    <TextInput
-                        className="w-full rounded-md py-2.5 px-4 border text-sm"
-                        type="email"
-                        name="user_email"
-                        id="user_email"
-                        placeholder="e-pasts"
-                    />
-
-                    <textarea
-                        className={'resize-none w-full h-32 rounded-md px-4 border text-sm pt-2.5 outline-none border-gray-300 dark:bg-gray-900 dark:text-white'} 
-                        name="message"
-                        id='message'
-                        placeholder="Ziņa ..."
-                    />
-
-                    <button className={`text-white bg-[#007bff] hover:bg-blue-600 font-semibold rounded-md text-sm px-4 py-2.5 w-full`} type="submit">Sūtīt</button>
-
-                    {message && <div className={`m-2 w-full p-1 rounded flex justify-center items-center text-lg font-semibold transition-opacity duration-500 px-4 border  ${slideOut ? css['slide-out'] : ''} ${messageType === 'success' ? css['bg-green-500'] + ' ' + css['slide-in'] : css['bg-red-500'] + ' ' + css['slide-in']}`}>{message}</div>}
-                    </form>
-                </div>
-                </div>
+    {/* Main Content */}
+    <div className='grid lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto' style={{ display: 'flex', alignItems: 'stretch' }}>
+      {/* Info Cards */}
+      <div className='space-y-6'>
+        {/* Location Card */}
+        <div className='bg-white/95 p-6 rounded-lg shadow-lg dark:bg-gray-700 flex-1'>
+          <div className='flex items-center gap-4 mb-4'>
+            <div className='bg-primary-pink/20 p-3 rounded-full'>
+              <MdLocationOn size={24} className='text-accent' />
             </div>
-            </main>
+            <h3 className='font-bold text-lg'>Atrašanās vieta</h3>
+          </div>
+          <p className='text-gray-600 dark:text-gray-300'>Uzvaras Bulvāris 1B, Cēsis</p>
+        </div>
+
+        {/* Working Hours Card */}
+        <div className='bg-white/95 p-6 rounded-lg shadow-lg dark:bg-gray-700 flex-1'>
+          <div className='flex items-center gap-4 mb-4'>
+            <div className='bg-primary-pink/20 p-3 rounded-full'>
+              <AiFillLike size={24} className='text-accent' />
+            </div>
+            <h3 className='font-bold text-lg'>Sociālie tīkli</h3>
+          </div>
+          <div className='flex flex-col'>
+            <div className='mx-3 my-1'>
+              <a href='https://www.facebook.com/Peoniijaa/' className='text-accent hover:text-primary-pink flex flex-row'>
+                <FaFacebook size={24} />
+                <p className='mx-3'>Peonija Facebook</p>
+              </a>
+            </div>
+            <div className='mx-3 my-1'>
+              <a href='https://www.instagram.com/ziedu.veikals.peonija/' className='text-accent hover:text-primary-pink flex flex-row'>
+                <FaInstagram size={24} />
+                <p className='mx-3'>Peonija Instagram</p>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Info Card */}
+        <div className='bg-white/95 p-6 rounded-lg shadow-lg dark:bg-gray-700 flex-1'>
+          <div className='flex items-center gap-4 mb-4'>
+            <div className='bg-primary-pink/20 p-3 rounded-full'>
+              <MdPhone size={24} className='text-accent' />
+            </div>
+            <h3 className='font-bold text-lg'>Kontakti</h3>
+          </div>
+          <div className='space-y-4'>
+            <a href="tel:+37129484017" className='block text-accent hover:text-primary-pink'>
+              +371 29484071
+            </a>
+            <a href="mailto:zieduveikalspeonija@gmail.com" className='block text-accent hover:text-primary-pink'>
+              zieduveikalspeonija@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Form */}
+      <div className='lg:col-span-2 flex-1'>
+        <div className='bg-white/95 p-8 rounded-lg shadow-lg dark:bg-gray-700 h-full'>
+          <h2 className='text-3xl font-bold mb-6'>Sazinies ar mums!</h2>
+          <p className='text-gray-500 dark:text-gray-400 mb-8'>
+            Vai Tev ir kāds īpašs pasūtījums ko vēlies izpildīt? Tad droši sazinies ar mums!
+          </p>
+
+          <form ref={form} className='space-y-6' onSubmit={sendEmail}>
+            <div className='grid sm:grid-cols-2 gap-6'>
+              <TextInput
+                className='w-full rounded-lg py-3 px-4 border text-sm'
+                type='text'
+                name='user_name'
+                id='user_name'
+                placeholder='Vārds'
+              />
+              <TextInput
+                className='w-full rounded-lg py-3 px-4 border text-sm'
+                type='email'
+                name='user_email'
+                id='user_email'
+                placeholder='e-pasts'
+              />
+            </div>
+
+            <textarea
+              className='w-full h-40 rounded-lg px-4 border text-sm pt-3 resize-none dark:bg-gray-900 dark:text-white'
+              name='message'
+              id='message'
+              placeholder='Ziņa ...'
+            />
+
+            <div className='flex items-center justify-between'>
+              <button className='text-white bg-accent hover:bg-primary-pink transition-colors font-semibold rounded-lg text-sm px-8 py-3' type='submit'>
+                Sūtīt
+              </button>
+            </div>
+          </form>
+
+          {message && (
+            <div className={`mt-6 p-4 rounded-lg text-center text-white font-semibold transition-all duration-500 ${
+              slideOut ? 'opacity-0 transform translate-y-2' : 'opacity-100'
+            } ${messageType === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+              {message}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {/* Decorative Elements */}
+    <div className='absolute top-20 left-10 w-24 h-24 bg-white/10 rounded-full blur-xl' />
+    <div className='absolute bottom-20 right-10 w-32 h-32 bg-accent/20 rounded-full blur-xl' />
+  </div>
+</main>
+
         </>
     );
 }

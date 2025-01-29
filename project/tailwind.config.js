@@ -27,6 +27,7 @@ export default {
         },
         colors: {
           accent: '#d6016d',
+          'primary-pink': '#fc61b6',
         },
         gradientColorStopPositions: {
           33: '33%',

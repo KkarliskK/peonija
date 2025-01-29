@@ -213,6 +213,8 @@ export default function Authenticated({ auth, header, children}) {
             <footer className="py-16 text-center text-sm h-auto bg-white dark:bg-gray-800 text-black dark:text-white/70">
                 <div className='flex sm:flex-row flex-col justify-center items-center w-full'>
                     <div className='flex flex-col justify-center items-start p-2 m-2'>
+                        <h5>Peonija</h5>
+                        <hr />
                         <p>Sākums</p>
                         <p>Populāri piedāvājumi</p>
                         <p>Par mums</p>
