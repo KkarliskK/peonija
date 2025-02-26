@@ -56,12 +56,12 @@ export default function Authenticated({ auth, header, children}) {
 
 
     return (
-        <div className="flex justify-between flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-2">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col justify-between min-h-screen bg-gray-100 dark:bg-gray-900">
+            <nav className="p-2 bg-white border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
-                            <div className="shrink-0 flex items-center">
+                            <div className="flex items-center shrink-0">
                                 <Link href="/">
                                     <img src={logo} loading='lazy' className="h-16 sm:h-20" alt="Your Logo" />                               
                                 </Link>
@@ -89,13 +89,13 @@ export default function Authenticated({ auth, header, children}) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            <div className="ms-3 relative">
+                            <div className="relative ms-3">
                             <Dropdown>
                                         <Dropdown.Trigger>
                                         <button
                                             ref={dropdownRef}
                                             onClick={toggleDropdown}
-                                            className="w-full text-black rounded-3xl p-3 sm:py-2 inline-flex items-center relative dark:text-gray-200"
+                                            className="relative inline-flex items-center w-full p-3 text-black rounded-3xl sm:py-2 dark:text-gray-200"
                                         >
                                             Vairāk
                                             <svg
@@ -148,12 +148,12 @@ export default function Authenticated({ auth, header, children}) {
                             </div>
                         </div>
 
-                        <div className="-me-2 flex items-center sm:hidden">
+                        <div className="flex items-center -me-2 sm:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
+                                className="inline-flex items-center justify-center p-2 text-gray-400 transition duration-150 ease-in-out rounded-md dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400"
                             >
-                                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                     <path
                                         className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
                                         strokeLinecap="round"
@@ -202,39 +202,108 @@ export default function Authenticated({ auth, header, children}) {
             </nav>
 
             {header && (
-                <header className="bg-white dark:bg-gray-800 shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
+                <header className="bg-white shadow dark:bg-gray-800">
+                    <div className="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
 
             <main>{children}</main>
 
 
-            <footer className="py-16 text-center text-sm h-auto bg-white dark:bg-gray-800 text-black dark:text-white/70">
-                <div className='flex sm:flex-row flex-col justify-center items-center w-full'>
-                    <div className='flex flex-col justify-center items-start p-2 m-2'>
-                        <h5>Peonija</h5>
-                        <hr />
-                        <p>Sākums</p>
-                        <p>Populāri piedāvājumi</p>
-                        <p>Par mums</p>
-                        <p>Blogs</p>
-                        <p>Galerija</p>
-                        <p>Interneta veikals</p>
+           <footer className="py-16 dark:bg-gray-800">
+                <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+                    {/* Website option Section */}
+                    <div className="flex flex-col items-center sm:items-start">
+                        <div className="flex flex-col justify-center text-center w-fit min-w-24">
+                            <h5 className="mb-2 text-lg font-semibold text-black uppercase dark:text-white">Peonija</h5>
+                            <hr className="h-px mb-4 border-0 bg-black/20 dark:bg-white/20" />
+                        </div>
+                        <nav className="flex flex-col items-center space-y-2 sm:items-start">
+                        <NavLink to="#" onClick={(e) => {e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' })}}
+                            className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Sākums
+                        </NavLink>
+                        <NavLink to="#" onClick={(e) => {e.preventDefault(); scrollToSection('special_orders')}}
+                            className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Piedāvājumi
+                        </NavLink>
+                        <NavLink to="#" onClick={(e) => {e.preventDefault(); scrollToSection('about')}}
+                            className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Par Mums
+                        </NavLink>
+                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Blogs
+                        </NavLink>
+                        <NavLink to="/galerija" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Galerija
+                        </NavLink>
+                        <NavLink to="/shop" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Interneta Veikals
+                        </NavLink>
+                        </nav>
                     </div>
-                    <div className='flex flex-col justify-center items-center p-2 m-2'>
-                        <h3 className='font-semibold text-md'>Noteikumi un BUJ</h3>
-                        <p>Privātuma politika</p>
+
+                    {/* Rules Section */}
+                    <div className="flex flex-col items-center sm:items-start">
+                        <div className="w-fit">
+                        <h5 className="mb-2 text-lg font-semibold text-black dark:text-white">Noteikumi un BUJ</h5>
+                        <hr className="h-px mb-4 border-0 bg-black/20 dark:bg-white/20" />
+                        </div>
+                        <nav className="flex flex-col items-center space-y-2 sm:items-start">
+                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Bieži uzdotie jautājumi
+                        </NavLink>
+                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Privātuma politika
+                        </NavLink>
+                        </nav>
                     </div>
-                    <div className='flex flex-col justify-center items-center p-2 m-2'>
-                        <h3 className='font-semibold text-md'>Sazinies ar mums</h3>
-                        <p>Adrese: Uzvaras Bulvāris 1B, Cēsis</p>
-                        <p>Mobilais: <a href='tel:+37129484017'>+371 29484071</a></p>
-                        <p>E-pasts: <a href="mailto: zieduveikalspeonija@gmail.com">zieduveikalspeonija@gmail.com</a></p>
+
+                    {/* Company Info Section */}
+                    <div className="flex flex-col items-center sm:items-start">
+                        <div className="w-fit">
+                        <h5 className="mb-2 text-lg font-semibold text-black dark:text-white">Uzņēmuma informācija</h5>
+                        <hr className="h-px mb-4 border-0 bg-black/20 dark:bg-white/20" />
+                        </div>
+                        <nav className="flex flex-col items-center space-y-2 sm:items-start">
+                        <span className="text-gray-600 w-fit dark:text-gray-300">
+                            Adrese: Uzvaras Bulvāris 1B, Cēsis
+                        </span>
+                        <span className="text-gray-600 w-fit dark:text-gray-300">
+                            Mobilais: <a href="tel:+37129484017" className="hover:text-black dark:hover:text-white">+371 29484071</a>
+                        </span>
+                        <span className="text-gray-600 w-fit dark:text-gray-300">
+                            E-pasts: <br />
+                            <a href="mailto:zieduveikalspeonija@gmail.com" className="hover:text-black dark:hover:text-white">
+                            zieduveikalspeonija@gmail.com
+                            </a>
+                        </span>
+                        </nav>
                     </div>
-                    <div className='flex flex-col justify-center items-center p-2 m-2'>
+
+                    {/* Social Media Section */}
+                    <div className="flex flex-col items-center sm:items-start">
+                        <div className="w-fit">
+                        <h5 className="mb-2 text-lg font-semibold text-black dark:text-white">Sociālie tīkli</h5>
+                        <hr className="h-px mb-4 border-0 bg-black/20 dark:bg-white/20" />
+                        </div>
+                        <nav className="flex flex-col items-center space-y-2 sm:items-start">
+                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Facebook
+                        </NavLink>
+                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                            Instagram
+                        </NavLink>
+                        </nav>
+                    </div>
+                    </div>
+
+                    <div className="pt-8 mt-16 border-t border-black/10 dark:border-white/10">
+                    <div className="text-sm text-center text-gray-600 dark:text-gray-400">
                         <p>© Peonija, SIA</p>
                         <p>2021-2024</p>
+                    </div>
                     </div>
                 </div>
             </footer>

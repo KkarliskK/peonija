@@ -6,31 +6,37 @@ export default function PostNotification({ message, type = 'success', isOpen, on
 
     useEffect(() => {
         if (isOpen) {
-            setDisplay(true);  // Show the notification
-            setTimeout(() => setVisible(true), 10);  // Trigger slide-in after slight delay
+            setDisplay(true); 
+            setTimeout(() => setVisible(true), 10); 
         } else {
-            setVisible(false);  // Trigger fade-out
-            setTimeout(() => setDisplay(false), 300);  // Wait for fade-out to complete before unmounting
+            setVisible(false); 
+            setTimeout(() => setDisplay(false), 300);  
         }
     }, [isOpen]);
 
-    if (!display) return null;  // Avoid rendering when the notification is not active
+    if (!display) return null;  
 
     const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
 
     return (
         <div
-            className={`popup fixed top-5 right-5 ${bgColor} text-white p-4 rounded shadow-lg flex justify-between items-center
-            transition-transform duration-300 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}
-            transition-opacity duration-300 ease-in-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+            className={`popup fixed top-5 right-5 ${bgColor} text-white p-4 rounded shadow-lg flex justify-between items-center`}
+            style={{
+                opacity: visible ? 1 : 0,          
+                transform: visible ? 'translateX(0)' : 'translateX(100%)',
+                zIndex: 9999,                     
+                transition: 'opacity 0.3s, transform 0.3s', 
+            }}
         >
             <span>{message}</span>
             <button 
                 onClick={onClose} 
-                className="ml-4 bg-transparent text-white font-bold text-lg focus:outline-none"
+                className="ml-4 text-lg font-bold text-white bg-transparent focus:outline-none"
             >
                 &times;
             </button>
         </div>
     );
+
 }
+

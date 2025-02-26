@@ -11,24 +11,77 @@ use Inertia\Inertia;
 
 class CartController extends Controller
 {
-
-    public function index()
+    public function guestIndex()
     {
-        $user = Auth::user();
-        if (!$user) {
-            return redirect()->route('login'); 
+        return Inertia::render('Shop/GuestCart');
+    }
+
+    public function syncGuestCart(Request $request)
+    {
+        // Retrieve the cart data sent by the frontend
+        $guestCart = $request->input('cart', []);
+
+        if (Auth::check()) {
+            // User is logged in
+            $userId = Auth::id();
+
+            foreach ($guestCart as $item) {
+                // Check if the item exists for the user
+                $existingCartItem = CartItem::where('user_id', $userId)
+                    ->where('product_id', $item['id'])
+                    ->first();
+
+                if ($existingCartItem) {
+                    // Update the quantity if the item already exists in the user's cart
+                    $existingCartItem->update([
+                        'quantity' => $existingCartItem->quantity + $item['quantity']
+                    ]);
+                } else {
+                    // Create a new CartItem for the user
+                    CartItem::create([
+                        'user_id' => $userId,
+                        'product_id' => $item['id'],
+                        'quantity' => $item['quantity']
+                    ]);
+                }
+            }
+
+            // After syncing the guest cart, we can clear it from session or local storage
+            return response()->json([
+                'message' => 'Cart synced successfully',
+                'should_clear_guest_cart' => true
+            ]);
         }
-        
-        $cart = Cart::with('items.product')->firstOrCreate([
-            'user_id' => Auth::id(),
-        ]);
-        
-        return Inertia::render('Shop/CartView', [
-            'cartItems' => $cart->items,
+
+        // If user is not logged in, just return the guest cart
+        return response()->json([
+            'message' => 'Guest cart validated',
+            'cart' => $guestCart
         ]);
     }
-    
-    
+
+public function index(Request $request)
+{
+    if ($request->expectsJson()) { // Check if it's an API request
+        if (Auth::check()) {
+            $cart = Cart::with('items.product')->firstOrCreate([
+                'user_id' => Auth::id(),
+            ]);
+            return response()->json(['cartItems' => $cart->items]);
+        } else {
+            $guestCart = session()->get('guest_cart', []);
+            return response()->json(['cartItems' => $guestCart]);
+        }
+    }
+
+    // If it's a normal page request, return the Inertia view
+    return Inertia::render('Shop/CartView', [
+        'cartItems' => Auth::check() ? Cart::with('items.product')->firstOrCreate([
+            'user_id' => Auth::id(),
+        ])->items : session()->get('guest_cart', []),
+    ]);
+}
+
 
     public function store(Request $request)
     {
@@ -96,9 +149,6 @@ class CartController extends Controller
     
         return redirect()->route('cart.index')->with('success', 'Quantity updated successfully!');
     }
-    
-    
-    
 
     public function remove($id)
     {
@@ -111,7 +161,6 @@ class CartController extends Controller
 
         return redirect()->route('cart.index')->withErrors(['error' => 'Can not delete product from cart.']);
     }
-    
 
     // Clear the cart
     public function clear()

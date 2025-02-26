@@ -1,52 +1,52 @@
 import { useState } from 'react';
-import { IoMdClose, IoMdAdd, IoMdRemove } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { Inertia } from '@inertiajs/inertia';
-import BuyButton from '@/Components/Buttons/BuyButton';
-import { Link } from '@inertiajs/react';
-import { CiCircleInfo } from "react-icons/ci";
 
-export default function ProductModal({ product, closeModal, addToCart, auth }) {
-    const [quantity, setQuantity] = useState(0);
+export default function ProductModal({ product, closeModal, addToCart }) {
+    const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isFilled, setIsFilled] = useState(product.is_liked);
-    const [likeCount, setLikeCount] = useState(product.likes_count); 
+    const [likeCount, setLikeCount] = useState(product.likes_count);
     const totalPrice = (product.price * quantity).toFixed(2);
-    const [isHovered, setIsHovered] = useState(false);
 
-    // Handle quantity change
-    const handleQuantityChange = (change) => {
-        setQuantity((prev) => {
-            const newQuantity = prev + change;
-            return Math.max(1, Math.min(newQuantity, product.quantity)); 
-        });
+   const handleQuantityChange = (value) => {
+        if (value === "") {
+            setQuantity(value); 
+            return;
+        }
+
+        const newQuantity = parseInt(value, 10);
+        if (!isNaN(newQuantity) && newQuantity >= 1 && newQuantity <= product.quantity) {
+            setQuantity(newQuantity);
+        }
     };
-    
-    //handle liking 
+
     const handleLikeClick = async (e) => {
         e.preventDefault();
         try {
-            const response = await Inertia.post(`/products/${product.id}/like`, {
+            await Inertia.post(`/products/${product.id}/like`, {
                 _method: 'POST',
-                preserveScroll: true, 
-                preserveState: true, 
+                preserveScroll: true,
+                preserveState: true,
             });
-
-            setIsFilled((prev) => !prev);
-            setLikeCount((prev) => isFilled ? prev - 1 : prev + 1); 
+            setIsFilled(prev => !prev);
+            setLikeCount(prev => isFilled ? prev - 1 : prev + 1);
         } catch (error) {
             console.error('Error liking product:', error);
         }
     };
 
-
-    // Handle adding product to the cart
     const handleAddToCart = async () => {
+        if (!quantity || quantity < 1) {
+            setQuantity(1); 
+            return;
+        }
+
         setLoading(true);
         try {
-            if (product) {  
+            if (product) {
                 await addToCart(product, quantity);
-                console.log("Adding to cart:", product, quantity);
                 closeModal();
             }
         } catch (error) {
@@ -56,79 +56,85 @@ export default function ProductModal({ product, closeModal, addToCart, auth }) {
         }
     };
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="flex justify-center items-center flex-col bg-white rounded-lg shadow-md relative sm:w-2/5 w-11/12">
-                <button className="absolute top-0 right-0 text-red-600 bg-violet-300 p-2 rounded-bl-[25px] " onClick={closeModal}>
-                    <IoMdClose size={34} />
-                </button>
-                <div className='w-full h-80 overflow-hidden rounded'>
-                    <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-                <div className='flex items-start flex-col w-full p-4'>
-                    <h2 className="text-3xl font-semibold mb-2 product-name">{product.name}</h2>
-                    <p className="text-lg mb-4">{product.price} €</p>
-                    <p className="text-sm mb-4">Piedāvājumā: {product.quantity} vienības</p> 
-                </div>
-                <div className="flex sm:flex-row flex-col justify-center items-center w-full mb-4 p-6">
-                <div className='flex justify-center items-center p-2 rounded-lg bg-gradient-to-br from-violet-200 to-pink-100 sm:w-2/6 w-4/5 my-2'>
-                        <button
-                            className={`p-2 bg-white rounded-full ${quantity <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            onClick={() => handleQuantityChange(-1)}
-                            disabled={quantity <= 0}
-                        >
-                            <IoMdRemove size={20} />
-                        </button>
-                        <span className="px-4 mx-4 text-xl">{quantity}</span>
-                        <button
-                            className="p-2 bg-white rounded-full"
-                            onClick={() => handleQuantityChange(1)}
-                            disabled={quantity >= product.quantity} 
-                        >
-                            <IoMdAdd size={20} />
-                        </button>
-                    </div>
 
-                    {auth?.id ? (
-                        <BuyButton
-                            onClick={handleAddToCart}
-                            className={`text-white p-4 mx-4 my-2 add-to-cart ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={loading}
-                        >
-                            {loading ? 'Pievieno...' : `Pievienot grozam (${totalPrice} €)`}
-                        </BuyButton>
-                    ) : (
-                        <div className='relative flex flex-row items-center justify-center'>
-                            <Link href='/login'>
-                                <BuyButton className="text-white p-4 mx-4 login-button">
-                                    Pieslēgties
-                                </BuyButton>
-                            </Link>
-                            <CiCircleInfo
-                                className='text-black cursor-pointer'
-                                size={26}
-                                onMouseEnter={() => setIsHovered(true)}
-                                onMouseLeave={() => setIsHovered(false)}
-                            />
-                            {isHovered && (
-                                <div className='rounded bg-gray-100 shadow-md p-2 absolute bottom-12 z-10'>
-                                    <p className='text-black'>Lai pievienotu produktu grozam, ir nepieciešams pieslēgties savam kontam.</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    <button onClick={handleLikeClick} className='flex items-center'>
-                        {isFilled ? (
-                            <FaHeart className='sm:mx-4 mx-2 text-2xl' color="red" />
-                        ) : (
-                            <FaRegHeart className='sm:mx-4 mx-2 text-2xl' />
-                        )}
-                        <span className="text-lg">{likeCount}</span>
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/25 backdrop-blur-sm">
+            <div className="relative w-full max-w-2xl overflow-hidden bg-white shadow-xl rounded-2xl">
+                <div className="absolute z-10 top-4 right-4">
+                    <button 
+                        onClick={closeModal}
+                        className="p-2 transition-colors duration-200 rounded-full bg-white/80 hover:bg-white"
+                    >
+                        <IoMdClose size={24} className="text-gray-700" />
                     </button>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="relative h-[300px] md:h-[400px] overflow-hidden">
+                        <img
+                            src={product.image}
+                            alt={product.name}
+                            className="absolute inset-0 object-cover w-full h-full"
+                        />
+                    </div>
+                    <div className="flex flex-col p-6 md:pr-8">
+                        <div className="flex items-start justify-between mb-4">
+                            <h2 className="text-2xl font-semibold text-gray-900">{product.name}</h2>
+                            <button 
+                                onClick={handleLikeClick}
+                                className="flex items-center gap-2 text-gray-500 transition-colors duration-200 hover:text-red-500"
+                            >
+                                {isFilled ? (
+                                    <FaHeart className="text-red-500" size={20} />
+                                ) : (
+                                    <FaRegHeart size={20} />
+                                )}
+                                <span className="text-sm font-medium">{likeCount}</span>
+                            </button>
+                        </div>
+
+                        <div className="flex-grow space-y-4">
+                            <p className="text-2xl font-semibold text-gray-900">
+                                {product.price} €
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                Piedāvājumā: {product.quantity} vienības
+                            </p>
+                        </div>
+
+                        <div className="mt-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <label className="text-sm font-medium text-gray-700">Daudzums:</label>
+                                <div className="flex items-center">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max={product.quantity}
+                                        value={quantity}
+                                        onChange={(e) => handleQuantityChange(e.target.value)}
+                                        onBlur={() => {
+                                            if (!quantity || quantity < 1) {
+                                                setQuantity(1); 
+                                            }
+                                        }}
+                                        className="w-16 px-3 py-2 text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleAddToCart}
+                                disabled={loading}
+                                className="w-full px-6 py-3 text-white transition-colors duration-200 bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? (
+                                    'Pievieno...'
+                                ) : (
+                                    `Pievienot grozam · ${totalPrice} €`
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

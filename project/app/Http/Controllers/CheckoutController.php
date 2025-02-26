@@ -8,12 +8,67 @@ use Stripe\Stripe;
 use App\Models\OrderItem; 
 use Stripe\Checkout\Session;
 use App\Models\Cart;
-use App\Mail\OrderNotification;
-use App\Mail\OrderReceipt;
-use Illuminate\Support\Facades\Mail;
+use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
+    public function checkout(Request $request)
+    {
+        $user = auth()->user(); 
+        
+        if ($user) {
+            $cart = $user->carts()->first();
+        } else {
+            $cart = session('guest_cart', []);
+        }
+
+        // If no cart is found, redirect to the shop
+        if (empty($cart) || (is_array($cart) && count($cart) === 0)) {
+            return redirect('/shop')->with('message', 'No active cart found.');
+        }
+
+        $cartItems = is_array($cart) ? $cart : $cart->cartItems()->with('product')->get();
+
+        return inertia('Shop/Checkout', ['cartItems' => $cartItems]);
+    }
+
+    public function syncCart(Request $request)
+    {
+        $cartData = $request->input('cart', []);
+        
+        if (Auth::check()) {
+            $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+            
+            foreach ($cartData as $item) {
+                $productId = $item['id'] ?? null;
+                
+                if (!$productId) {
+                    continue; // Skip items without a valid product ID
+                }
+                
+                $cartItem = CartItem::where('cart_id', $cart->id)
+                                    ->where('product_id', $productId)
+                                    ->first();
+
+                if ($cartItem) {
+                    $cartItem->quantity += $item['quantity']; 
+                    $cartItem->save();
+                } else {
+                    CartItem::create([
+                        'cart_id' => $cart->id,
+                        'product_id' => $productId,
+                        'quantity' => $item['quantity'],
+                    ]);
+                }
+            }
+        } else {
+            session(['guest_cart' => $cartData]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -22,16 +77,23 @@ class CheckoutController extends Controller
             'address' => 'required|string|max:255',
             'paymentMethod' => 'required|string',
         ]);
-    
+
+        $userId = auth()->id() ?? session('guest_user_id');
+
+        if (!$userId) {
+            $userId = uniqid('guest_', true);  
+            session(['guest_user_id' => $userId]);
+        }
+
         $order = Order::create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId,
             'name' => $request->name,
             'email' => $request->email, 
             'address' => $request->address,
             'payment_method' => $request->paymentMethod,
             'total_price' => $this->calculateTotalPrice(),
         ]);
-    
+
         foreach ($request->cartItems as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -40,19 +102,19 @@ class CheckoutController extends Controller
                 'price' => $item['product']['price'],
             ]);
         }
-    
+
         return redirect()->route('order.confirmation', $order->id);
     }
 
     private function calculateTotalPrice()
     {
-        return 100.00; 
+        return 100.00;  
     }
 
     public function createCheckoutSession(Request $request)
     {
         Stripe::setApiKey(env('STRIPE_SECRET')); 
-    
+
         $request->validate([
             'cartItems' => 'required|array',
             'name' => 'required|string|max:255',
@@ -60,8 +122,7 @@ class CheckoutController extends Controller
             'mobile' => 'required|string|max:20',
             'address' => 'required|string|max:255',
         ]);
-    
-        // Store checkout data in session
+
         $request->session()->put('checkout_data', [
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -69,7 +130,7 @@ class CheckoutController extends Controller
             'address' => $request->input('address'),
         ]);
         $request->session()->put('cartItems', $request->input('cartItems'));
-    
+
         $lineItems = [];
         foreach ($request->cartItems as $item) {
             $lineItems[] = [
@@ -83,7 +144,7 @@ class CheckoutController extends Controller
                 'quantity' => $item['quantity'],
             ];
         }
-    
+
         try {
             $session = Session::create([
                 'payment_method_types' => ['card'],
@@ -92,44 +153,38 @@ class CheckoutController extends Controller
                 'success_url' => route('checkout.success'), 
                 'cancel_url' => route('checkout.cancel'),   
             ]);
-    
+
             return response()->json(['sessionId' => $session->id]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to create session: ' . $e->getMessage()], 500);
         }
     }
-    
 
     public function success(Request $request)
     {
-        $userId = auth()->id();
-        $user = auth()->user();
+        $userId = auth()->id() ?? session('guest_user_id');
         
-        // Retrieve cart items and checkout data from session
         $cartItems = $request->session()->get('cartItems', []);
         $checkoutData = $request->session()->get('checkout_data', []);
         
         if (empty($cartItems) || empty($checkoutData)) {
             return redirect()->route('shop.index')->with('error', 'Your cart is empty or session data is missing.');
         }
-        
-        // Calculate total price
+
         $totalPrice = array_reduce($cartItems, function ($total, $item) {
             return $total + ($item['product']['price'] * $item['quantity']);
         }, 0);
-        
-        // Create the order
+
         $order = Order::create([
             'user_id' => $userId,
-            'name' => $user->name,
-            'email' => $user->email,
+            'name' => $checkoutData['name'],
+            'email' => $checkoutData['email'],
             'mobile' => $checkoutData['mobile'],
             'address' => $checkoutData['address'],
             'payment_method' => 'stripe',
             'total_price' => $totalPrice,
         ]);
-    
-        // Insert order items and update product quantities
+
         foreach ($cartItems as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -137,14 +192,12 @@ class CheckoutController extends Controller
                 'quantity' => $item['quantity'],
                 'price' => (float)$item['product']['price'],
             ]);
-    
-            // Update product quantity
+
             $product = \App\Models\Product::find($item['product']['id']);
             
             if ($product) { 
                 $product->quantity -= $item['quantity']; 
                 
-                // Check if quantity goes below zero
                 if ($product->quantity < 0) {
                     $product->quantity = 0; 
                 }
@@ -152,8 +205,7 @@ class CheckoutController extends Controller
                 $product->save(); 
             }
         }
-    
-        // Clear cart items for the user after order completion
+
         Cart::where('user_id', $userId)->delete();
         $request->session()->forget('cartItems');
         
@@ -161,7 +213,6 @@ class CheckoutController extends Controller
             'order' => $order->load('items.product'),
         ]);
     }
-    
 
     public function history()
     {
@@ -170,13 +221,8 @@ class CheckoutController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Pass the orders to the Inertia component
         return inertia('Shop/OrderHistory', ['orders' => $orders]);
     }
-
-    
-    
-
 
     public function cancel()
     {

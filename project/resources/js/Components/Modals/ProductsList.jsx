@@ -38,8 +38,8 @@ const ProductList = ({
     });
 
     return (
-        <section className="w-full sm:p-8 p-0 mr-8 dark:bg-gray-700">
-            <h2 className="text-xl font-semibold mb-4">{selectedCategoryName()}</h2>
+        <section className="w-full p-0 mr-8 sm:p-8 dark:bg-gray-700">
+            <h2 className="mb-4 text-xl font-semibold">{selectedCategoryName()}</h2>
 
             {sortedProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[70dvh]">
@@ -51,13 +51,14 @@ const ProductList = ({
                             }}  
                             className="cursor-pointer"
                         >
-                            <OfferCard 
-                                className='w-full'
-                                image={product.image} 
+                            <OfferCard
+                                id={product.id}
+                                image={product.image}
                                 name={product.name}
-                                price={`${product.price} €`} 
-                                isAvailable={product.is_available} 
-                                initialLikesCount={product.likes_count} 
+                                price={`${product.price} €`}
+                                isAvailable={product.is_available}
+                                initialLikesCount={product.likes_count}
+                                isLiked={product.is_liked}
                                 quantity={product.quantity}
                             />
                         </div>
@@ -71,7 +72,7 @@ const ProductList = ({
                 <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 mx-1 rounded bg-gray-300 disabled:opacity-50"
+                    className="px-3 py-1 mx-1 bg-gray-300 rounded disabled:opacity-50"
                 >
                     Iepriekšējā lapa
                 </button>
@@ -79,7 +80,7 @@ const ProductList = ({
                 <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 mx-1 rounded bg-gray-300 disabled:opacity-50"
+                    className="px-3 py-1 mx-1 bg-gray-300 rounded disabled:opacity-50"
                 >
                     Nākamā lapa
                 </button>

@@ -16,10 +16,6 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Preload Critical CSS (optional) -->
-    <link rel="preload" href="/path/to/critical.css" as="style" />
-    <link rel="preload" href="/path/to/app.js" as="script" />
-
     <!-- Scripts -->
     @routes
     @viteReactRefresh
@@ -29,7 +25,7 @@
     @inertiaHead
 </head>
 
-<body class="h-dvh font-sans antialiased dark:bg-gray-900">
+<body class="font-sans antialiased h-dvh dark:bg-gray-900">
     <!-- Inertia renders your React components -->
     @inertia
 

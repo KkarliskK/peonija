@@ -3,14 +3,14 @@ import { Link, Head } from '@inertiajs/react';
 export default function Graphic({ auth }) {
     return (
         <>
-            <main id='about' className='relative sm:h-[50dvh] h-auto overflow-hidden'>
-                <div className='absolute top-0 left-0 w-full h-full z-0'>
-                    <div className='absolute top-0 right-0 w-full h-1/5 -z-10'>
+            <main id='about' className='relative mt-12 sm:h-[50dvh] h-auto overflow-hidden'>
+                <div className='absolute top-0 left-0 z-0 w-full h-full'>
+                    {/* <div className='absolute top-0 right-0 w-full h-1/5 -z-10'>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
                             <path fill="#fc61b6" fill-opacity="1" d="M0,0L120,26.7C240,53,480,107,720,117.3C960,128,1200,96,1320,80L1440,64L1440,0L1320,0C1200,0,960,0,720,0C480,0,240,0,120,0L0,0Z"></path>
                         </svg>
-                    </div>
-                    <div className='w-28 absolute top-10 left-5 hidden md:block'>
+                    </div> */}
+                    <div className='absolute hidden w-28 top-10 left-5 md:block'>
                         <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -39,7 +39,7 @@ export default function Graphic({ auth }) {
                             />
                         </svg>
                     </div>
-                    <div className='absolute bottom-10 right-10 hidden md:block'>
+                    <div className='absolute hidden bottom-10 right-10 md:block'>
                         <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -109,14 +109,14 @@ export default function Graphic({ auth }) {
                     </div>
                 </div>
 
-                <div className='relative z-10 flex w-full justify-center items-center'>
-                    <h1 className='font-semibold text-6xl uppercase text-center dark:text-white'>Mēs esam atvērti!</h1>
+                <div className='relative z-10 flex items-center justify-center w-full'>
+                    <h1 className='text-6xl font-semibold text-center uppercase dark:text-white'>Mēs esam atvērti!</h1>
                 </div>
-                <div className='relative z-10 flex w-full justify-center items-center h-3/5'>
-                    <div className='flex w-full flex-col justify-center items-center'>
-                        <p className='text-5xl font-semibold m-1 text-center mt-24 dark:text-white'>Pirmdiena - Sestdiena</p>
-                        <p className='text-4xl font-semibold mb-12 dark:text-white'>08:00 - 18:00</p>
-                        <p className='text-5xl font-semibold m-1 dark:text-white'>Svētdiena</p>
+                <div className='relative z-10 flex items-center justify-center w-full h-3/5'>
+                    <div className='flex flex-col items-center justify-center w-full'>
+                        <p className='m-1 mt-24 text-5xl font-semibold text-center dark:text-white'>Pirmdiena - Sestdiena</p>
+                        <p className='mb-12 text-4xl font-semibold dark:text-white'>08:00 - 18:00</p>
+                        <p className='m-1 text-5xl font-semibold dark:text-white'>Svētdiena</p>
                         <p className='text-4xl font-semibold dark:text-white'>08:00 - 16:00</p>
                     </div>
                 </div>

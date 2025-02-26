@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import GuestLayout from '@/Layouts/GuestLayout';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/Components/Modals/Sidebar';
 import ProductList from '@/Components/Modals/ProductsList';
@@ -94,7 +94,7 @@ export default function ShopView({ auth, categories = [], products = [] }) {
     return (
         <>
             <Head title="Veikals" />
-            <AuthenticatedLayout auth={auth}>
+            <GuestLayout auth={auth}>
                 <div className={`flex w-full h-auto min-h-screen relative ${isModalOpen ? '' : ''}`}>
                     {/* Sidebar */}
                     <Sidebar
@@ -126,14 +126,14 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                     />
 
                     {/* Product Modal Popup */}
-                    {isModalOpen && (
+                    {/* {isModalOpen && (
                         <ProductModal 
                             product={selectedProduct} 
                             closeModal={closeModal} 
                             addToCart={addToCart} 
                             auth={auth} 
                         />
-                    )}
+                    )} */}
                 </div>
                 <PostNotification
                     isOpen={isNotifOpen}
@@ -141,7 +141,7 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                     type={notifType}
                     onClose={closeNotif}
                 />
-            </AuthenticatedLayout>
+            </GuestLayout>
         </>
     );
 }

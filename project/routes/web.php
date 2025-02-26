@@ -48,28 +48,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/admin/products/{id}', [ProductController::class, 'update']);
 
     //Cart routes
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'store'])->name('cart.store');
     Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
-    //checkout routes
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-    Route::post('/checkout/create-session', [CheckoutController::class, 'createCheckoutSession'])->name('checkout.createSession');
-    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 
     Route::get('/order-history', [CheckoutController::class, 'history'])->name('order.history');
 
     Route::get('/saved-products', [ProductController::class, 'savedProducts'])->name('products.savedProducts');
 });
 
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
+
 //shop routes
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/', [ProductController::class, 'top'])->name('products.top');
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+
+Route::post('/checkout/sync-cart', [CheckoutController::class, 'syncCart']);
+Route::match(['get', 'post'], '/checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+Route::post('/checkout/store', [CheckoutController::class, 'storeCheckoutData'])->name('checkout.store');
+Route::post('/checkout/create-session', [CheckoutController::class, 'createCheckoutSession'])->name('checkout.createSession');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
 
 //shop liking function with atuh validation
 Route::middleware('auth')->group(function () {
@@ -86,6 +89,10 @@ Route::get('/galerija', function () {
     return Inertia::render('Shop/Gallery'); 
 })->name('gallery.index');
 
+Route::prefix('guest-cart')->group(function () {
+    Route::get('/', [CartController::class, 'guestIndex'])->name('guest-cart.index');
+    Route::post('/sync', [CartController::class, 'syncGuestCart'])->name('guest-cart.sync');
+});
 
 // Fallback route for 404 page
 Route::fallback(function () {

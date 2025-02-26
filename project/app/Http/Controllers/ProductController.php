@@ -177,14 +177,27 @@ class ProductController extends Controller
         ]);
     }
 
-    public function top(Request $request)
+  public function top(Request $request)
     {
-        $top_products = Product::orderBy('times_purchased', 'desc')->limit(3)->get();
-    
+        $top_products = Product::withCount('likes')
+            ->with(['likes' => function ($query) use ($request) {
+                $query->where('user_id', auth()->id());
+            }])
+            ->orderBy('times_purchased', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    ...$product->toArray(),
+                    'is_liked' => $product->likes->isNotEmpty(),
+                ];
+            });
+
         return Inertia::render('Welcome', [
             'top_products' => $top_products,
         ]);
     }
+
 
     public function show($id)
     {
@@ -194,13 +207,13 @@ class ProductController extends Controller
         ]);
     }
 
-    public function toggleLike(Request $request, $id)
+   public function toggleLike(Request $request, $id)
     {
         $user = auth()->user();
         $product = Product::findOrFail($id);
         
         $like = Like::where('user_id', $user->id)->where('product_id', $id)->first();
-    
+
         if ($like) {
             $like->delete();
             $liked = false;
@@ -208,8 +221,11 @@ class ProductController extends Controller
             Like::create(['user_id' => $user->id, 'product_id' => $id]);
             $liked = true;
         }
-    
-        return redirect()->back();
+
+        return response()->json([
+            'liked' => $liked,
+            'likesCount' => $product->likes()->count()
+        ]);
     }
 
     public function savedProducts(Request $request)

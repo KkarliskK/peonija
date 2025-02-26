@@ -114,19 +114,19 @@ export default function Slideshow({ auth, categories }) {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
-    
+        
             const day = now.toLocaleDateString('lv-LV', {
                 weekday: 'long', 
                 day: 'numeric', 
                 month: 'long', 
                 year: 'numeric'
             });
-    
+        
             const formattedDate = day.replace(
                 /\b\w/g, 
-                (char) => char.toUpperCase()
+                (char, index) => index === 0 ? char.toUpperCase() : char.toLowerCase()
             );
-    
+        
             setCurrentTime(`${hours}:${minutes}`);
             setCurrentDate(formattedDate);
         };
