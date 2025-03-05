@@ -4,6 +4,8 @@ import Dropdown from '@/Components/Buttons/Dropdown';
 import NavLink from '@/Components/Buttons/NavLink';
 import ResponsiveNavLink from '@/Components/Input/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
+import CartIcon from '@/Components/Modals/CartIcon';
+import SitePreferences from "@/Components/Modals/SitePreferences";
 
 export default function Authenticated({ auth, header, children}) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -28,7 +30,6 @@ export default function Authenticated({ auth, header, children}) {
         setDarkMode(!darkMode);
     };
 
-    const toggleMenu = () => setIsOpen(!isOpen);
     const [isDropOpen, setIsDropOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -54,7 +55,6 @@ export default function Authenticated({ auth, header, children}) {
         };
     }, [isDropOpen]);
 
-
     return (
         <div className="flex flex-col justify-between min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav className="p-2 bg-white border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
@@ -66,32 +66,38 @@ export default function Authenticated({ auth, header, children}) {
                                     <img src={logo} loading='lazy' className="h-16 sm:h-20" alt="Your Logo" />                               
                                 </Link>
                             </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Panelis
-                                </NavLink>
-                            </div>
+                            {auth?.user && (
+                                <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                    <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                        Panelis
+                                    </NavLink>
+                                </div>
+                            )}
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('shop.index')} active={route().current('shop.index')}>
                                     Interneta veikals 
                                 </NavLink>
                             </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('cart.index')} active={route().current('cart.index')}>
-                                    Iepirkuma Grozs 
-                                </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('order.history')} active={route().current('order.history')}>
-                                    Pirkumu vēsture 
-                                </NavLink>
-                            </div>
+                            {auth?.user && (
+                                <>
+                                    <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                        <NavLink href={route('order.history')} active={route().current('order.history')}>
+                                            Pirkumu vēsture 
+                                        </NavLink>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
+                            {/* Add CartIcon to desktop view */}
+                            <div className="mr-4">
+                                <CartIcon />
+                            </div>
+
                             <div className="relative ms-3">
-                            <Dropdown>
-                                        <Dropdown.Trigger>
+                                <Dropdown>
+                                    <Dropdown.Trigger>
                                         <button
                                             ref={dropdownRef}
                                             onClick={toggleDropdown}
@@ -114,16 +120,18 @@ export default function Authenticated({ auth, header, children}) {
                                                 />
                                             </svg>
                                         </button>
-                                        </Dropdown.Trigger>
-                                        <Dropdown.Content>
-                                            <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
-                                            <Dropdown.Link href="/galerija" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
-                                            <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
-                                            <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
-                                                Gaišais režīms
-                                            </Dropdown.Link>
-                                            
-                                            {auth  ? (
+                                    </Dropdown.Trigger>
+                                    <Dropdown.Content>
+                                        <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
+                                        <Dropdown.Link href="/galerija" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
+                                        
+                                        <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
+                                            {darkMode ? 'Gaišais' : 'Tumšais'} Režīms
+                                        </Dropdown.Link>
+                                        
+                                        {auth?.user ? (
+                                            <>
+                                                <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Profils</Dropdown.Link>
                                                 <Dropdown.Link
                                                     href={route('logout')}
                                                     method="post"
@@ -132,19 +140,19 @@ export default function Authenticated({ auth, header, children}) {
                                                 >
                                                     Izrakstīties
                                                 </Dropdown.Link>
-                                            ) : (
-                                                <>
-                                                    <Dropdown.Link href="/login" className="text-gray-700 dark:text-gray-200 ">
-                                                        Pierakstīties
-                                                    </Dropdown.Link>
-                                                    <Dropdown.Link href="/register" className="text-gray-700 dark:text-gray-200 ">
-                                                        Reģistrēties
-                                                    </Dropdown.Link>
-                                                </>
-                                            )}
-                                        </Dropdown.Content>
-
-                                    </Dropdown>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Dropdown.Link href="/login" className="text-gray-700 dark:text-gray-200 ">
+                                                    Pierakstīties
+                                                </Dropdown.Link>
+                                                <Dropdown.Link href="/register" className="text-gray-700 dark:text-gray-200 ">
+                                                    Reģistrēties
+                                                </Dropdown.Link>
+                                            </>
+                                        )}
+                                    </Dropdown.Content>
+                                </Dropdown>
                             </div>
                         </div>
 
@@ -176,28 +184,53 @@ export default function Authenticated({ auth, header, children}) {
 
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Profila Panelis
-                        </ResponsiveNavLink>
+                        {auth?.user && (
+                            <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                Profila Panelis
+                            </ResponsiveNavLink>
+                        )}
                         <ResponsiveNavLink href={route('shop.index')} active={route().current('shop.index')}>
                             Interneta Veikals
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('cart.index')} active={route().current('cart.index')}>
-                            Iepirkumu Grozs
-                        </ResponsiveNavLink>
+                        {auth?.user && (
+                            <>
+                                <ResponsiveNavLink href={route('cart.index')} active={route().current('cart.index')}>
+                                    Iepirkumu Grozs
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('order.history')} active={route().current('order.history')}>
+                                    Pirkumu Vēsture
+                                </ResponsiveNavLink>
+                            </>
+                        )}
                         <ResponsiveNavLink href={route('gallery.index')} active={route().current('gallery.index')}>
                             Galerija
                         </ResponsiveNavLink>
+
+                        {/* Cart Icon in Mobile View */}
+                        {auth?.user && (
+                            <div className="flex items-center justify-between p-2 text-lg text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">
+                                <CartIcon />
+                            </div>
+                        )}
                     </div>
 
-                    <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profils</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Izrakstīties
-                            </ResponsiveNavLink>
+                    {auth?.user ? (
+                        <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+                            <div className="mt-3 space-y-1">
+                                <ResponsiveNavLink href={route('profile.edit')}>Profils</ResponsiveNavLink>
+                                <ResponsiveNavLink method="post" href={route('logout')} as="button">
+                                    Izrakstīties
+                                </ResponsiveNavLink>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+                            <div className="mt-3 space-y-1">
+                                <ResponsiveNavLink href="/login">Pierakstīties</ResponsiveNavLink>
+                                <ResponsiveNavLink href="/register">Reģistrēties</ResponsiveNavLink>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </nav>
 
@@ -207,7 +240,10 @@ export default function Authenticated({ auth, header, children}) {
                 </header>
             )}
 
-            <main>{children}</main>
+            <main>
+                {children}
+                <SitePreferences />   
+            </main>
 
 
            <footer className="py-16 dark:bg-gray-800">
@@ -254,7 +290,7 @@ export default function Authenticated({ auth, header, children}) {
                         <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Bieži uzdotie jautājumi
                         </NavLink>
-                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                        <NavLink to="/privacy-policy" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Privātuma politika
                         </NavLink>
                         </nav>

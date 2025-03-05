@@ -6,6 +6,7 @@ import logo from '../../assets/Peonija_logo.webp';
 import NavLink from '@/Components/Buttons/NavLink';
 import CartIcon from '@/Components/Modals/CartIcon';
 import { FaShoppingCart } from 'react-icons/fa';
+import SitePreferences from "@/Components/Modals/SitePreferences";
 
 export default function GuestLayout({ auth, children }) {
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
@@ -143,7 +144,11 @@ export default function GuestLayout({ auth, children }) {
                 </nav>
             </header>
 
-            <div>{children}</div>
+            <div>
+                {children}
+                <SitePreferences />
+            </div>
+            
 
             <footer className="py-16 dark:bg-gray-800">
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -172,7 +177,7 @@ export default function GuestLayout({ auth, children }) {
                             </div>
                             <nav className="flex flex-col items-center space-y-2 sm:items-start">
                                 <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Bieži uzdotie jautājumi</NavLink>
-                                <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Privātuma politika</NavLink>
+                                <NavLink to="/privacy-policy" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Privātuma politika</NavLink>
                             </nav>
                         </div>
 

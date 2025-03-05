@@ -24,9 +24,10 @@ export default function Dashboard({ auth }) {
 
                     <div className="grid grid-cols-1 gap-8 mx-auto sm:grid-cols-2 lg:grid-cols-3 max-w-7xl">
                         <DashboardBox 
-                            title="Prikumu vēsture" 
-                            description="Pārskatiet savus iepriekšējos pirkumus un pasūtījumu statusus." 
+                            title="Prikumu vēsture"
+                            description="Pārskatiet savus iepriekšējos pirkumus un pasūtījumu statusus."
                             icon={FiShoppingCart}
+                            link={'/order-history'}
                         />
                         <DashboardBox 
                             title="Rediģēt profilu" 

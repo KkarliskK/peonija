@@ -2,312 +2,142 @@ import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import PostNotification from '@/Components/Modals/Notification';
 import axios from 'axios';
+import Cookies from 'js-cookie';
+
 
 const GuestCartPage = ({ auth }) => {
   const [cartItems, setCartItems] = useState([]);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isFirstPurchase, setIsFirstPurchase] = useState(false);
 
-  const syncCartWithUser = async () => {
-    setIsLoading(true);
-    
-    if (auth && auth.user) { 
+    const getCartFromCookies = () => {
       try {
-        console.log("Syncing cart for logged-in user");
-        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-        
-        if (guestCart.length > 0) {
-          console.log("Guest cart found, syncing with server:", guestCart);
-          const syncResponse = await axios.post('/checkout/sync-cart', { cart: guestCart });
-          
-          if (syncResponse.data.success) {
-            console.log("Sync successful, clearing guest cart");
-            localStorage.setItem('guestCart', JSON.stringify([])); 
-          } else {
-            console.error("Sync failed:", syncResponse.data);
+        const cartCookie = Cookies.get('guest_cart');
+        return cartCookie ? JSON.parse(cartCookie) : [];
+      } catch (error) {
+        console.error('Error parsing cart cookie:', error);
+        return [];
+      }
+    };
+  
+    useEffect(() => {
+      const savedCart = getCartFromCookies();
+      setCartItems(savedCart);
+
+      if (auth.user) {
+        const fetchFirstPurchaseStatus = async () => {
+          try {
+            const response = await axios.get('/check-first-purchase');
+            setIsFirstPurchase(response.data.isFirstPurchase);
+          } catch (error) {
+            console.error('Error checking first purchase:', error);
           }
-        }
+        };
 
-        console.log("Fetching current cart from server");
-        const response = await axios.get('/cart');
-        
-        if (response.data && response.data.cartItems) {
-          console.log("Received cart items from server:", response.data.cartItems);
-          
-          const formattedCartItems = response.data.cartItems.map(item => ({
-            id: item.id,  
-            name: item.product.name,
-            price: item.product.price,
-            quantity: item.quantity,
-            image: item.product.image,
-            stock: item.product.quantity, 
-            product_id: item.product_id
-          }));
-          
-          console.log("Formatted cart items:", formattedCartItems);
-          setCartItems(formattedCartItems);
-          
-          localStorage.setItem('userCart', JSON.stringify(formattedCartItems));
-          window.dispatchEvent(new CustomEvent('cartUpdated', {
-            detail: { cart: formattedCartItems }
-          }));
-        } else {
-          console.error("No cart items in response or unexpected format:", response.data);
-          setNotificationMessage('Kļūda ielādējot grozu no servera.');
-          setNotificationType('error');
-          setNotificationOpen(true);
-        }
-      } catch (error) {
-        console.error('Error syncing/fetching cart:', error);
-        console.error('Error details:', error.response?.data || error.message);
-        setNotificationMessage('Kļūda ielādējot grozu: ' + (error.response?.data?.message || error.message));
-        setNotificationType('error');
-        setNotificationOpen(true);
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      console.log("Loading guest cart from localStorage");
-      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-      setCartItems(guestCart);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    syncCartWithUser();
-
-    const handleCartUpdate = (e) => {
-      if (e.detail && e.detail.cart) {
-        setCartItems(e.detail.cart);
-      }
-    };
-
-    window.addEventListener('cartUpdated', handleCartUpdate);
-
-    return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-    };
-  }, [auth]);
-
-  const handleDeleteItem = async (itemId) => {
-    console.log("Delete requested for item ID:", itemId);
-    
-    const currentItem = cartItems.find(item => item.id === itemId);
-    console.log("Found item:", currentItem);
-      
-    if (!currentItem) {
-      console.error("Item not found in cart items");
-      setNotificationMessage('Neizdevās atrast preci grozā.');
-      setNotificationType('error');
-      setNotificationOpen(true);
-      return;
-    }
-
-    const originalCart = [...cartItems];
-    
-    const updatedCart = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedCart);
-    
-    if (auth && auth.user) {
-      try {
-        console.log(`Making API request to /cart/remove/${itemId}`);
-        
-        const url = `/cart/remove/${itemId}`;
-        
-        const response = await axios.post(url);
-        console.log("Delete API response:", response);
-        
-        if (response.status >= 200 && response.status < 300) {
-          console.log("Delete successful, updating localStorage");
-          localStorage.setItem('userCart', JSON.stringify(updatedCart));
-          
-          window.dispatchEvent(new CustomEvent('cartUpdated', {
-            detail: { cart: updatedCart }
-          }));
-          
-          setNotificationMessage('Prece veiksmīgi izdzēsta no groza.');
-          setNotificationType('success');
-          setNotificationOpen(true);
-        } else {
-          console.error("API returned unsuccessful response:");
-          // Revert UI change if server indicates failure
-          setCartItems(originalCart);
-          
-          setNotificationMessage('Neizdevās noņemt preci no groza. Servera kļūda.');
-          setNotificationType('error');
-          setNotificationOpen(true);
-        }
-      } catch (error) {
-        console.error('Error removing item:', error);
-        console.error('Error details:', error.response?.data || error.message);
-        
-        if (error.response && error.response.status >= 300 && error.response.status < 400) {
-          localStorage.setItem('userCart', JSON.stringify(updatedCart));
-          
-          window.dispatchEvent(new CustomEvent('cartUpdated', {
-            detail: { cart: updatedCart }
-          }));
-          
-          setNotificationMessage('Prece veiksmīgi izdzēsta no groza.');
-          setNotificationType('success');
-          setNotificationOpen(true);
-          
-          window.location.reload();
-          return;
-        }
-        
-        setCartItems(originalCart);
-        
-        setNotificationMessage('Neizdevās noņemt preci no groza. ' + (error.response?.data?.message || error.message));
-        setNotificationType('error');
-        setNotificationOpen(true);
-      }
-    } else {
-      console.log("Guest user, updating localStorage only");
-      localStorage.setItem('guestCart', JSON.stringify(updatedCart));
-      
-      window.dispatchEvent(new CustomEvent('cartUpdated', {
-        detail: { cart: updatedCart }
-      }));
-      
-      setNotificationMessage('Prece veiksmīgi izdzēsta no groza.');
-      setNotificationType('success');
-      setNotificationOpen(true);
-    }
-  };
-
-  const handleUpdateQuantity = async (itemId, newQuantity, stock) => {
-    if (newQuantity > stock) {
-      setNotificationMessage('Nav pieejams tik daudz preces!');
-      setNotificationType('error');
-      setNotificationOpen(true);
-      return;
-    }
-
-    const updatedCart = cartItems.map(item => {
-      if (item.id === itemId) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-
-    setCartItems(updatedCart);
-
-    if (auth && auth.user) {
-      try {
-        const currentItem = cartItems.find(item => item.id === itemId);
-        
-        if (!currentItem) {
-          throw new Error('Item not found in cart');
-        }
-        
-        await axios.post(`/cart/update/${currentItem.product_id}`, { 
-          quantity: newQuantity
-        });
-        
-        localStorage.setItem('userCart', JSON.stringify(updatedCart));
-      } catch (error) {
-        console.error('Error updating quantity:', error);
-        setNotificationMessage('Neizdevās atjaunināt preces daudzumu.');
-        setNotificationType('error');
-        setNotificationOpen(true);
-        return;
-      }
-    } else {
-      localStorage.setItem('guestCart', JSON.stringify(updatedCart));
-    }
-
-    window.dispatchEvent(new CustomEvent('cartUpdated', {
-      detail: { cart: updatedCart }
-    }));
-  };
-
-  const handleClearCart = async () => {
-    const confirmClear = window.confirm("Vai tiešām vēlaties iztukšot grozu?");
-    if (confirmClear) {
-      if (auth && auth.user) {
-        try {
-          await axios.post('/cart/clear');
-          localStorage.setItem('userCart', JSON.stringify([]));
-        } catch (error) {
-          console.error('Error clearing cart:', error);
-          setNotificationMessage('Neizdevās iztukšot grozu.');
-          setNotificationType('error');
-          setNotificationOpen(true);
-          return;
-        }
+        fetchFirstPurchaseStatus();
       } else {
-        localStorage.setItem('guestCart', JSON.stringify([]));
+        // Reset first purchase for guest users
+        setIsFirstPurchase(false);
       }
-      
-      setCartItems([]);
-      window.dispatchEvent(new CustomEvent('cartUpdated', {
-        detail: { cart: [] }
-      }));
-    }
-  };
 
-  const proceedToCheckout = async () => {
-    if (cartItems.length === 0) {
-      setNotificationMessage('Jūsu grozs ir tukšs. Lūdzu, pievienojiet produktus pirms pasūtīšanas.');
-      setNotificationType('error');
-      setNotificationOpen(true);
-      return;
-    }
+      const handleCartUpdate = (event) => {
+        setCartItems(event.detail.cart);
+      };
 
-    if (auth && auth.user) {
-      window.location.href = '/checkout';
-    } else {
-      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+      window.addEventListener('cartUpdated', handleCartUpdate);
+      return () => {
+        window.removeEventListener('cartUpdated', handleCartUpdate);
+      };
+    }, []);
+
+    const handleDeleteItem = (itemId) => {
+      const updatedCart = cartItems.filter(item => item.id !== itemId);
       
-      try {
-        const response = await axios.post('/checkout/sync-cart', { 
-          cart: guestCart 
-        });
-        
-        if (response.data.success) {
-          window.location.href = '/checkout';
-        } else {
-          setNotificationMessage('Kļūda pasūtījuma procesā. Lūdzu, mēģiniet vēlreiz.');
-          setNotificationType('error');
-          setNotificationOpen(true);
+      Cookies.set('guest_cart', JSON.stringify(updatedCart), { 
+        expires: 1,  // 1 day
+        path: '/' 
+      });
+
+      setCartItems(updatedCart);
+      showToast('Prece izņemta no groza');
+    };
+
+    const handleUpdateQuantity = (itemId, newQuantity) => {
+      const updatedCart = cartItems.map(item => 
+        item.id === itemId 
+          ? { ...item, quantity: Math.max(1, Math.min(newQuantity, item.available_stock || 99)) } 
+          : item
+      );
+      
+      Cookies.set('guest_cart', JSON.stringify(updatedCart), { 
+        expires: 1,  // 1 day
+        path: '/' 
+      });
+
+      setCartItems(updatedCart);
+      showToast('Groza daudzums atjaunināts');
+    };
+
+    const handleClearCart = () => {
+      const confirmClear = window.confirm("Vai tiešām vēlaties iztukšot grozu?");
+      if (confirmClear) {
+        Cookies.remove('guest_cart', { path: '/' });
+        Cookies.remove('isFirstPurchase', { path: '/' });
+
+        setCartItems([]);
+        showToast('Grozs veiksmīgi iztukšots');
+      }
+    };
+
+    const proceedToCheckout = () => {
+        if (cartItems.length === 0) {
+            showToast('Jūsu grozs ir tukšs', 'error');
+            return;
         }
-      } catch (error) {
-        console.error('Error during checkout sync:', error);
-        setNotificationMessage('Kļūda pasūtījuma procesā. Lūdzu, mēģiniet vēlreiz.');
-        setNotificationType('error');
-        setNotificationOpen(true);
-      }
-    }
-  };
 
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      const itemPrice = item.price && typeof item.price === 'string' 
+        window.location.href = '/checkout';
+    };
+
+    const calculateTotal = () => {
+        const total = cartItems.reduce((sum, item) => {
+            const price = parseFloat(item.price) || 0;
+            return sum + (price * item.quantity);
+        }, 0);
+
+        return isFirstPurchase ? total * 0.9 : total;
+    };
+  
+    const originalTotal = cartItems.reduce((total, item) => {
+    const itemPrice = item.price && typeof item.price === 'string' 
         ? parseFloat(item.price.replace(/[^0-9.-]+/g, '')) 
         : parseFloat(item.price) || 0;
       
       return total + (itemPrice * item.quantity);
-    }, 0).toFixed(2);
-  };
+    }, 0);
+
+    const showToast = (message, type = 'success') => {
+        setNotificationMessage(message);
+        setNotificationOpen(true);
+        setTimeout(() => setNotificationOpen(false), 2000);
+    };
 
   return (
     <AuthenticatedLayout auth={auth}>
       <div className="py-16 mx-auto max-w-7xl">
         <div className="flex flex-col gap-8 mt-12 md:flex-row">
           <div className="flex-grow">
+            {isFirstPurchase && (
+              <div className="p-4 mb-6 border border-green-200 rounded-lg bg-green-50">
+                <p className="font-semibold text-green-700">
+                  🎉 Īpašs piedāvājums: 10% atlaide pirmajai iegādei!
+                </p>
+              </div>
+            )}
             <h1 className="mb-6 text-3xl font-bold">Jūsu grozs</h1>
             
-            {isLoading ? (
-              <div className="p-8 text-center bg-white shadow-sm rounded-xl">
-                <div className="max-w-md mx-auto">
-                  <h3 className="mb-2 text-xl font-semibold">Ielādē grozu...</h3>
-                </div>
-              </div>
-            ) : cartItems.length > 0 ? (
+              {cartItems.length > 0 ? (
               <div className="space-y-4">
                 {cartItems.map(item => (
                   <div 
@@ -384,12 +214,19 @@ const GuestCartPage = ({ auth }) => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-4 border-b">
                     <span className="text-gray-600">Preces ({cartItems.length})</span>
-                    <span className="font-medium">{calculateTotal()} €</span>
+                    <span className="font-medium">{originalTotal.toFixed(2)} €</span>
                   </div>
                   
+                  {isFirstPurchase && (
+                    <div className="flex items-center justify-between text-green-600">
+                      <span>Atlaide (10%)</span>
+                      <span>-{(originalTotal * 0.1).toFixed(2)} €</span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-lg font-semibold">
                     <span>Kopā</span>
-                    <span>{calculateTotal()} €</span>
+                    <span>{calculateTotal().toFixed(2)} €</span>
                   </div>
 
                   <button

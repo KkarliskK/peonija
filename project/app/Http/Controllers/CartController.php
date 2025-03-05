@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
@@ -16,28 +18,59 @@ class CartController extends Controller
         return Inertia::render('Shop/GuestCart');
     }
 
+    public function setCartCookie(Request $request)
+    {
+        $cartData = $request->input('cart');
+        
+        return response()->json(['success' => true])
+            ->withCookie(cookie()->forever('guest_cart', $cartData));
+    }
+
+    public function addToCart(Request $request)
+    {
+        $cart = json_decode($request->cookie('guest_cart') ?? '[]', true);
+
+        $newItem = [
+            'id' => $request->input('id'),
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'image' => $request->input('image'),
+            'quantity' => $request->input('quantity', 1)
+        ];
+
+        $exists = false;
+        foreach ($cart as &$item) {
+            if ($item['id'] == $newItem['id']) {
+                $item['quantity'] += $newItem['quantity'];
+                $exists = true;
+                break;
+            }
+        }
+
+        if (!$exists) {
+            $cart[] = $newItem;
+        }
+
+        return back()->withCookie(cookie()->forever('guest_cart', json_encode($cart)));
+    }
+
     public function syncGuestCart(Request $request)
     {
-        // Retrieve the cart data sent by the frontend
         $guestCart = $request->input('cart', []);
 
         if (Auth::check()) {
-            // User is logged in
             $userId = Auth::id();
 
             foreach ($guestCart as $item) {
-                // Check if the item exists for the user
                 $existingCartItem = CartItem::where('user_id', $userId)
                     ->where('product_id', $item['id'])
                     ->first();
 
                 if ($existingCartItem) {
-                    // Update the quantity if the item already exists in the user's cart
                     $existingCartItem->update([
                         'quantity' => $existingCartItem->quantity + $item['quantity']
                     ]);
                 } else {
-                    // Create a new CartItem for the user
                     CartItem::create([
                         'user_id' => $userId,
                         'product_id' => $item['id'],
@@ -46,135 +79,132 @@ class CartController extends Controller
                 }
             }
 
-            // After syncing the guest cart, we can clear it from session or local storage
             return response()->json([
                 'message' => 'Cart synced successfully',
                 'should_clear_guest_cart' => true
             ]);
         }
 
-        // If user is not logged in, just return the guest cart
         return response()->json([
             'message' => 'Guest cart validated',
             'cart' => $guestCart
         ]);
     }
 
-public function index(Request $request)
+    public function index(Request $request)
 {
-    if ($request->expectsJson()) { // Check if it's an API request
+    try {
         if (Auth::check()) {
-            $cart = Cart::with('items.product')->firstOrCreate([
-                'user_id' => Auth::id(),
+            $cart = Cart::firstOrCreate([
+                'user_id' => Auth::id()
             ]);
-            return response()->json(['cartItems' => $cart->items]);
-        } else {
-            $guestCart = session()->get('guest_cart', []);
-            return response()->json(['cartItems' => $guestCart]);
-        }
-    }
 
-    // If it's a normal page request, return the Inertia view
-    return Inertia::render('Shop/CartView', [
-        'cartItems' => Auth::check() ? Cart::with('items.product')->firstOrCreate([
-            'user_id' => Auth::id(),
-        ])->items : session()->get('guest_cart', []),
-    ]);
+            $cartItems = CartItem::where('cart_id', $cart->id)
+                ->with('product')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id' => $item->id,
+                        'cart_id' => $item->cart_id,
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                        'product' => $item->product ? [
+                            'id' => $item->product->id,
+                            'name' => $item->product->name,
+                            'price' => $item->product->price,
+                            'image' => $item->product->image,
+                            'quantity' => $item->product->quantity
+                        ] : null
+                    ];
+                });
+
+            if ($request->expectsJson()) {
+                return response()->json(['cartItems' => $cartItems]);
+            }
+
+            return Inertia::render('Shop/CartView', [
+                'cartItems' => $cartItems,
+            ]);
+        } else {
+            $guestCart = json_decode($request->cookie('guest_cart', '[]'), true);
+            
+            if ($request->expectsJson()) {
+                return response()->json(['cartItems' => $guestCart]);
+            }
+
+            return Inertia::render('Shop/CartView', [
+                'cartItems' => $guestCart,
+            ]);
+        }
+    } catch (\Exception $e) {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'error' => 'Unable to retrieve cart',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+
+        return Inertia::render('Shop/CartView', [
+            'error' => 'Unable to retrieve cart',
+            'message' => $e->getMessage()
+        ]);
+    }
 }
 
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        $user = auth()->user();
-        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
-        $cartItem = CartItem::where('cart_id', $cart->id)
-                              ->where('product_id', $validated['product_id'])
-                              ->first();
-
-        $product = Product::find($validated['product_id']);
-        if ($product->quantity < $validated['quantity']) {
-            return response()->json(['error' => 'Requested quantity exceeds available stock.'], 400);
-        }
-
-        if ($cartItem) {
-            $newQuantity = $cartItem->quantity + $validated['quantity'];
-
-            // Check again if the new quantity exceeds available stock
-            if ($product->quantity < $newQuantity) {
-                return response()->json(['error' => 'Requested quantity exceeds available stock.'], 400);
-            }
-
-            $cartItem->quantity = $newQuantity;
-            $cartItem->save();
-        } else {
-            CartItem::create([
-                'cart_id' => $cart->id,
-                'product_id' => $validated['product_id'],
-                'quantity' => $validated['quantity'],
-            ]);
-        }
-
-        return Inertia::render('Shop/ShopView', [
-            'cartItems' => $cart->items,
-        ]);
-    }
-
-    public function update(Request $request, $cartItemId)
-    {
-        $validated = $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
+    //for updating item in cart
+    // public function update(Request $request, $cartItemId)
+    // {
+    //     $validated = $request->validate([
+    //         'quantity' => 'required|integer|min:1',
+    //     ]);
     
-        $cart = Auth::user()->cart;
+    //     $cart = Auth::user()->cart;
     
-        if (!$cart) {
-            return redirect()->route('cart.index')->withErrors(['error' => 'No active cart found.']);
-        }
+    //     if (!$cart) {
+    //         return redirect()->route('cart.index')->withErrors(['error' => 'No active cart found.']);
+    //     }
     
-        $cartItem = CartItem::where('product_id', $cartItemId)
-            ->where('cart_id', $cart->id)
-            ->first();
+    //     $cartItem = CartItem::where('product_id', $cartItemId)
+    //         ->where('cart_id', $cart->id)
+    //         ->first();
     
-        if (!$cartItem) {
-            return redirect()->route('cart.index')->withErrors(['error' => 'Item not found in cart.']);
-        }
+    //     if (!$cartItem) {
+    //         return redirect()->route('cart.index')->withErrors(['error' => 'Item not found in cart.']);
+    //     }
     
-        $cartItem->quantity = $validated['quantity'];
-        $cartItem->save();
+    //     $cartItem->quantity = $validated['quantity'];
+    //     $cartItem->save();
     
-        return redirect()->route('cart.index')->with('success', 'Quantity updated successfully!');
-    }
+    //     return redirect()->route('cart.index')->with('success', 'Quantity updated successfully!');
+    // }
 
-    public function remove($id)
-    {
-        $cartItem = CartItem::find($id);
+    // //for removing item from cart
+    // public function remove($id)
+    // {
+    //     $cartItem = CartItem::find($id);
 
-        if ($cartItem) {
-            $cartItem->delete();
-            return redirect()->route('cart.index')->with('success', 'Successfully removed product from cart!');
-        }
+    //     if ($cartItem) {
+    //         $cartItem->delete();
+    //         return redirect()->route('cart.index')->with('success', 'Successfully removed product from cart!');
+    //     }
 
-        return redirect()->route('cart.index')->withErrors(['error' => 'Can not delete product from cart.']);
-    }
+    //     return redirect()->route('cart.index')->withErrors(['error' => 'Can not delete product from cart.']);
+    // }
 
-    // Clear the cart
-    public function clear()
-    {
-        $cart = Auth::user()->cart;
-        $cart->items()->delete();
+    // //clearing the cart
+    // public function clear()
+    // {
+    //     $cart = Auth::user()->cart;
+    //     $cart->items()->delete();
 
-        // Return success message and empty cart items
-        return redirect()->route('cart.index')->with([
-            'cartItems' => [],
-            'success' => 'Cart cleared successfully!',
-        ]);
-    }
+    //     return redirect()->route('cart.index')->with([
+    //         'cartItems' => [],
+    //         'success' => 'Cart cleared successfully!',
+    //     ]);
+    // }
 
+    //validation and adding cart for logged in users
     public function checkout()
     {
         $user = auth()->user(); 
@@ -183,17 +213,32 @@ public function index(Request $request)
             return redirect('/login'); 
         }
      
-        // Fetch the user's active cart
         $cart = $user->carts()->first(); 
      
-        // Handle the case where no active cart is found
         if (!$cart) {
             return redirect('/shop')->with('message', 'No active cart found.');
         }
      
-        // Fetch the cart items associated with the cart, including product details
-        $cartItems = $cart->cartItems()->with('product')->get(); // Eager load the product
+        $cartItems = $cart->cartItems()->with('product')->get(); 
      
         return inertia('Shop/Checkout', ['cartItems' => $cartItems]);
+    }
+
+    //checking first purchase to give user 10% discount
+    public function checkFirstPurchaseRoute()
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['isFirstPurchase' => false]);
+        }
+
+        $previousOrdersCount = Order::where('user_id', $user->id)
+            ->where('status', 'success') 
+            ->count();
+
+        return response()->json([
+            'isFirstPurchase' => $previousOrdersCount === 0
+        ]);
     }
 }

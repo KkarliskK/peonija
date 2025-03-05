@@ -1,4 +1,3 @@
-import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/Input/InputError';
 import InputLabel from '@/Components/Input/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
@@ -7,7 +6,6 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import background from '../../../assets/PEONIJA-5-dark.webp';
 import logo from '../../../assets/Peonija_logo.webp';
 import { FaFacebook, FaInstagram } from "react-icons/fa";
-
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -28,97 +26,134 @@ export default function Register() {
     return (
         <>
             <Head title="Reģistrēties" />
-            <div className='flex justify-center items-center w-full h-screen bg-gray-100'>
-                <div className='flex sm:flex-row flex-col bg-white rounded-md sm:w-3/6 sm:h-3/6 w-11/12 h-auto shadow-md '>
-                    <div className='flex flex-col justify-between items-center p-2 w-full rounded-l-md bg-cover bg-center bg-no-repeat' style={{ backgroundImage: `url(${background})` }}>
-                        <h1 className='sm:mt-40 mt-8 font-semibold text-5xl text-white text-center'>Reģistrējies vietnē Peonija!</h1>
-                        <div className='flex sm:flex-row flex-col w-full my-4'>{/* social media links box */}
-                            <a className='flex items-center justify-center text-white' href='https://www.facebook.com/Peoniijaa/'><FaFacebook className='mx-2' size={32} />facebook</a>
-                            <Link href='/'>
-                                <img className='h-18 w-18' src={logo} alt="Peonija logotips" />
+            
+            <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+                <div className="flex flex-col w-full max-w-5xl overflow-hidden transition-all duration-300 ease-in-out bg-white shadow-xl rounded-2xl md:flex-row">
+                    {/* Left side with background */}
+                    <div 
+                        className="relative flex flex-col items-center justify-between w-full py-8 bg-center bg-no-repeat bg-cover md:w-1/2 md:py-0"
+                        style={{ backgroundImage: `url(${background})` }}
+                    >
+                        <div className="absolute inset-0 bg-black/30 md:bg-black/20"></div>
+                        
+                        <h1 className="relative z-10 px-4 mt-4 text-3xl font-bold text-center text-white md:text-4xl lg:text-5xl md:mt-32">
+                            Reģistrējies vietnē Peonija!
+                        </h1>
+                        
+                        <div className="relative z-10 flex items-center justify-between w-full px-4 mt-4 md:px-8 md:mt-0">
+                            <a 
+                                className="flex flex-col items-center text-white transition-colors md:flex-row hover:text-gray-200" 
+                                href="https://www.facebook.com/Peoniijaa/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <FaFacebook className="mb-1 md:mb-0 md:mr-2" size={28} />
+                                <span className="text-sm md:text-base">facebook</span>
+                            </a>
+                            
+                            <Link className="flex items-center justify-center" href="/">
+                                <img 
+                                    className="w-32 h-auto md:w-36" 
+                                    src={logo} 
+                                    alt="Peonija logotips" 
+                                />
                             </Link>
-                            <a className='flex items-center justify-center text-white' href='https://www.instagram.com/ziedu.veikals.peonija/'><FaInstagram className='mx-2' size={32} />instagram</a>
+                            
+                            <a 
+                                className="flex flex-col items-center text-white transition-colors md:flex-row hover:text-gray-200" 
+                                href="https://www.instagram.com/ziedu.veikals.peonija/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <FaInstagram className="mb-1 md:mb-0 md:mr-2" size={28} />
+                                <span className="text-sm md:text-base">instagram</span>
+                            </a>
                         </div>
                     </div>
 
-                    <form className='flex flex-col justify-center w-full p-8' onSubmit={submit}>
-                        <div>
-                            <InputLabel htmlFor="name" value="Vārds" />
+                    {/* Right side with form */}
+                    <div className="w-full p-6 md:w-1/2 md:p-10 lg:p-12">
+                        <div className="max-w-md mx-auto">
+                            <h2 className="mb-6 text-2xl font-semibold text-gray-800">Reģistrēties</h2>
+                            
+                            <form onSubmit={submit}>
+                                <div className="mb-4">
+                                    <InputLabel htmlFor="name" value="Vārds" className="text-gray-700" />
+                                    <TextInput
+                                        id="name"
+                                        name="name"
+                                        value={data.name}
+                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        autoComplete="name"
+                                        isFocused={true}
+                                        onChange={(e) => setData('name', e.target.value)}
+                                    />
+                                    <InputError message={errors.name} className="mt-2" />
+                                </div>
 
-                            <TextInput
-                                id="name"
-                                name="name"
-                                value={data.name}
-                                className="mt-1 block w-full"
-                                autoComplete="name"
-                                isFocused={true}
-                                onChange={(e) => setData('name', e.target.value)}
-                            />
+                                <div className="mb-4">
+                                    <InputLabel htmlFor="email" value="E-pasta adrese" className="text-gray-700" />
+                                    <TextInput
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        value={data.email}
+                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        autoComplete="email"
+                                        onChange={(e) => setData('email', e.target.value)}
+                                    />
+                                    <InputError message={errors.email} className="mt-2" />
+                                </div>
 
-                            <InputError message={errors.name} className="mt-2" />
+                                <div className="mb-4">
+                                    <InputLabel htmlFor="password" value="Parole" className="text-gray-700" />
+                                    <TextInput
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        value={data.password}
+                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        autoComplete="new-password"
+                                        onChange={(e) => setData('password', e.target.value)}
+                                    />
+                                    <InputError message={errors.password} className="mt-2" />
+                                </div>
+
+                                <div className="mb-6">
+                                    <InputLabel htmlFor="password_confirmation" value="Apstiprini paroli" className="text-gray-700" />
+                                    <TextInput
+                                        id="password_confirmation"
+                                        type="password"
+                                        name="password_confirmation"
+                                        value={data.password_confirmation}
+                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        autoComplete="new-password"
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                    />
+                                    <InputError message={errors.password_confirmation} className="mt-2" />
+                                </div>
+
+                                <div className="flex flex-col space-y-4">
+                                    <PrimaryButton 
+                                        type="submit" 
+                                        className="justify-center w-full py-3 text-base font-medium transition-all rounded-lg" 
+                                        disabled={processing}
+                                    >
+                                        Reģistrēties
+                                    </PrimaryButton>
+                                    
+                                    <div className="text-center">
+                                        <Link
+                                            href={route('login')}
+                                            className="text-sm text-indigo-600 transition-colors hover:text-indigo-800"
+                                        >
+                                            Vai Tev jau ir profils?
+                                        </Link>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-
-                        <div className="mt-4">
-                            <InputLabel htmlFor="email" value="E-pasta adrese" />
-
-                            <TextInput
-                                id="email"
-                                type="email"
-                                name="email"
-                                value={data.email}
-                                className="mt-1 block w-full"
-                                autoComplete="email"
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
-
-                            <InputError message={errors.email} className="mt-2" />
-                        </div>
-
-                        <div className="mt-4">
-                            <InputLabel htmlFor="password" value="Parole" />
-
-                            <TextInput
-                                id="password"
-                                type="password"
-                                name="password"
-                                value={data.password}
-                                className="mt-1 block w-full"
-                                autoComplete="new-password"
-                                onChange={(e) => setData('password', e.target.value)}
-                            />
-
-                            <InputError message={errors.password} className="mt-2" />
-                        </div>
-
-                        <div className="mt-4">
-                            <InputLabel htmlFor="password_confirmation" value="Apstiprini paroli" />
-
-                            <TextInput
-                                id="password_confirmation"
-                                type="password"
-                                name="password_confirmation"
-                                value={data.password_confirmation}
-                                className="mt-1 block w-full"
-                                autoComplete="new-password"
-                                onChange={(e) => setData('password_confirmation', e.target.value)}
-                            />
-
-                            <InputError message={errors.password_confirmation} className="mt-2" />
-                        </div>
-
-                        <div className="flex items-center justify-end mt-4">
-                            <Link
-                                href={route('login')}
-                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-                            >
-                                Vai Tev jau ir profils?
-                            </Link>
-
-                            <PrimaryButton className="ms-4" disabled={processing}>
-                                Reģistrēties
-                            </PrimaryButton>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </>

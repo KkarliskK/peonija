@@ -3,11 +3,14 @@ import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Checkbox from '@/Components/Buttons/Checkbox';
 import { loadStripe } from '@stripe/stripe-js';
-import axios from 'axios';
+import axios from 'axios'; 
+import Cookies from 'js-cookie';
 
-export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
+export default function Checkout({ auth, guestUserData = {} }) {
+    const [cartItems, setCartItems] = useState([]);
     const [stripeKey, setStripeKey] = useState(null);
     const [error, setError] = useState('');
+    const [isFirstPurchase, setIsFirstPurchase] = useState(false);
     const { data, setData } = useForm({
         name: auth.user?.name || guestUserData.name || '',
         email: auth.user?.email || guestUserData.email || '',
@@ -19,6 +22,54 @@ export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
 
     const [deliveryOption, setDeliveryOption] = useState('delivery');
     const storeAddress = "Uzvaras Bulvāris 1B";
+
+    const parsePrice = (priceString) => {
+        if (!priceString) return 0;
+        const numericPrice = priceString.replace(/[^0-9.-]/g, '');
+        return parseFloat(numericPrice) || 0;
+    };
+
+    const getCartFromCookie = () => {
+        try {
+            const cartCookie = Cookies.get('guest_cart');
+            
+            if (cartCookie) {
+                const parsedCart = JSON.parse(cartCookie);
+                
+                return parsedCart.map(item => ({
+                    ...item,
+                    price: parsePrice(item.price)
+                }));
+            }
+            return [];
+        } catch (error) {
+            console.error('Comprehensive cart cookie parsing error:', {
+                error: error,
+                cookieContent: Cookies.get('guest_cart')
+            });
+            return [];
+        }
+    };
+
+    useEffect(() => {
+        const cartFromCookie = getCartFromCookie();
+        setCartItems(cartFromCookie);
+
+        if (auth.user) {
+            const fetchFirstPurchaseStatus = async () => {
+                try {
+                    const response = await axios.get('/check-first-purchase');
+                    setIsFirstPurchase(response.data.isFirstPurchase);
+                } catch (error) {
+                    console.error('Error checking first purchase:', error);
+                }
+            };
+
+            fetchFirstPurchaseStatus();
+        } else {
+            setIsFirstPurchase(false);
+        }
+    }, [auth.user]);
 
     useEffect(() => {
         const fetchStripeKey = async () => {
@@ -33,46 +84,105 @@ export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
         fetchStripeKey();
     }, []);
 
-    const handleCheckout = async (e) => {
-        e.preventDefault();
+    const calculateTotal = () => {
+        const subtotal = cartItems.reduce((total, item) => {
+            return total + (item.price || 0) * (item.quantity || 0);
+        }, 0);
 
-        setError('');
-        if (!data.accept) {
-            setError('Jums jāpiekrīt lietošanas noteikumiem un privātuma politikai, lai turpinātu.');
-            return;
-        }
+        const total = isFirstPurchase ? subtotal * 0.9 : subtotal;
+        
+        return total + (deliveryOption === 'pickup' ? 0 : 2.99);
+    };
 
-        if (deliveryOption === 'delivery' && !data.address) {
-            setError('Piegādes adrese ir obligāta, ja izvēlēts piegādes veids.');
-            return;
-        }
+    const totalAmount = cartItems.reduce((total, item) => {
+        return total + (item.price || 0) * (item.quantity || 0);
+    }, 0);
 
-        if (!stripeKey) {
-            console.error('Stripe key is not set');
+    const sanitizeString = (str) => {
+        return str.normalize('NFD')  // Decompose combined characters
+                    .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
+                    .replace(/[\u0300-\u036f]/g, ''); // Remove diacritical marks
+    };
+
+    const sanitizeCartItem = (item) => {
+        return {
+            ...item,
+            name: sanitizeString(item.name || ''),
+            price: parseFloat(item.price || '0').toFixed(2),
+            quantity: Math.max(1, parseInt(item.quantity || '1', 10))
+        };
+    };
+
+    const handleCheckout = async () => {
+        if (cartItems.length === 0) {
+            setError('Your cart is empty');
             return;
         }
 
         try {
-            const response = await axios.post('/checkout/create-session', {
-                cartItems: cartItems,
-                name: data.name,
-                email: data.email,
-                mobile: data.mobile,
-                address: deliveryOption === 'delivery' ? data.address : storeAddress,
-            });
+            const sanitizedCartItems = cartItems.map(sanitizeCartItem);
+
+            const cartCookie = encodeURIComponent(
+                JSON.stringify(sanitizedCartItems)
+            );
+
+            const subtotal = cartItems.reduce((total, item) => {
+                return total + (item.price || 0) * (item.quantity || 0);
+            }, 0);
+
+            const discountAmount = isFirstPurchase ? subtotal * 0.1 : 0;
+
+            const deliveryFee = deliveryOption === 'pickup' ? 0 : 2.99;
+
+            const checkoutData = {
+                name: sanitizeString(data.name),
+                email: data.email.toLowerCase().trim(),
+                mobile: data.mobile.replace(/[^\d+]/g, ''),
+                address: deliveryOption === 'pickup' ? storeAddress : sanitizeString(data.address),
+                deliveryOption: deliveryOption,
+                isFirstPurchase: isFirstPurchase,
+                discount: discountAmount, 
+                deliveryFee: deliveryFee, 
+                totalAmount: calculateTotal() 
+            };
+
+            if (!data.accept) {
+                setError('Please accept the terms and conditions');
+                return;
+            }
+
+            if (deliveryOption === 'delivery' && !checkoutData.address.trim()) {
+                setError('Please provide a delivery address');
+                return;
+            }
+
+            const response = await axios.post('/checkout/create-session', 
+                checkoutData,
+                {
+                    headers: {
+                        'X-Cart-Cookie': cartCookie,
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            const stripe = await loadStripe(stripeKey);
 
             const { sessionId } = response.data;
-            const stripe = await loadStripe(stripeKey);
-            await stripe.redirectToCheckout({ sessionId });
+            const { error } = await stripe.redirectToCheckout({
+                sessionId: sessionId
+            });
+
+            if (error) {
+                setError('Failed to process checkout');
+                console.error('Stripe Checkout Error:', error);
+            }
+
         } catch (error) {
-            console.error('Error creating checkout session:', error);
-            setError('Notika kļūda. Lūdzu, pārbaudiet ievadi un mēģiniet vēlreiz.');
+            console.error('Checkout Error:', error.response?.data || error.message);
+            setError(error.response?.data?.error || 'Checkout failed');
         }
     };
-
-    const totalAmount = cartItems.reduce((total, item) => {
-        return total + (item.product?.price || 0) * (item.quantity || 0);
-    }, 0);
 
     return (
         <>
@@ -237,17 +347,18 @@ export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
                                                 {cartItems.map((item) => (
                                                     <div key={item.id} className="flex items-center py-3 border-b border-gray-100">
                                                         <div className="flex items-center justify-center w-16 h-16 mr-4 bg-gray-100 rounded">
-                                                            {/* Placeholder for product image */}
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
+                                                            <img 
+                                                                src={item.image} 
+                                                                alt={item.name} 
+                                                                className="object-cover w-full h-full"
+                                                            />
                                                         </div>
                                                         <div className="flex-1">
-                                                            <h3 className="text-sm font-medium">{item.product?.name || 'Unnamed Product'}</h3>
+                                                            <h3 className="text-sm font-medium">{item.name || 'Unnamed Product'}</h3>
                                                             <p className="text-xs text-gray-500">Skaits: {item.quantity || 0}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="text-sm font-medium">€{((item.product?.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
+                                                            <p className="text-sm font-medium">€{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -258,6 +369,12 @@ export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
                                                     <span className="text-gray-600">Preces kopā</span>
                                                     <span>€{totalAmount.toFixed(2)}</span>
                                                 </div>
+                                                {isFirstPurchase && (
+                                                    <div className="flex justify-between text-sm text-green-600">
+                                                        <span>Atlaide (10%)</span>
+                                                        <span>-€{(totalAmount * 0.1).toFixed(2)}</span>
+                                                    </div>
+                                                )}
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-600">Piegāde</span>
                                                     <span>{deliveryOption === 'pickup' ? 'Bezmaksas' : '€2.99'}</span>
@@ -266,7 +383,7 @@ export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
                                                     <div className="flex justify-between">
                                                         <span className="text-base font-medium">Kopā</span>
                                                         <span className="text-base font-medium">
-                                                            €{(totalAmount + (deliveryOption === 'pickup' ? 0 : 2.99)).toFixed(2)}
+                                                            €{calculateTotal().toFixed(2)}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -298,3 +415,4 @@ export default function Checkout({ auth, cartItems = [], guestUserData = {} }) {
         </>
     );
 }
+

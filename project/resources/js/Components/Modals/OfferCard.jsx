@@ -1,4 +1,6 @@
+import { useForm } from "@inertiajs/react";
 import React, { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 const OfferCard = ({ id, image, name, price, isAvailable, quantity, initialLikesCount, isLiked }) => {
     const [isFilled, setIsFilled] = useState(isLiked || false);
@@ -6,16 +8,16 @@ const OfferCard = ({ id, image, name, price, isAvailable, quantity, initialLikes
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
     const [selectedQuantity, setSelectedQuantity] = useState(1);
-    const [notificationColor, setNotificationColor] = useState('gb-green600');
+    const [notificationColor, setNotificationColor] = useState('bg-green-600');
     const [isLiking, setIsLiking] = useState(false);
-    
+    const { post } = useForm();
+
     const showToast = (message, color = 'bg-green-600') => {
         setNotificationMessage(message);
         setShowNotification(true);
         setNotificationColor(color);
         setTimeout(() => setShowNotification(false), 2000);
     };
-
 
     const handleLike = async (e) => {
         e.preventDefault();
@@ -45,56 +47,56 @@ const OfferCard = ({ id, image, name, price, isAvailable, quantity, initialLikes
         }
     };
 
+    const getCookie = (name) => {
+        try {
+            console.log('All cookies:', document.cookie);
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith(`${name}=`));
+            
+            console.log(`Searching for cookie: ${name}`, cookieValue);
+            return cookieValue ? cookieValue.split('=')[1] : null;
+        } catch (error) {
+            console.error('Error reading cookie:', error);
+            return null;
+        }
+    };
+
     const handleAddToCart = (e) => {
         e.preventDefault();
-        if (isAvailable && quantity > 0 && selectedQuantity > 0) {
-            try {
-                const existingCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-                
-                const existingItemIndex = existingCart.findIndex(item => item.id === id);
-                
-                let newQuantity = selectedQuantity;
-
-                if (existingItemIndex !== -1) {
-                    const existingItem = existingCart[existingItemIndex];
-                    const totalQuantityInCart = existingItem.quantity + selectedQuantity;
-
-                    if (totalQuantityInCart > quantity) {
-                        showToast('Prece nav pieejama. (pārbaudiet pieejamo daudzumu)', 'bg-red-600'); 
-                        return;
-                    }
-
-                    newQuantity = totalQuantityInCart;
-                    existingItem.quantity = newQuantity;
-                } else {
-                    newQuantity = Math.min(selectedQuantity, quantity);
-                    
-                    if (newQuantity < selectedQuantity) {
-                        showToast('Prece nav pieejama. (pārbaudiet pieejamo daudzumu)', 'bg-red-600'); 
-                        return;
-                    }
-
-                    existingCart.push({
-                        id,
-                        name,
-                        price,
-                        image,
-                        quantity: newQuantity,
-                        stock: quantity
-                    });
-                }
-
-                localStorage.setItem('guestCart', JSON.stringify(existingCart));
-                window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart } }));
-
-                showToast('Pievienots grozam');
-
-            } catch (error) {
-                showToast('Kļūda! Lūdzu, mēģiniet vēlreiz.', 'bg-red-600');
-            }
+        
+        // Get existing cart from cookies
+        const existingCart = Cookies.get('guest_cart') 
+            ? JSON.parse(Cookies.get('guest_cart')) 
+            : [];
+        
+        // Check if item already exists
+        const existingItemIndex = existingCart.findIndex(item => item.id === id);
+        
+        if (existingItemIndex > -1) {
+            // Update quantity if item exists
+            existingCart[existingItemIndex].quantity += selectedQuantity;
         } else {
-            showToast('Lūdzu, izvēlieties derīgu daudzumu.', 'bg-red-600');
+            // Add new item
+            existingCart.push({
+                id,
+                name,
+                price: price.replace(/[^\d.]/g, ''),
+                image,
+                quantity: selectedQuantity
+            });
         }
+        
+        // Save to cookie
+        Cookies.set('guest_cart', JSON.stringify(existingCart), { 
+            expires: 7,
+            path: '/' 
+        });
+        
+        // Dispatch event to notify that the cart has been updated
+        window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: existingCart } }));
+        
+        showToast('Added to cart');
     };
 
     const incrementQuantity = () => {
@@ -121,7 +123,6 @@ const OfferCard = ({ id, image, name, price, isAvailable, quantity, initialLikes
                     {notificationMessage}
                 </div>
             )}
-
 
             <div className="relative overflow-hidden aspect-square">
                 <img 

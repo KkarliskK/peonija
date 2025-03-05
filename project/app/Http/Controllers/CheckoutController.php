@@ -7,211 +7,299 @@ use App\Models\Order;
 use Stripe\Stripe;
 use App\Models\OrderItem; 
 use Stripe\Checkout\Session;
-use App\Models\Cart;
-use App\Models\CartItem;
+use Stripe\PaymentIntent;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Cookie;
+
+
 
 class CheckoutController extends Controller
 {
     public function checkout(Request $request)
     {
-        $user = auth()->user(); 
+        // Log::debug('ALL COOKIES', [
+        //     'all_cookies' => $request->cookies->all()
+        // ]);
+
+        $rawCookie = $request->cookie('guest_cart');
         
-        if ($user) {
-            $cart = $user->carts()->first();
-        } else {
-            $cart = session('guest_cart', []);
-        }
+        // Log::debug('RAW GUEST CART COOKIE', [
+        //     'raw_cookie' => $rawCookie,
+        //     'raw_cookie_type' => gettype($rawCookie)
+        // ]);
 
-        // If no cart is found, redirect to the shop
-        if (empty($cart) || (is_array($cart) && count($cart) === 0)) {
-            return redirect('/shop')->with('message', 'No active cart found.');
-        }
+        $cartItems = $this->getCartItemsFromCookie($request);
 
-        $cartItems = is_array($cart) ? $cart : $cart->cartItems()->with('product')->get();
+        // Log::debug('Processed Cart Items', [
+        //     'items' => $cartItems,
+        //     'item_count' => count($cartItems)
+        // ]);
 
-        return inertia('Shop/Checkout', ['cartItems' => $cartItems]);
+        return inertia('Shop/Checkout', [
+            'cartItems' => $cartItems
+        ]);
     }
 
-    public function syncCart(Request $request)
+    private function getCartItemsFromCookie(Request $request)
     {
-        $cartData = $request->input('cart', []);
-        
-        if (Auth::check()) {
-            $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        $cartCookie = $request->cookie('guest_cart');
+
+        // Log::debug('Cart Cookie Debug', [
+        //     'raw_cookie' => $cartCookie,
+        //     'cookie_type' => gettype($cartCookie)
+        // ]);
+
+        if ($cartCookie === null) {
+            return [];
+        }
+
+        try {
+            $cartItems = json_decode($cartCookie, true);
             
-            foreach ($cartData as $item) {
-                $productId = $item['id'] ?? null;
-                
-                if (!$productId) {
-                    continue; // Skip items without a valid product ID
-                }
-                
-                $cartItem = CartItem::where('cart_id', $cart->id)
-                                    ->where('product_id', $productId)
-                                    ->first();
-
-                if ($cartItem) {
-                    $cartItem->quantity += $item['quantity']; 
-                    $cartItem->save();
-                } else {
-                    CartItem::create([
-                        'cart_id' => $cart->id,
-                        'product_id' => $productId,
-                        'quantity' => $item['quantity'],
-                    ]);
-                }
+            if ($cartItems === null) {
+                Log::warning('Failed to parse cart cookie', [
+                    'cookie_content' => $cartCookie
+                ]);
+                return [];
             }
-        } else {
-            session(['guest_cart' => $cartData]);
-        }
 
-        return response()->json(['success' => true]);
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255', 
-            'address' => 'required|string|max:255',
-            'paymentMethod' => 'required|string',
-        ]);
-
-        $userId = auth()->id() ?? session('guest_user_id');
-
-        if (!$userId) {
-            $userId = uniqid('guest_', true);  
-            session(['guest_user_id' => $userId]);
-        }
-
-        $order = Order::create([
-            'user_id' => $userId,
-            'name' => $request->name,
-            'email' => $request->email, 
-            'address' => $request->address,
-            'payment_method' => $request->paymentMethod,
-            'total_price' => $this->calculateTotalPrice(),
-        ]);
-
-        foreach ($request->cartItems as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product']['id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['product']['price'],
+            return array_map(function($item) {
+                $price = preg_replace('/[^0-9.]/', '', $item['price']);
+                $item['price'] = floatval($price);
+                return $item;
+            }, $cartItems);
+        } catch (\Exception $e) {
+            Log::error('Cart Parsing Error', [
+                'error' => $e->getMessage(),
+                'cookie_content' => $cartCookie
             ]);
+            return [];
+        }
+    }
+
+public function createCheckoutSession(Request $request)
+{
+    try {
+        $stripeSecret = config('services.stripe.secret');
+        
+        if (!$stripeSecret) {
+            Log::error('Stripe Secret Key is not set');
+            return response()->json(['error' => 'Stripe configuration is missing'], 500);
         }
 
-        return redirect()->route('order.confirmation', $order->id);
+        Stripe::setApiKey($stripeSecret);
+    } catch (\Exception $e) {
+        Log::error('Stripe API Key Configuration Error', [
+            'error' => $e->getMessage()
+        ]);
+        return response()->json(['error' => 'Failed to configure Stripe: ' . $e->getMessage()], 500);
     }
 
-    private function calculateTotalPrice()
-    {
-        return 100.00;  
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'mobile' => 'required|string|max:20',
+        'address' => 'sometimes|string|max:500',
+        'deliveryOption' => 'required|in:delivery,pickup',
+        'discount' => 'sometimes|numeric',
+        'deliveryFee' => 'sometimes|numeric'
+    ]);
+
+    $cartCookie = $request->header('X-Cart-Cookie');
+    
+    if (!$cartCookie) {
+        return response()->json(['error' => 'Cart is empty'], 400);
     }
 
-    public function createCheckoutSession(Request $request)
-    {
-        Stripe::setApiKey(env('STRIPE_SECRET')); 
+    try {
+        $cartItems = json_decode(urldecode($cartCookie), true);
+        
+        if (empty($cartItems)) {
+            return response()->json(['error' => 'Cart is empty'], 400);
+        }
+        
+        // Convert to float to avoid rounding issues
+        $totalAmount = array_reduce($cartItems, function($total, $item) {
+            return $total + ($item['price'] * $item['quantity']);
+        }, 0);
+        
+        $deliveryFee = $validatedData['deliveryOption'] === 'delivery' ? 2.99 : 0;
+        $discount = $validatedData['discount'] ?? 0; // Get discount directly from frontend
+        
+        $totalAmountWithDelivery = $totalAmount + $deliveryFee - $discount;
 
-        $request->validate([
-            'cartItems' => 'required|array',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'mobile' => 'required|string|max:20',
-            'address' => 'required|string|max:255',
-        ]);
+        $userId = auth()->id();
+        $customerId = $userId ? null : uniqid('guest_', true);
 
-        $request->session()->put('checkout_data', [
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'mobile' => $request->input('mobile'),
-            'address' => $request->input('address'),
-        ]);
-        $request->session()->put('cartItems', $request->input('cartItems'));
+        $address = $validatedData['deliveryOption'] === 'pickup' 
+            ? 'Uzvaras Bulvāris 1B' 
+            : ($validatedData['address'] ?? '');
 
         $lineItems = [];
-        foreach ($request->cartItems as $item) {
+        foreach ($cartItems as $item) {
             $lineItems[] = [
                 'price_data' => [
                     'currency' => 'eur',
                     'product_data' => [
-                        'name' => $item['product']['name'],
+                        'name' => $item['name'] ?? 'Product',
                     ],
-                    'unit_amount' => (int)($item['product']['price'] * 100), 
+                    'unit_amount' => intval(round($item['price'] * 100)), // Convert to cents
                 ],
-                'quantity' => $item['quantity'],
+                'quantity' => $item['quantity'] ?? 1,
             ];
         }
 
-        try {
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => $lineItems,
-                'mode' => 'payment',
-                'success_url' => route('checkout.success'), 
-                'cancel_url' => route('checkout.cancel'),   
+        if ($deliveryFee > 0) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'eur',
+                    'product_data' => [
+                        'name' => 'Piegādes maksa',
+                    ],
+                    'unit_amount' => intval(round($deliveryFee * 100)), // Convert to cents
+                ],
+                'quantity' => 1,
+            ];
+        }
+
+        // Use a Stripe coupon instead of a line item for the discount
+        $discounts = [];
+        if ($discount > 0) {
+            $coupon = \Stripe\Coupon::create([
+                'amount_off' => intval(round($discount * 100)), // Convert to cents
+                'currency' => 'eur',
             ]);
-
-            return response()->json(['sessionId' => $session->id]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create session: ' . $e->getMessage()], 500);
-        }
-    }
-
-    public function success(Request $request)
-    {
-        $userId = auth()->id() ?? session('guest_user_id');
-        
-        $cartItems = $request->session()->get('cartItems', []);
-        $checkoutData = $request->session()->get('checkout_data', []);
-        
-        if (empty($cartItems) || empty($checkoutData)) {
-            return redirect()->route('shop.index')->with('error', 'Your cart is empty or session data is missing.');
+            $discounts[] = ['coupon' => $coupon->id]; // Apply coupon to Stripe session
         }
 
-        $totalPrice = array_reduce($cartItems, function ($total, $item) {
-            return $total + ($item['product']['price'] * $item['quantity']);
-        }, 0);
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => $lineItems,
+            'mode' => 'payment',
+            'success_url' => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}', 
+            'cancel_url' => route('checkout.cancel'),
+            'metadata' => [
+                'delivery_option' => $validatedData['deliveryOption']
+            ],
+            'discounts' => $discounts // Apply discount properly
+        ]);
 
         $order = Order::create([
             'user_id' => $userId,
-            'name' => $checkoutData['name'],
-            'email' => $checkoutData['email'],
-            'mobile' => $checkoutData['mobile'],
-            'address' => $checkoutData['address'],
+            'customer_id' => $customerId,
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'mobile' => $validatedData['mobile'],
+            'address' => $address,
             'payment_method' => 'stripe',
-            'total_price' => $totalPrice,
+            'total_price' => $totalAmountWithDelivery,
+            'discount' => $discount, 
+            'delivery_fee' => $validatedData['deliveryFee'],
+            'status' => 'pending',
+            'session_id' => $session->id
         ]);
 
         foreach ($cartItems as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $item['product']['id'],
+                'product_id' => $item['id'],
                 'quantity' => $item['quantity'],
-                'price' => (float)$item['product']['price'],
+                'price' => $item['price'],
             ]);
-
-            $product = \App\Models\Product::find($item['product']['id']);
-            
-            if ($product) { 
-                $product->quantity -= $item['quantity']; 
-                
-                if ($product->quantity < 0) {
-                    $product->quantity = 0; 
-                }
-                
-                $product->save(); 
-            }
         }
 
-        Cart::where('user_id', $userId)->delete();
-        $request->session()->forget('cartItems');
-        
-        return inertia('Shop/Success', [
-            'order' => $order->load('items.product'),
+        return response()->json(['sessionId' => $session->id]);
+    } catch (\Exception $e) {
+        Log::error('Checkout session creation error', [
+            'error' => $e->getMessage()
         ]);
+
+        return response()->json(['error' => 'Failed to create session: ' . $e->getMessage()], 500);
+    }
+}
+
+
+    public function success(Request $request)
+    {
+        try {
+            $stripeSecret = config('services.stripe.secret');
+            
+            if (!$stripeSecret) {
+                Log::error('Stripe Secret Key is not set');
+                return redirect()->route('checkout.cancel')->with('error', 'Payment system configuration error');
+            }
+
+            Stripe::setApiKey($stripeSecret);
+
+            $sessionId = $request->get('session_id');
+            
+            if (!$sessionId) {
+                Log::error('No session ID provided');
+                return redirect()->route('checkout.cancel')->with('error', 'Invalid payment session');
+            }
+
+            try {
+                $session = Session::retrieve($sessionId);
+            } catch (\Exception $e) {
+                Log::error('Stripe Session Retrieval Error: ' . $e->getMessage());
+                return redirect()->route('checkout.cancel')->with('error', 'Could not retrieve payment session');
+            }
+            
+            $order = Order::where('session_id', $session->id)
+                ->with('items.product')
+                ->first();
+            
+            if (!$order) {
+                Log::error('No order found for session: ' . $session->id);
+                return redirect()->route('checkout.cancel')->with('error', 'Order not found');
+            }
+            
+            try {
+                $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
+            } catch (\Exception $e) {
+                Log::error('Payment Intent Retrieval Error: ' . $e->getMessage());
+                return redirect()->route('checkout.cancel')->with('error', 'Payment verification failed');
+            }
+            
+            if (in_array($paymentIntent->status, ['succeeded', 'requires_capture'])) {
+                $order->update([
+                    'status' => 'success',
+                    'stripe_payment_intent' => $paymentIntent->id
+                ]);
+                
+                $response = redirect()->route('order.success', ['sessionId' => $order->session_id]);
+                $response->withCookie(cookie()->forget('guest_cart'));
+                
+                return $response;
+            }
+            
+            return redirect()->route('checkout.cancel');
+
+        } catch (\Exception $e) {
+            Log::error('Unexpected error in Stripe success handler: ' . $e->getMessage());
+            return redirect()->route('checkout.cancel')->with('error', 'An unexpected error occurred');
+        }
+    }
+
+    public function orderSuccess($sessionId)
+    {
+        $order = Order::where('session_id', $sessionId)
+            ->with('items.product')
+            ->firstOrFail();
+
+        return Inertia::render('Shop/Success', [
+            'order' => $order,
+            'auth' => [
+                'user' => auth()->user()
+            ]
+        ]);
+    }
+
+    public function cancel()
+    {
+        return inertia('Shop/Cancel'); 
     }
 
     public function history()
@@ -222,10 +310,5 @@ class CheckoutController extends Controller
             ->get();
 
         return inertia('Shop/OrderHistory', ['orders' => $orders]);
-    }
-
-    public function cancel()
-    {
-        return inertia('Shop/Cancel'); 
     }
 }

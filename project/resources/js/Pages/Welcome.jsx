@@ -4,7 +4,6 @@ import { TiArrowSortedDown } from "react-icons/ti";
 import GuestLayout from '@/Layouts/GuestLayout';
 import peony from '../../assets/peony.webp';
 
-
 const About = lazy(() => import('./About'));
 const Graphic = lazy(() => import('./Graphic'));
 const Special = lazy(() => import('./Special'));
