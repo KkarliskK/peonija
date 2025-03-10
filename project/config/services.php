@@ -40,4 +40,8 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
 ];

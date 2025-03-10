@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderConfirmation;
+use App\Mail\NewOrderNotification;
 
 
 
@@ -221,7 +224,7 @@ public function createCheckoutSession(Request $request)
 }
 
 
-    public function success(Request $request)
+public function success(Request $request)
     {
         try {
             $stripeSecret = config('services.stripe.secret');
@@ -269,6 +272,9 @@ public function createCheckoutSession(Request $request)
                     'stripe_payment_intent' => $paymentIntent->id
                 ]);
                 
+                // Send confirmation emails
+                $this->sendOrderEmails($order);
+                
                 $response = redirect()->route('order.success', ['sessionId' => $order->session_id]);
                 $response->withCookie(cookie()->forget('guest_cart'));
                 
@@ -280,6 +286,31 @@ public function createCheckoutSession(Request $request)
         } catch (\Exception $e) {
             Log::error('Unexpected error in Stripe success handler: ' . $e->getMessage());
             return redirect()->route('checkout.cancel')->with('error', 'An unexpected error occurred');
+        }
+    }
+
+    /**
+     * Send order confirmation emails to customer and shop admin
+     */
+    private function sendOrderEmails(Order $order)
+    {
+        try {
+            Log::info('Attempting to send customer email', ['email' => $order->email]);
+            Mail::to($order->email)->send(new OrderConfirmation($order));
+            Log::info('Customer email sent successfully');
+            
+            $adminEmail = env('MAIL_ADMIN_EMAIL', 'zieduveikalspeonija@gmail.com');
+            Log::info('Attempting to send admin email', ['email' => $adminEmail]);
+            Mail::to($adminEmail)->send(new NewOrderNotification($order));
+            Log::info('Admin email sent successfully');
+            
+            Log::info('All order confirmation emails sent successfully', ['order_id' => $order->id]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send order confirmation emails', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 

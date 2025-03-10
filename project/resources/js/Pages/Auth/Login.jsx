@@ -27,14 +27,14 @@ export default function Login({ status, canResetPassword }) {
         <>
             <Head title="Pieslēgties" />
 
-            <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+            <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100 dark:bg-gray-900">
                 {status && (
                     <div className="fixed left-0 right-0 z-50 w-full max-w-md px-4 py-3 mx-auto text-center text-green-700 border border-green-200 rounded shadow-md top-4 bg-green-50">
                         {status}
                     </div>
                 )}
 
-                <div className="flex flex-col w-full max-w-5xl overflow-hidden transition-all duration-300 ease-in-out bg-white shadow-xl rounded-2xl md:flex-row">
+                <div className="flex flex-col w-full max-w-5xl overflow-hidden transition-all duration-300 ease-in-out bg-white shadow-xl rounded-2xl md:flex-row dark:bg-gray-800">
                     {/* Left side with background */}
                     <div 
                         className="relative flex flex-col items-center justify-between w-full py-8 bg-center bg-no-repeat bg-cover md:w-1/2 md:py-0"
@@ -80,17 +80,17 @@ export default function Login({ status, canResetPassword }) {
                     {/* Right side with form */}
                     <div className="w-full p-6 md:w-1/2 md:p-10 lg:p-12">
                         <div className="max-w-md mx-auto">
-                            <h2 className="mb-6 text-2xl font-semibold text-gray-800">Pieslēgties</h2>
+                            <h2 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-200">Pieslēgties</h2>
                             
                             <form onSubmit={submit}>
                                 <div className="mb-6">
-                                    <InputLabel htmlFor="email" value="E-pasta adrese" className="text-gray-700" />
+                                    <InputLabel htmlFor="email" value="E-pasta adrese" className="text-gray-700 dark:text-gray-200" />
                                     <TextInput
                                         id="email"
                                         type="email"
                                         name="email"
                                         value={data.email}
-                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                         autoComplete="username"
                                         isFocused={true}
                                         onChange={(e) => setData('email', e.target.value)}
@@ -100,11 +100,11 @@ export default function Login({ status, canResetPassword }) {
 
                                 <div className="mb-6">
                                     <div className="flex items-center justify-between">
-                                        <InputLabel htmlFor="password" value="Parole" className="text-gray-700" />
+                                        <InputLabel htmlFor="password" value="Parole" className="text-gray-700 dark:text-gray-200" />
                                         {canResetPassword && (
                                             <Link
                                                 href={route('password.request')}
-                                                className="text-sm text-indigo-600 transition-colors hover:text-indigo-800"
+                                                className="text-sm text-indigo-600 transition-colors hover:text-indigo-800 dark:text-indigo-300"
                                             >
                                                 Aizmirsi paroli?
                                             </Link>
@@ -115,7 +115,7 @@ export default function Login({ status, canResetPassword }) {
                                         type="password"
                                         name="password"
                                         value={data.password}
-                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="block w-full mt-1 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:text-white"
                                         autoComplete="current-password"
                                         onChange={(e) => setData('password', e.target.value)}
                                     />
@@ -129,7 +129,7 @@ export default function Login({ status, canResetPassword }) {
                                             checked={data.remember}
                                             onChange={(e) => setData('remember', e.target.checked)}
                                         />
-                                        <span className="text-sm text-gray-600 ms-2">Atcerēties mani</span>
+                                        <span className="text-sm text-gray-600 dark:text-gray-200 ms-2">Atcerēties mani</span>
                                     </label>
                                 </div>
 
@@ -145,7 +145,7 @@ export default function Login({ status, canResetPassword }) {
                                     <div className="text-center">
                                         <Link
                                             href={route('register')}
-                                            className="text-sm text-indigo-600 transition-colors hover:text-indigo-800"
+                                            className="text-sm text-indigo-600 transition-colors hover:text-indigo-800 dark:text-indigo-300"
                                         >
                                             Vai Tev vēl nav profila?
                                         </Link>

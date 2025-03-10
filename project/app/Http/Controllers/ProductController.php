@@ -10,6 +10,10 @@ use App\Models\Category;
 use App\Models\Like;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
+
 
 class ProductController extends Controller
 {
@@ -143,7 +147,6 @@ class ProductController extends Controller
     
         $product = Product::create($data);
     
-        // Return a JSON response
         return response()->json([
             'message' => 'Produkts veiksmīgi pievienots!',
             'product' => $product,
@@ -231,14 +234,42 @@ class ProductController extends Controller
     public function savedProducts(Request $request)
     {
         $user = $request->user();
-        $likedProducts = $user->likedProducts()->with('category')->get();
+        $likedProducts = $user->likedProducts()->with('category')->withCount('likes as likes_count')->get();
     
         return Inertia::render('Shop/SavedProducts', [
             'auth' => $user,
             'likedProducts' => $likedProducts
         ]);
     }
-    
 
+    //in admin panel for toggling the products availability
+    public function toggleAvailability(Request $request, Product $product)
+    {
+        try {
+            $product->is_available = $product->is_available == 1 ? 0 : 1;
+            $product->save();
+            
+            return redirect()->back()->with('success', 'Product availability updated successfully');
+        } catch (\Exception $e) {
+            Log::error('Failed to toggle product availability: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update product availability');
+        }
+    }
 
+    //in admin panel for deleting the product from db
+    public function destroy(Product $product)
+    {
+        try {
+            if (method_exists($product->category(), 'detach')) {
+                $product->categories()->detach();
+            }
+            
+            $product->delete();
+            
+            return redirect()->back()->with('success', 'Product deleted successfully');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete product: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete product');
+        }
+    }
 }

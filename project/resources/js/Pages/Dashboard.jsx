@@ -1,5 +1,5 @@
 import DashboardBox from '@/Components/Modals/DashboardBox';
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { FiShoppingCart, FiPackage, FiTag, FiBell } from "react-icons/fi";
 import { FaUserEdit } from "react-icons/fa";
@@ -7,7 +7,7 @@ import { CiHeart } from "react-icons/ci";
 
 export default function Dashboard({ auth }) {
     return (
-            <GuestLayout auth={auth}>
+            <AuthenticatedLayout auth={auth}>
             <Head title="Dashboard" />
             <section className='min-h-screen mb-4 bg-gray-50 dark:bg-gray-900'>
                 <div className="container w-full px-4 mx-auto sm:px-6 lg:px-8">
@@ -77,6 +77,6 @@ export default function Dashboard({ auth }) {
                     </div>
                 </div>
             </section>
-        </GuestLayout>
+        </AuthenticatedLayout>
     );
 }

@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\ResetPassword;
+
 
 class User extends Authenticatable
 {
@@ -45,6 +47,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        // Create a custom instance of the ResetPassword notification
+        $notification = new ResetPassword($token);
+        
+        // Customize the notification here
+        $notification->toMailUsing(function ($notifiable) use ($token) {
+            return (new \Illuminate\Notifications\Messages\MailMessage)
+                ->subject('Peonija - Reset Your Password')
+                ->greeting('Hello from Peonija!')
+                ->line('You are receiving this email because we received a password reset request for your account.')
+                ->action('Reset Password', url(route('password.reset', [
+                    'token' => $token,
+                    'email' => $notifiable->getEmailForPasswordReset(),
+                ], false)))
+                ->line('This password reset link will expire in '.config('auth.passwords.'.config('auth.defaults.passwords').'.expire').' minutes.')
+                ->line('If you did not request a password reset, no further action is required.')
+                ->salutation('Best regards,<br>The Peonija Team');
+        });
+        
+        $this->notify($notification);
     }
 
     public function isAdmin(): bool

@@ -49,46 +49,48 @@ export default function Contact({ auth }) {
 
     return (
         <>
-          <main id='contact' className='h-auto py-12 bg-gradient-to-b from-primary-pink to-accent'>
-            <div className='container mx-auto px-4 py-16'>
-              {/* Hero Section */}
-              <div className='w-full flex flex-col items-center justify-center mb-16 text-white'>
-                <h1 className='font-semibold text-5xl uppercase text-center mb-4'>Kontakti</h1>
-                <p className='text-lg text-center max-w-2xl'>Mēs priecājamies par katru klientu un esam gatavi palīdzēt izveidot Jūsu sapņu ziedu pušķi!</p>
+          <main id='contact' className='h-auto py-12 bg-gradient-to-b from-primary-pink to-accent dark:bg-gradient-to-t dark:from-gray-800 dark:to-gray-900'>
+            <div className='container px-4 py-16 mx-auto'>
+              <div className='flex flex-col items-center justify-center w-full mb-16 text-white dark:text-gray-200'>
+                <div className='mb-8 text-center'>
+                  <h1 className='relative inline-block mb-2 text-4xl font-bold tracking-wider uppercase md:text-5xl dark:text-white'>
+                    Kontakti
+                    <span className='absolute left-0 w-full h-1 bg-gray-800 -bottom-2 dark:bg-white opacity-20'></span>
+                  </h1>
+                </div>
+              <p className='max-w-2xl text-lg text-center'>Mēs priecājamies par katru klientu un esam gatavi palīdzēt izveidot Jūsu sapņu ziedu pušķi!</p>
               </div>
 
-              {/* Main Content */}
-              <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-7xl mx-auto'>
-                {/* Info Cards */}
+              <div className='grid items-start grid-cols-1 gap-8 mx-auto lg:grid-cols-3 max-w-7xl'>
                 <div className='space-y-3'>
                   {/* Location Card */}
-                  <div className='bg-white/95 p-5 rounded-lg shadow-lg dark:bg-gray-700 flex-1'>
+                  <div className='flex-1 p-5 rounded-lg shadow-lg bg-white/95 dark:bg-gray-700'>
                     <div className='flex items-center gap-4 mb-4'>
-                      <div className='bg-primary-pink/20 p-3 rounded-full'>
-                        <MdLocationOn size={24} className='text-accent' />
+                      <div className='p-3 rounded-full bg-primary-pink/20 dark:bg-gray-600'>
+                        <MdLocationOn size={24} className='text-accent dark:text-gray-300' />
                       </div>
-                      <h3 className='font-bold text-lg'>Atrašanās vieta</h3>
+                      <h3 className='text-lg font-bold dark:text-gray-200'>Atrašanās vieta</h3>
                     </div>
                     <p className='text-gray-600 dark:text-gray-300'>Uzvaras Bulvāris 1B, Cēsis</p>
                   </div>
 
                   {/* Working Hours Card */}
-                  <div className='bg-white/95 p-5 rounded-lg shadow-lg dark:bg-gray-700 flex-1'>
+                  <div className='flex-1 p-5 rounded-lg shadow-lg bg-white/95 dark:bg-gray-700'>
                     <div className='flex items-center gap-4 mb-4'>
-                      <div className='bg-primary-pink/20 p-3 rounded-full'>
-                        <AiFillLike size={24} className='text-accent' />
+                      <div className='p-3 rounded-full bg-primary-pink/20 dark:bg-gray-600'>
+                        <AiFillLike size={24} className='text-accent dark:text-gray-300' />
                       </div>
-                      <h3 className='font-bold text-lg'>Sociālie tīkli</h3>
+                      <h3 className='text-lg font-bold dark:text-gray-200'>Sociālie tīkli</h3>
                     </div>
                     <div className='flex flex-col'>
                       <div className='mx-3 my-1'>
-                        <a href='https://www.facebook.com/Peoniijaa/' className='text-accent hover:text-primary-pink flex flex-row'>
+                        <a href='https://www.facebook.com/Peoniijaa/' className='flex flex-row text-accent hover:text-primary-pink dark:text-gray-300 dark:hover:text-gray-100'>
                           <FaFacebook size={24} />
                           <p className='mx-3'>Peonija Facebook</p>
                         </a>
                       </div>
                       <div className='mx-3 my-1'>
-                        <a href='https://www.instagram.com/ziedu.veikals.peonija/' className='text-accent hover:text-primary-pink flex flex-row'>
+                        <a href='https://www.instagram.com/ziedu.veikals.peonija/' className='flex flex-row text-accent hover:text-primary-pink dark:text-gray-300 dark:hover:text-gray-100'>
                           <FaInstagram size={24} />
                           <p className='mx-3'>Peonija Instagram</p>
                         </a>
@@ -97,18 +99,18 @@ export default function Contact({ auth }) {
                   </div>
 
                   {/* Contact Info Card */}
-                  <div className='bg-white/95 p-5 rounded-lg shadow-lg dark:bg-gray-700 flex-1'>
+                  <div className='flex-1 p-5 rounded-lg shadow-lg bg-white/95 dark:bg-gray-700'>
                     <div className='flex items-center gap-4 mb-4'>
-                      <div className='bg-primary-pink/20 p-3 rounded-full'>
-                        <MdPhone size={24} className='text-accent' />
+                      <div className='p-3 rounded-full bg-primary-pink/20 dark:bg-gray-600'>
+                        <MdPhone size={24} className='text-accent dark:text-gray-300' />
                       </div>
-                      <h3 className='font-bold text-lg'>Kontakti</h3>
+                      <h3 className='text-lg font-bold dark:text-gray-200'>Kontakti</h3>
                     </div>
                     <div className='space-y-4'>
-                      <a href="tel:+37129484017" className='block text-accent hover:text-primary-pink'>
+                      <a href="tel:+37129484017" className='block text-accent hover:text-primary-pink dark:text-gray-300 dark:hover:text-gray-100'>
                         +371 29484071
                       </a>
-                      <a href="mailto:zieduveikalspeonija@gmail.com" className='block text-accent hover:text-primary-pink'>
+                      <a href="mailto:zieduveikalspeonija@gmail.com" className='block text-accent hover:text-primary-pink dark:text-gray-300 dark:hover:text-gray-100'>
                         zieduveikalspeonija@gmail.com
                       </a>
                     </div>
@@ -116,24 +118,24 @@ export default function Contact({ auth }) {
                 </div>
 
                 {/* Contact Form */}
-                <div className='lg:col-span-2 w-full'>
-                  <div className='bg-white/95 p-8 rounded-lg shadow-lg dark:bg-gray-700 h-full'>
-                    <h2 className='text-3xl font-bold mb-6'>Sazinies ar mums!</h2>
-                    <p className='text-gray-500 dark:text-gray-400 mb-8'>
+                <div className='w-full lg:col-span-2'>
+                  <div className='h-full p-8 rounded-lg shadow-lg bg-white/95 dark:bg-gray-700'>
+                    <h2 className='mb-6 text-3xl font-bold dark:text-gray-200'>Sazinies ar mums!</h2>
+                    <p className='mb-8 text-gray-500 dark:text-gray-400'>
                       Vai Tev ir kāds īpašs pasūtījums ko vēlies izpildīt? Tad droši sazinies ar mums!
                     </p>
 
                     <form ref={form} className='space-y-6' onSubmit={sendEmail}>
-                      <div className='grid sm:grid-cols-2 gap-6'>
+                      <div className='grid gap-6 sm:grid-cols-2'>
                         <TextInput
-                          className='w-full rounded-lg py-3 px-4 border text-sm'
+                          className='w-full px-4 py-3 text-sm border rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-600'
                           type='text'
                           name='user_name'
                           id='user_name'
                           placeholder='Vārds'
                         />
                         <TextInput
-                          className='w-full rounded-lg py-3 px-4 border text-sm'
+                          className='w-full px-4 py-3 text-sm border rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-600'
                           type='email'
                           name='user_email'
                           id='user_email'
@@ -142,14 +144,14 @@ export default function Contact({ auth }) {
                       </div>
 
                       <textarea
-                        className='w-full h-40 rounded-lg px-4 border text-sm pt-3 resize-none dark:bg-gray-900 dark:text-white'
+                        className='w-full h-40 px-4 pt-3 text-sm border rounded-lg resize-none dark:bg-gray-800 dark:text-white dark:border-gray-600'
                         name='message'
                         id='message'
                         placeholder='Ziņa ...'
                       />
 
                       <div className='flex items-center justify-between'>
-                        <button className='text-white bg-accent hover:bg-primary-pink transition-colors font-semibold rounded-lg text-sm px-8 py-3' type='submit'>
+                        <button className='px-8 py-3 text-sm font-semibold text-white transition-colors rounded-lg bg-accent hover:bg-primary-pink dark:bg-gray-600 dark:hover:bg-gray-500' type='submit'>
                           Sūtīt
                         </button>
                       </div>

@@ -38,7 +38,6 @@ const GuestCartPage = ({ auth }) => {
 
         fetchFirstPurchaseStatus();
       } else {
-        // Reset first purchase for guest users
         setIsFirstPurchase(false);
       }
 
@@ -65,9 +64,14 @@ const GuestCartPage = ({ auth }) => {
     };
 
     const handleUpdateQuantity = (itemId, newQuantity) => {
+      if (newQuantity < 1) {
+        handleDeleteItem(itemId);
+        return;
+      }
+      
       const updatedCart = cartItems.map(item => 
         item.id === itemId 
-          ? { ...item, quantity: Math.max(1, Math.min(newQuantity, item.available_stock || 99)) } 
+          ? { ...item, quantity: Math.min(newQuantity, item.available_stock || 99) } 
           : item
       );
       
@@ -129,20 +133,20 @@ const GuestCartPage = ({ auth }) => {
         <div className="flex flex-col gap-8 mt-12 md:flex-row">
           <div className="flex-grow">
             {isFirstPurchase && (
-              <div className="p-4 mb-6 border border-green-200 rounded-lg bg-green-50">
-                <p className="font-semibold text-green-700">
+              <div className="p-4 mb-6 border border-green-200 rounded-lg bg-green-50 dark:bg-green-950 dark:border-green-600">
+                <p className="font-semibold text-green-700 dark:text-green-100">
                   🎉 Īpašs piedāvājums: 10% atlaide pirmajai iegādei!
                 </p>
               </div>
             )}
-            <h1 className="mb-6 text-3xl font-bold">Jūsu grozs</h1>
+            <h1 className="mb-6 text-3xl font-bold dark:text-gray-200">Jūsu grozs</h1>
             
               {cartItems.length > 0 ? (
               <div className="space-y-4">
                 {cartItems.map(item => (
                   <div 
                     key={item.id}
-                    className="overflow-hidden transition-shadow duration-200 bg-white shadow-sm rounded-xl hover:shadow-md "
+                    className="overflow-hidden transition-shadow duration-200 bg-white shadow-sm rounded-xl hover:shadow-md dark:bg-gray-800 dark:text-gray-200"
                   >
                     <div className="flex flex-col items-center gap-4 p-4 sm:flex-row">
                       <div className="relative flex-shrink-0 w-32 h-32">
@@ -155,18 +159,18 @@ const GuestCartPage = ({ auth }) => {
 
                       <div className="flex-grow space-y-2 text-center sm:text-left ">
                         <h4 className="text-xl font-semibold">{item.name}</h4>
-                        <p className="text-lg font-medium text-accent">{item.price}</p>
+                        <p className="text-lg font-medium text-accent dark:text-primary-pink">{item.price}</p>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <button 
-                          onClick={() => handleUpdateQuantity(item.id, Math.max(1, item.quantity - 1), item.stock)}
-                          className="p-2 transition-colors rounded-full hover:bg-gray-100"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
-                          </svg>
-                        </button>
+                      <button 
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                        className="p-2 transition-colors rounded-full hover:bg-gray-100"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
+                        </svg>
+                      </button>
                         <span className="w-12 font-medium text-center">{item.quantity}</span>
                         <button 
                           onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, item.stock)} 
@@ -191,13 +195,13 @@ const GuestCartPage = ({ auth }) => {
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center bg-white shadow-sm rounded-xl">
+              <div className="p-8 text-center bg-white shadow-sm rounded-xl dark:bg-gray-800">
                 <div className="max-w-md mx-auto">
-                  <h3 className="mb-2 text-xl font-semibold">Jūsu iepirkuma grozs ir tukšs</h3>
-                  <p className="mb-6 text-gray-600">Apskatiet mūsu produktus un pievienojiet tos grozam</p>
+                  <h3 className="mb-2 text-xl font-semibold dark:text-gray-200">Jūsu iepirkuma grozs ir tukšs</h3>
+                  <p className="mb-6 text-gray-600 dark:text-gray-200">Apskatiet mūsu produktus un pievienojiet tos grozam</p>
                   <button 
                     onClick={() => window.location.href = '/shop'}
-                    className="inline-flex items-center px-6 py-3 text-white transition-colors rounded-lg bg-violet-600 hover:bg-violet-700"
+                    className="inline-flex items-center px-6 py-3 text-white transition-colors rounded-lg bg-accent hover:bg-primary-pink"
                   >
                     Turpināt iepirkties
                   </button>
@@ -208,12 +212,12 @@ const GuestCartPage = ({ auth }) => {
 
           {cartItems.length > 0 && (
             <div className="flex-shrink-0 w-full md:w-80">
-              <div className="sticky p-6 bg-white shadow-sm rounded-xl top-24">
+              <div className="sticky p-6 bg-white shadow-sm rounded-xl top-24 dark:bg-gray-800 dark:text-gray-200">
                 <h2 className="mb-4 text-xl font-semibold">Pasūtījuma kopsavilkums</h2>
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-4 border-b">
-                    <span className="text-gray-600">Preces ({cartItems.length})</span>
+                    <span className="text-gray-600 dark:text-gray-400">Preces ({cartItems.length})</span>
                     <span className="font-medium">{originalTotal.toFixed(2)} €</span>
                   </div>
                   
@@ -238,7 +242,7 @@ const GuestCartPage = ({ auth }) => {
 
                   <button
                     onClick={handleClearCart}
-                    className="w-full py-3 text-red-500 transition-colors border border-red-500 rounded-lg hover:bg-red-50"
+                    className="w-full py-3 text-red-500 transition-all border border-red-500 rounded-lg hover:scale-105"
                   >
                     Iztukšot grozu
                   </button>

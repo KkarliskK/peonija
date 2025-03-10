@@ -41,7 +41,7 @@ export default function Welcome({ auth, top_products }) {
                                 </p>
 
                                 <div className="w-full prose prose-lg lg:w-4/5 dark:prose-invert">
-                                    <p className="text-base text-justify text-black sm:text-lg sm:text-left">
+                                    <p className="text-base text-justify text-black sm:text-lg sm:text-left dark:text-gray-200">
                                         Kā floristi ar vairāk nekā 20 gadu pieredzi, mēs esam izstrādājuši unikālu prasmi un izpratni par ziedu mākslu.
                                         Mēs sekojam līdzi jaunākajām tendencēm floristikā... 
                                         <button 
@@ -65,11 +65,11 @@ export default function Welcome({ auth, top_products }) {
 
                     {/* Scroll Indicator */}
                     <div className="flex items-center justify-center w-full py-4 cursor-pointer group" onClick={() => scrollToSection('about')}>
-                        <TiArrowSortedDown className="transition-colors duration-300 text-primary-pink animate-bounce group-hover:text-accent" size={32} />
-                        <h2 className="mx-4 text-xl font-semibold uppercase transition-colors duration-300 text-primary-pink group-hover:text-accent">
+                        <TiArrowSortedDown className="transition-colors duration-300 text-primary-pink animate-bounce group-hover:text-accent dark:text-gray-200" size={32} />
+                        <h2 className="mx-4 text-xl font-semibold uppercase transition-colors duration-300 text-primary-pink group-hover:text-accent dark:text-gray-200">
                             Par mums
                         </h2>
-                        <TiArrowSortedDown className="transition-colors duration-300 text-primary-pink animate-bounce group-hover:text-accent" size={32} />
+                        <TiArrowSortedDown className="transition-colors duration-300 text-primary-pink animate-bounce group-hover:text-accent dark:text-gray-200" size={32} />
                     </div>
                 </main>
 

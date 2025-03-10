@@ -2,12 +2,14 @@ import DashboardBox from '@/Components/Modals/DashboardBox';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaCopy } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
 import PostNotification from '@/Components/Modals/Notification';
 import Checkbox from '@/Components/Buttons/Checkbox';
-import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
-import { IoTrashOutline } from 'react-icons/io5';
+import { HiOutlineDotsCircleHorizontal, HiMenuAlt2 } from "react-icons/hi";
+import { IoTrashOutline, IoSearch, IoFilter } from 'react-icons/io5';
+import { MdOutlineCategory } from 'react-icons/md';
+import axios from 'axios';
 
 export default function ManageProducts({ auth, categories = [], products = [] }) {
     const [notifMessage, setNotifMessage] = useState('');
@@ -20,6 +22,8 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     const [isFormVisible, setIsFormVisible] = useState(false);  
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null); 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const menuRef = useRef(null);
     const [images, setImages] = useState([]); 
     const [imagesByCategory, setImagesByCategory] = useState({});
@@ -37,16 +41,27 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         };
 
         fetchImages();
+
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setSidebarOpen(false);
+            } else {
+                setSidebarOpen(true);
+            }
+        };
+
+        handleResize(); 
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-
 
     const handleImageSelect = (imageUrl) => {
         setSelectedImage(imageUrl); 
         setData('image', imageUrl); 
     };
 
-    const toggleMenu = (product) => {
+    const toggleMenu = (product, e) => {
+        e.stopPropagation();
         if (selectedProduct === product) {
             setIsMenuOpen(!isMenuOpen);
         } else {
@@ -70,25 +85,6 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         };
     }, []);
 
-    const handleEnableDisable = () => {
-        // need to make on off
-        console.log(selectedProduct.is_available === 1 ? 'Disabling product...' : 'Enabling product...');
-        setIsMenuOpen(false);
-    };
-
-    const handleDelete = () => {
-        // make delete
-        console.log('Deleting product...');
-        setIsMenuOpen(false);
-    };
-
-    const handleRemoveFromCategory = () => {
-        //make remove from cat lol
-        console.log('Removing product from category...');
-        setIsMenuOpen(false);
-    };
-
-    // Move the resetForm function outside the handleSubmit
     const resetForm = () => {
         setData({ 
             name: '',
@@ -101,7 +97,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         });
         setSelectedImage(''); 
         setIsFormVisible(false); 
-        console.log("Form reset"); 
+        //console.log("Form reset"); 
     };
 
     const { data, setData, post } = useForm({
@@ -113,6 +109,110 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         category_id: selectedSubCategory || selectedParentCategory || '' ,
         image: '', 
     });
+
+    const handleEnableDisable = (e, product) => {
+        e.stopPropagation();
+        const newStatus = product.is_available === 1 ? 0 : 1;
+        //console.log(newStatus === 0 ? 'Disabling product...' : 'Enabling product...');
+        
+        router.patch(route('products.toggle-availability', product.id), {
+            is_available: newStatus
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setNotifMessage('Produkta pieejamība nomainīta veiksmīgi!');
+                setNotifType('success');
+                setIsNotifOpen(true); 
+            },
+            onError: (errors) => {
+                console.error(errors);
+                    setNotifMessage('Neizdevās nomainīt produkta pieejamību!');
+                    setNotifType('error');
+                    setIsNotifOpen(true);
+            }
+        });
+        
+        setIsMenuOpen(false);
+    };
+
+    const handleDelete = (e, product) => {
+        e.stopPropagation();
+        
+        if (confirm('Are you sure you want to delete this product?')) {
+            //console.log('Deleting product...');
+            
+            router.delete(route('products.destroy', product.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setNotifMessage('Produkts veiksmīgi izdzēsts!');
+                    setNotifType('success');
+                    setIsNotifOpen(true); 
+                },
+                onError: (errors) => {
+                    console.error(errors);
+                    setNotifMessage('Neizdevās izdzēst produktu!');
+                    setNotifType('error');
+                    setIsNotifOpen(true);
+                }
+            });
+        }
+        
+        setIsMenuOpen(false);
+    };
+
+    const validatePrice = (value) => {
+    const price = Number(value);
+    
+    if (isNaN(price) || price <= 0) {
+        return { isValid: false, message: 'Cena nevar būt negatīva vai nulle' };
+    }
+    
+    if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+        return { isValid: false, message: 'Cena var saturēt ne vairāk kā 2 decimālzīmes' };
+    }
+    
+    if (price > 500) {
+        return { isValid: false, message: 'Cena ir pārāk augsta' };
+    }
+    
+    return { isValid: true, message: '' };
+    };
+
+    const validateQuantity = (value) => {
+    const quantity = Number(value);
+    
+    if (isNaN(quantity) || quantity < 0 || !Number.isInteger(quantity)) {
+        return { isValid: false, message: 'Daudzumam jābūt pozitīvam veselam skaitlim' };
+    }
+    
+    if (quantity > 100) {
+        return { isValid: false, message: 'Daudzums ir pārāk liels' };
+    }
+    
+    return { isValid: true, message: '' };
+    };
+
+    const handlePriceChange = (e) => {
+    const value = e.target.value;
+    const validation = validatePrice(value);
+    
+    setData(prevData => ({
+            ...prevData,
+            price: value,
+            priceError: !validation.isValid ? validation.message : ''
+        }));
+    };
+
+    const handleQuantityChange = (e) => {
+    const value = e.target.value;
+    const validation = validateQuantity(value);
+    
+    setData(prevData => ({
+            ...prevData,
+            quantity: value,
+            quantityError: !validation.isValid ? validation.message : ''
+        }));
+    };
 
     const parentCategories = categories.filter(category => !category.parent_id);
     const subCategories = selectedParentCategory
@@ -139,6 +239,11 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     };
 
     const filteredProducts = products.filter(product => {
+        // Filter by search query first
+        if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return false;
+        }
+        
         if (selectedParentCategory) {
             const subCategoryIds = categories
                 .filter(category => category.parent_id === selectedParentCategory)
@@ -160,8 +265,6 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         return true;
     });
     
-    
-
     const handleAddProduct = () => {
         setIsFormVisible(!isFormVisible);
     };
@@ -204,11 +307,56 @@ export default function ManageProducts({ auth, categories = [], products = [] })
         }
         return 'Visi produkti'; 
     };
-    
-    
+
+    //function for cloning products
+    const handleCloneProduct = (e, product) => {
+        e.stopPropagation();
+        
+        //console.log('Cloning product...', product);
+        
+        const clonedProduct = {
+            name: `${product.name} (Kopija)`,
+            description: product.description,
+            price: product.price,
+            is_available: product.is_available,
+            quantity: product.quantity,
+            category_id: product.category_id,
+            image: product.image
+        };
+        
+        setSelectedProductForEdit(null); 
+        setIsFormVisible(true);
+        setData(clonedProduct);
+        setSelectedImage(product.image);
+        
+        const category = categories.find(cat => cat.id === product.category_id);
+        if (category) {
+            if (category.parent_id) {
+                setSelectedParentCategory(category.parent_id);
+                setSelectedSubCategory(category.id);
+            } else {
+                setSelectedParentCategory(category.id);
+                setSelectedSubCategory(null);
+            }
+        }
+        
+        setIsMenuOpen(false);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const priceValidation = validatePrice(data.price);
+        const quantityValidation = validateQuantity(data.quantity);
+        
+        if (!priceValidation.isValid || !quantityValidation.isValid) {
+            setData(prevData => ({
+            ...prevData,
+            priceError: priceValidation.message,
+            quantityError: quantityValidation.message
+            }));
+            return;
+        }
     
         try {
             if (selectedProductForEdit) {
@@ -230,7 +378,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
 
                 setTimeout(() => {
                     router.get('/admin/manageproducts', {}, { replace: true });
-                }, 3000); 
+                }, 1000); 
             } else {
                 // Add a new product
                 const response = await axios.post('/admin/products', {
@@ -243,7 +391,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                     image: selectedImage,
                 });
 
-                console.log("Add product response:", response);
+                //console.log("Add product response:", response);
 
                 if (response.data && response.data.message) {
                     setNotifMessage(response.data.message); 
@@ -256,7 +404,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
 
                 setTimeout(() => {
                     router.get('/admin/manageproducts', {}, { replace: true });
-                }, 3000); 
+                }, 1000); 
             }
         } catch (error) {
             console.error("Kļūda pievienojot produktu:", error);
@@ -267,23 +415,42 @@ export default function ManageProducts({ auth, categories = [], products = [] })
     };
     
 
+
     return (
         <AdminLayout
+            auth={auth}
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Pievienot vai rediģēt produktu</h2>}
+            header={<h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">Pievienot vai rediģēt produktu</h2>}
         >
             <Head title="Manage Products" />
 
-            <div className="flex">
+            <div className="relative flex flex-col min-h-screen md:flex-row">
+                {/* Mobile sidebar toggle */}
+                <button 
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="fixed z-50 p-2 text-white bg-blue-500 rounded-md shadow-lg md:hidden top-4 left-4"
+                >
+                    <HiMenuAlt2 size={24} />
+                </button>
+
                 {/* Sidebar */}
-                <div className="w-1/4 h-screen border-2 border-gray-200 p-4 bg-gray-100 dark:bg-gray-800">
-                    <div className="mb-4">
-                        <h3 className="font-semibold text-lg">Filtrēt</h3>
-                        <ul className="mt-2 space-y-2">
+                <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+                              md:translate-x-0 transition-transform duration-300 
+                              fixed md:relative z-40 md:z-0
+                              w-full md:w-1/4 lg:w-1/5 h-screen 
+                              bg-white dark:bg-gray-800 shadow-lg md:shadow-none
+                              p-4 overflow-y-auto`}>
+                    
+                    <div className="mt-8 mb-6 md:mt-0">
+                        <div className="flex items-center mb-4">
+                            <IoFilter size={20} className="mr-2 text-blue-500" />
+                            <h3 className="text-lg font-semibold dark:text-gray-200">Filtrēt</h3>
+                        </div>
+                        <ul className="mt-2 space-y-3">
                             <li>
                                 <button
                                     onClick={() => handleFilterChange('all')}
-                                    className={`text-sm ${filter === 'all' ? 'font-bold text-blue-500' : ''}`}
+                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${filter === 'all' ? 'bg-blue-100 text-blue-600 font-medium dark:bg-gray-900 dark:text-gray-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200'}`}
                                 >
                                     Visi produkti
                                 </button>
@@ -291,7 +458,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                             <li>
                                 <button
                                     onClick={() => handleFilterChange('disabled')}
-                                    className={`text-sm ${filter === 'disabled' ? 'font-bold text-blue-500' : ''}`}
+                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${filter === 'disabled' ? 'bg-blue-100 text-blue-600 font-medium dark:bg-gray-900 dark:text-gray-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200'}`}
                                 >
                                     Atspējoti produkti
                                 </button>
@@ -299,7 +466,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                             <li>
                                 <button
                                     onClick={() => handleFilterChange('available')}
-                                    className={`text-sm ${filter === 'available' ? 'font-bold text-blue-500' : ''}`}
+                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${filter === 'available' ? 'bg-blue-100 text-blue-600 font-medium dark:bg-gray-900 dark:text-gray-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200'}`}
                                 >
                                     Iespējoti produkti
                                 </button>
@@ -307,7 +474,7 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                             <li>
                                 <button
                                     onClick={() => handleFilterChange('without-category')}
-                                    className={`text-sm ${filter === 'without-category' ? 'font-bold text-blue-500' : ''}`}
+                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${filter === 'without-category' ? 'bg-blue-100 text-blue-600 font-medium dark:bg-gray-900 dark:text-gray-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200'}`}
                                 >
                                     Produkti bez kategorijas
                                 </button>
@@ -315,27 +482,40 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                         </ul>
                     </div>
 
-                    <div>
-                        <h3 className="font-semibold text-lg">Kategorijas</h3>
-                        <ul className="mt-2 space-y-2">
+                    <div className="mt-6">
+                        <div className="flex items-center mb-4">
+                            <MdOutlineCategory size={20} className="mr-2 text-blue-500" />
+                            <h3 className="text-lg font-semibold dark:text-gray-200">Kategorijas</h3>
+                        </div>
+                        <ul className="mt-2 space-y-3">
                             {parentCategories.map(category => (
                                 <li key={category.id}>
                                     <button
                                         onClick={() => handleParentCategoryClick(category.id)}
-                                        className={`text-sm category-button ${selectedParentCategory === category.id ? 'font-bold text-blue-500' : ''}`}
+                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedParentCategory === category.id ? 'bg-blue-100 text-blue-600 font-medium dark:bg-gray-900 dark:text-gray-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200'}`}
                                     >
-                                        {category.name} ({category.total_products_count}) 
+                                        <div className="flex justify-between">
+                                            <span>{category.name}</span>
+                                            <span className="bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full text-xs">
+                                                {category.total_products_count || 0}
+                                            </span>
+                                        </div>
                                     </button>
 
                                     {selectedParentCategory === category.id && Array.isArray(category.children) && category.children.length > 0 && (
-                                        <ul className="ml-4 mt-2 space-y-1">
+                                        <ul className="mt-2 ml-4 space-y-2">
                                             {category.children.map(child => (
                                                 <li key={child.id}>
                                                     <button
                                                         onClick={() => handleSubCategoryClick(child.id)}
-                                                        className={`text-sm ${selectedSubCategory === child.id ? 'font-bold text-blue-500' : ''}`}
+                                                        className={`w-full text-left px-3 py-1.5 rounded-lg transition-colors ${selectedSubCategory === child.id ? 'bg-blue-50 text-blue-600 font-medium dark:bg-gray-900 dark:text-gray-200' : 'hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200'}`}
                                                     >
-                                                        {child.name} ({child.products_count}) 
+                                                        <div className="flex justify-between">
+                                                            <span>{child.name}</span>
+                                                            <span className="bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full text-xs">
+                                                                {child.products_count || 0}
+                                                            </span>
+                                                        </div>
                                                     </button>
                                                 </li>
                                             ))}
@@ -344,183 +524,247 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                 </li>
                             ))}
                         </ul>
-
                     </div>
-
                 </div>
                 {/* Main Content */}
-                <div className='flex flex-col w-full'>
-                    
-                    <div className='flex justify-between items-center w-full p-4'>
-                        <div>Izvēlētā kategorija: {getSelectedCategoryName()}</div>
-                        <div>Meklēt</div>{/**Add a searchbar here**/}
-                        
-                        {/* Only show the Add Product button if a category is selected */}
-                        {(selectedParentCategory || selectedSubCategory) && (
-                            <button
-                                className=" new-product mt-4 flex items-center justify-center p-2 bg-blue-500 text-white rounded-md w-1/5"
-                                onClick={handleAddProduct} 
-                            >
-                                <IoIosAddCircleOutline className="mr-2" /> Pievienot jaunu produktu
-                            </button>
-                        )}
+                <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-0' : 'ml-0'}`}>
+                    <div className='sticky top-0 z-10 p-4 bg-white shadow-sm dark:bg-gray-800'>
+                        <div className='flex flex-col items-start justify-between gap-4 md:flex-row md:items-center'>
+                            <div className="text-lg font-medium dark:text-gray-200">
+                                Kategorija: <span className="text-blue-600">{getSelectedCategoryName()}</span>
+                            </div>
+                            
+                            <div className="relative w-full md:w-64">
+                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <IoSearch className="text-gray-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Meklēt produktus..."
+                                    className="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-200"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            
+                            {(selectedParentCategory || selectedSubCategory) && (
+                                <button
+                                    className="flex items-center justify-center w-full px-4 py-2 text-white transition bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 md:w-auto"
+                                    onClick={handleAddProduct}
+                                >
+                                    <IoIosAddCircleOutline className="mr-2" size={20} /> 
+                                    Pievienot jaunu produktu
+                                </button>
+                            )}
+                        </div>
                     </div>
                     
-                    <div className='flex flex-row w-full'>
+                    <div className='flex flex-col gap-6 p-4 lg:flex-row'>
                         {/* Products List */}
-                        <div className="w-full p-4 h-[70dvh]" style={{ overflowY: 'auto' }}>
+                        <div className="w-full lg:w-1/2 h-[calc(100vh-180px)] overflow-y-auto">
                             {filteredProducts.length > 0 ? (
-                                <div className="flex flex-col">
+                                <div className="flex flex-col space-y-4">
                                     {filteredProducts.map(product => (
                                         <div
                                             key={product.id}
-                                            className="flex justify-between items-center rounded-md h-24 bg-white p-4 border-2 border-gray-200 dark:bg-gray-700 w-full cursor-pointer"
-                                            onClick={() => handleEditProductClick(product)}  
+                                            className="flex flex-col items-start justify-between p-4 transition-shadow bg-white border border-gray-200 shadow-sm cursor-pointer md:flex-row md:items-center rounded-xl dark:bg-gray-700 dark:border-gray-600 hover:shadow-md"
+                                            onClick={() => handleEditProductClick(product)}
                                         >
-                                            {/* Image Container */}
-                                            <div className='w-20 h-20 relative block'>
-                                                <img 
-                                                    src={product.image} 
-                                                    alt='product image' 
-                                                    className='h-full w-full rounded-md object-cover' 
-                                                />
+                                            <div className="flex items-center w-full mb-3 md:w-auto md:mb-0">
+                                                {/* Image Container */}
+                                                <div className='flex-shrink-0 w-16 h-16 md:h-20 md:w-20'>
+                                                    <img 
+                                                        src={product.image} 
+                                                        alt={product.name} 
+                                                        className='object-cover w-full h-full rounded-lg shadow-sm' 
+                                                    />
+                                                </div>
+                                                
+                                                {/* Product Name and Description */}
+                                                <div className='ml-4'>
+                                                    <h4 className="text-lg font-semibold dark:text-gray-200">{product.name}</h4>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-300 line-clamp-1">
+                                                        {product.description}
+                                                    </p>
+                                                </div>
                                             </div>
                                             
-                                            {/* Product Name */}
-                                            <div className='flex justify-start items-center w-2/5'>
-                                                <h4 className="font-semibold text-lg">{product.name}</h4>
-                                            </div>
-                                            
-                                            {/* Product Availability */}
-                                            <div className='flex justify-center items-center w-1/5'>
-                                                <p 
-                                                    className={`text-sm text-center ${
-                                                        product.is_available === 0 
-                                                        ? 'text-red-500 font-bold bg-red-100 p-2 rounded-md' 
-                                                        : 'text-green-500 font-semibold bg-green-100 p-2 rounded-md' 
-                                                    } dark:${product.is_available === 0 ? 'text-red-300' : 'text-green-300'}`}
-                                                >
-                                                    {product.is_available === 0 ? 'Izslēgts' : 'Aktīvs'} 
-                                                </p>
-                                            </div>
-                                    
-                                            {/* Product Price */}
-                                            <div className='flex justify-center items-center w-1/5'>
-                                                <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 text-center">
-                                                    €{product.price}
-                                                </p>
-                                            </div>
-                                            
-                                            {/* Menu */}
-                                            <div className='flex justify-center items-center relative'>
-                                                <HiOutlineDotsCircleHorizontal size={32} onClick={(e) => { e.stopPropagation(); toggleMenu(product); }} />
-                                                {isMenuOpen && selectedProduct === product && (
-                                                    <div ref={menuRef} className="absolute right-10 mt-2 w-48 bg-white border rounded shadow-lg z-10">
-                                                        <div className="py-2">
-                                                            <button
-                                                                onClick={handleEnableDisable}
-                                                                className={`flex items-center w-full px-4 py-2 text-sm text-center hover:bg-gray-100 ${
+                                            <div className="flex items-center justify-between w-full mt-3 md:w-auto md:mt-0">
+                                                {/* Product Availability */}
+                                                <div className='flex items-center justify-center md:mr-6'>
+                                                    <span 
+                                                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                                            product.is_available === 0 
+                                                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' 
+                                                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                        }`}
+                                                    >
+                                                        {product.is_available === 0 ? 'Izslēgts' : 'Aktīvs'}
+                                                    </span>
+                                                </div>
+                                        
+                                                {/* Product Price */}
+                                                <div className='flex items-center justify-center md:mr-6'>
+                                                    <p className="font-medium text-gray-800 dark:text-gray-200">
+                                                        €{product.price}
+                                                    </p>
+                                                </div>
+                                                
+                                                {/* Menu */}
+                                                <div className='relative flex items-center justify-center ml-2'>
+                                                    <button 
+                                                        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
+                                                        onClick={(e) => toggleMenu(product, e)}
+                                                    >
+                                                        <HiOutlineDotsCircleHorizontal size={24} className="dark:text-gray-200" />
+                                                    </button>
+                                                    
+                                                    {isMenuOpen && selectedProduct === product && (
+                                                        <div ref={menuRef} className="absolute right-0 z-10 w-56 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 animate-fade-in">
+                                                            <div className="py-1">
+                                                                <button
+                                                                    onClick={(e) => handleEnableDisable(e, product)}
+                                                                    className={`flex items-center w-full px-4 py-2 text-sm 
+                                                                        hover:bg-gray-100 dark:hover:bg-gray-700 ${
                                                                     product.is_available === 0 
-                                                                    ? 'text-green-500 p-2 rounded-md' 
-                                                                    : 'text-red-500 p-2 rounded-md' 
-                                                                } dark:${product.is_available === 0 ? 'text-red-300' : 'text-green-300'}`}
-                                                            >
-                                                                {product.is_available === 0 ? 'Ieslēgt' : 'Izslēgt'} 
-                                                            </button>
-                                                            <button
-                                                                onClick={handleDelete}
-                                                                className="flex items-center w-full px-4 py-2 text-red-500 text-sm hover:bg-gray-100"
-                                                            >
-                                                                <IoTrashOutline className="mr-2" /> Delete
-                                                            </button>
-                                                            <button
-                                                                onClick={handleRemoveFromCategory}
-                                                                className="flex items-center w-full px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                                                            >
-                                                                Remove from Category
-                                                            </button>
+                                                                    ? 'text-green-600 dark:text-green-400' 
+                                                                    : 'text-red-600 dark:text-red-400'
+                                                                    }`}
+                                                                >
+                                                                    {product.is_available === 0 ? 'Ieslēgt' : 'Izslēgt'} 
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => handleCloneProduct(e, product)}
+                                                                    className="flex items-center w-full px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <FaEdit className="mr-2" /> Klonēt
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => handleDelete(e, product)}
+                                                                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <IoTrashOutline className="mr-2" /> Delete
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>                                   
                                     ))}
                                 </div>
                             ) : (
-                                <p>Nav atrasta neviena produkta pēc šī filtrējuma.</p>
+                                <div className="flex flex-col items-center justify-center h-full py-16 text-center">
+                                    <MdOutlineCategory size={48} className="mb-4 text-gray-400" />
+                                    <p className="text-lg text-gray-500">Nav atrasta neviena produkta pēc šī filtrējuma.</p>
+                                    <p className="mt-2 text-sm text-gray-400">Mēģiniet mainīt meklēšanas kritērijus.</p>
+                                </div>
                             )}
                         </div>
 
                         {/* Adding or editing product form */}
                         {isFormVisible && (
-                            <div className="w-full p-4" style={{ height: '500px', overflowY: 'auto' }}>
-                                <h3 className="text-lg font-semibold mb-4">
-                                    {selectedProductForEdit ? 'Rediģēt produktu' : 'Pievienot jaunu produktu'}
-                                </h3>
-                                <form onSubmit={handleSubmit}>
+                            <div className="w-full lg:w-1/2 h-[calc(100vh-180px)] overflow-y-auto bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xl font-semibold dark:text-gray-200">
+                                        {selectedProductForEdit ? 'Rediģēt produktu' : 'Pievienot jaunu produktu'}
+                                    </h3>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            resetForm();
+                                            setSelectedProductForEdit(null);
+                                            setIsFormVisible(false);
+                                        }}
+                                        className="p-2 text-gray-500 transition-colors rounded-full hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <form onSubmit={handleSubmit} className="space-y-5">
                                     <div>
-                                        <label>Nosaukums</label>
+                                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Nosaukums</label>
                                         <input
                                             id='name'
                                             type="text"
                                             value={data.name}
                                             onChange={e => setData('name', e.target.value)}
                                             required
-                                            className="w-full border border-gray-300 rounded-md p-2"
+                                            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 dark:bg-gray-700"
                                         />
                                     </div>
                                     <div>
-                                        <label>Apraksts</label>
+                                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Apraksts</label>
                                         <textarea
                                             id='description'
                                             value={data.description}
                                             onChange={e => setData('description', e.target.value)}
                                             required
-                                            className="w-full border border-gray-300 rounded-md p-2"
+                                            rows={3}
+                                            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 dark:bg-gray-700"
                                         />
                                     </div>
-                                    <div>
-                                        <label>Cena</label>
-                                        <input
-                                            id='price'
-                                            type="number"
-                                            value={data.price}
-                                            onChange={e => setData('price', e.target.value)}
-                                            required
-                                            className="w-full border border-gray-300 rounded-md p-2"
-                                        />
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Cena</label>
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <span className="text-gray-500 dark:text-gray-400">€</span>
+                                                </div>
+                                                <input
+                                                    id='price'
+                                                    type="text" 
+                                                    value={data.price}
+                                                    onChange={handlePriceChange}
+                                                    required
+                                                    placeholder="0.00"
+                                                    className={`pl-8 w-full border ${data.priceError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'} rounded-lg p-2.5 dark:bg-gray-700`}
+                                                />
+                                            </div>
+                                            {data.priceError && (
+                                                <p className="mt-1 text-sm text-red-500">{data.priceError}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Skaits</label>
+                                            <input
+                                                id='quantity'
+                                                type="text" 
+                                                value={data.quantity}
+                                                onChange={handleQuantityChange}
+                                                required
+                                                placeholder="0"
+                                                className={`w-full border ${data.quantityError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'} rounded-lg p-2.5 dark:bg-gray-700`}
+                                            />
+                                            {data.quantityError && (
+                                                <p className="mt-1 text-sm text-red-500">{data.quantityError}</p>
+                                            )}
+                                        </div>
                                     </div>
+                                    
                                     <div>
-                                        <label className='flex items-center'>
+                                        <label className="inline-flex items-center text-sm">
                                             <Checkbox
                                                 checked={data.is_available}
                                                 onChange={e => setData('is_available', e.target.checked)}
                                             />
-                                            <span className='mx-2'>Pieejams</span>
+                                            <span className='ml-2 font-medium text-gray-700 dark:text-gray-300'>Pieejams</span>
                                         </label>
-                                    </div>
-                                    <div>
-                                        <label>Skaits</label>
-                                        <input
-                                            id='quantity'
-                                            type="number"
-                                            value={data.quantity}
-                                            onChange={e => setData('quantity', e.target.value)}
-                                            required
-                                            className="w-full border border-gray-300 rounded-md p-2"
-                                        />
                                     </div>
                                     {/* Dropdown for Category Selection */}
                                     <div>
-                                        <label>Kategorija</label>
+                                        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Kategorija</label>
                                         <select
                                             value={data.category_id}
                                             onChange={e => setData('category_id', e.target.value)}
                                             required
-                                            className="categories-select w-full border border-gray-300 rounded-md p-2"
+                                            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 
+                                                       bg-white dark:bg-gray-700 appearance-none"
                                         >
                                             <option value="">Izvēlieties kategoriju</option>
-                                            {/* Render only the selected parent category and its subcategories */}
                                             {selectedParentCategory && (
                                                 <option className='option' key={selectedParentCategory} value={selectedParentCategory}>
                                                     {parentCategories.find(cat => cat.id === selectedParentCategory)?.name}
@@ -533,33 +777,35 @@ export default function ManageProducts({ auth, categories = [], products = [] })
                                             ))}
                                         </select>
                                     </div>
+
                                     <div>
-                                    <label>Izvēlies bildi</label>
-                                    <div className="flex flex-wrap">
-                                        {Object.entries(imagesByCategory).map(([category, images]) => (
-                                            <div key={category} className="w-full mb-4">
-                                                <h4 className="font-semibold text-lg">{category}</h4>
-                                                <div className="flex flex-wrap">
-                                                    {images.map((image, index) => (
-                                                        <div key={index} className="m-2 image">
-                                                            <img
-                                                                src={image}
-                                                                alt={`Image from ${category}`}
-                                                                className={`h-20 w-20 cursor-pointer ${selectedImage === image ? 'border-2 border-blue-500' : 'border-2 border-transparent'}`}
-                                                                onClick={() => handleImageSelect(image)} // Select image on click
-                                                            />
-                                                        </div>
-                                                    ))}
+                                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Izvēlies bildi</label>
+                                        <div className="p-2 overflow-y-auto border border-gray-200 rounded-lg max-h-64 dark:border-gray-700">
+                                            {Object.entries(imagesByCategory).map(([category, images]) => (
+                                                <div key={category} className="w-full mb-4">
+                                                    <h4 className="px-2 py-1 mb-2 text-sm font-semibold rounded bg-gray-50 dark:bg-gray-800 dark:text-gray-200">{category}</h4>
+                                                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                                                        {images.map((image, index) => (
+                                                            <div key={index} className="relative aspect-square">
+                                                                <img
+                                                                    src={image}
+                                                                    alt={`Image from ${category}`}
+                                                                    className={`h-full w-full object-cover rounded cursor-pointer transition 
+                                                                            ${selectedImage === image ? 'ring-2 ring-blue-500 scale-95' : 'ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-blue-200'}`}
+                                                                    onClick={() => handleImageSelect(image)} 
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
 
                                     <div className="mt-4">
                                         <button
                                             type="submit"
-                                            className="p-2 bg-blue-500 text-white rounded-md w-full"
+                                            className="w-full p-2 text-white bg-blue-500 rounded-md"
                                         >
                                             {selectedProductForEdit ? 'Atjaunot produktu' : 'Pievienot produktu'}
                                         </button>

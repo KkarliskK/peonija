@@ -61,7 +61,7 @@ const CartIcon = ({ auth }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <Link href="/cart" className="relative">
+            <Link name="reddirect-to-cart" href="/cart" className="relative">
                 <FaShoppingCart size={24} className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white" />
                 {itemCount > 0 && (
                     <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -top-2 -right-2">

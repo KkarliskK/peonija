@@ -7,6 +7,7 @@ import NavLink from '@/Components/Buttons/NavLink';
 import CartIcon from '@/Components/Modals/CartIcon';
 import { FaShoppingCart } from 'react-icons/fa';
 import SitePreferences from "@/Components/Modals/SitePreferences";
+import SiteMessage from "@/Components/Modals/SiteMessage";
 
 export default function GuestLayout({ auth, children }) {
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
@@ -76,7 +77,7 @@ export default function GuestLayout({ auth, children }) {
                             {/* More Dropdown */}
                             <Dropdown>
                                 <Dropdown.Trigger>
-                                    <button ref={dropdownRef} onClick={toggleDropdown} className="relative inline-flex items-center w-full p-3 text-lg text-black rounded-3xl sm:py-2">
+                                    <button ref={dropdownRef} onClick={toggleDropdown} className="relative inline-flex items-center w-full p-3 text-lg text-black rounded-3xl sm:py-2 dark:text-gray-200">
                                         Vairāk
                                         <svg className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropOpen ? 'rotate-180' : 'rotate-0'}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
@@ -119,7 +120,6 @@ export default function GuestLayout({ auth, children }) {
                                 <NavLink to="#" onClick={(e) => { e.preventDefault(); scrollToSection('about'); }} className="text-lg text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">Par Mums</NavLink>
                                 <NavLink to="#" onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }} className="text-lg text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">Kontakti</NavLink>
 
-                                {/* Cart Icon in Mobile Menu */}
                                 <div className="flex items-center justify-between p-2 text-lg text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">
                                     <CartIcon />
                                 </div>
@@ -146,6 +146,7 @@ export default function GuestLayout({ auth, children }) {
 
             <div>
                 {children}
+                {/* <SiteMessage /> */}
                 <SitePreferences />
             </div>
             
@@ -177,7 +178,7 @@ export default function GuestLayout({ auth, children }) {
                             </div>
                             <nav className="flex flex-col items-center space-y-2 sm:items-start">
                                 <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Bieži uzdotie jautājumi</NavLink>
-                                <NavLink to="/privacy-policy" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Privātuma politika</NavLink>
+                                <NavLink href="/private-rules" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Privātuma politika</NavLink>
                             </nav>
                         </div>
 

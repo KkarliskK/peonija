@@ -37,13 +37,13 @@ export default function OrderHistory({ auth, orders }) {
         <>
             <Head title="Pirkumu Vēsture" />
             <AuthenticatedLayout auth={auth}>
-                <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-gray-50">
+                <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
                     <div className="max-w-4xl mx-auto">
                         <div className="mb-6">
-                            <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">
+                            <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-200">
                                 Jūsu pirkumu vēsture
                             </h1>
-                            <p className="mt-2 text-gray-600">
+                            <p className="mt-2 text-gray-600 dark:text-gray-200">
                                 Pārskatiet savus iepriekšējos pirkumus un pasūtījumus
                             </p>
                         </div>
@@ -51,14 +51,14 @@ export default function OrderHistory({ auth, orders }) {
                         {orders.length > 0 ? (
                             <div className="space-y-6">
                                 {orders.map((order) => (
-                                    <div key={order.id} className="overflow-hidden transition-all bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md">
-                                        <div className="flex flex-col px-4 py-3 border-b border-gray-200 bg-gray-50 sm:flex-row sm:items-center sm:justify-between">
+                                    <div key={order.id} className="overflow-hidden transition-all bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md dark:bg-gray-800 dark:border-gray-600">
+                                        <div className="flex flex-col px-4 py-3 border-b border-gray-200 bg-gray-50 sm:flex-row sm:items-center sm:justify-between dark:bg-gray-800 dark:bprder-gray-600">
                                             <div className="mb-2 sm:mb-0">
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
                                                     Pasūtījums #{order.id}
                                                 </span>
                                                 {order.status && renderStatusBadge(order.status)}
-                                                <time className="text-sm text-gray-500 sm:ml-2" dateTime={order.created_at}>
+                                                <time className="text-sm text-gray-500 sm:ml-2 dark:text-white" dateTime={order.created_at}>
                                                     {new Date(order.created_at).toLocaleDateString('lv-LV', {
                                                         year: 'numeric',
                                                         month: 'long',
@@ -66,51 +66,51 @@ export default function OrderHistory({ auth, orders }) {
                                                     })}
                                                 </time>
                                             </div>
-                                            <div className="text-lg font-medium text-gray-900">
+                                            <div className="text-lg font-medium text-gray-900 dark:text-white">
                                                 €{Number(order.total_price).toFixed(2)}
                                             </div>
                                         </div>
                                         
                                         <div className="px-4 py-4 sm:px-6">
-                                            <h3 className="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase">
+                                            <h3 className="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-white">
                                                 Pasūtītās preces
                                             </h3>
-                                            <div className="overflow-hidden border rounded-md">
-                                                <table className="min-w-full divide-y divide-gray-200">
-                                                    <thead className="bg-gray-50">
+                                            <div className="overflow-hidden border rounded-md dark:border-gray-600">
+                                                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                                                    <thead className="bg-gray-50 dark:bg-gray-800">
                                                         <tr>
-                                                            <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                                            <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-200">
                                                                 Prece
                                                             </th>
-                                                            <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                            <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-200">
                                                                 Daudzums
                                                             </th>
-                                                            <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                                                            <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-200">
                                                                 Cena
                                                             </th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody className="bg-white divide-y divide-gray-200">
+                                                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800">
                                                         {order.items.map(item => (
                                                             <tr key={item.id} className="hover:bg-gray-50">
-                                                                <td className="px-4 py-3 text-sm text-gray-900">
+                                                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                                                     {item.product.name}
                                                                 </td>
-                                                                <td className="px-4 py-3 text-sm text-center text-gray-500">
+                                                                <td className="px-4 py-3 text-sm text-center text-gray-500 dark:text-white">
                                                                     {item.quantity}
                                                                 </td>
-                                                                <td className="px-4 py-3 text-sm text-right text-gray-900">
+                                                                <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
                                                                     €{(item.price * item.quantity).toFixed(2)}
                                                                 </td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
-                                                    <tfoot className="bg-gray-50">
+                                                    <tfoot className="bg-gray-50 dark:bg-gray-800">
                                                         <tr>
-                                                            <td colSpan="2" className="px-4 py-2 text-sm font-medium text-right text-gray-900">
+                                                            <td colSpan="2" className="px-4 py-2 text-sm font-medium text-right text-gray-900 dark:text-white">
                                                                 Kopā:
                                                             </td>
-                                                            <td className="px-4 py-2 text-sm font-medium text-right text-gray-900">
+                                                            <td className="px-4 py-2 text-sm font-medium text-right text-gray-900 dark:text-white">
                                                                 €{Number(order.total_price).toFixed(2)}
                                                             </td>
                                                         </tr>
@@ -122,14 +122,14 @@ export default function OrderHistory({ auth, orders }) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-8 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <div className="flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full">
-                                    <svg className="w-6 h-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                            <div className="p-8 text-center bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-600">
+                                <div className="flex items-center justify-center w-12 h-12 mx-auto bg-gray-100 rounded-full dark:bg-gray-800 dark:border-gray-600">
+                                    <svg className="w-6 h-6 text-gray-400 dark:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                     </svg>
                                 </div>
-                                <h3 className="mt-4 text-lg font-medium text-gray-900">Nav pirkumu vēstures</h3>
-                                <p className="mt-2 text-gray-500">
+                                <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-200">Nav pirkumu vēstures</h3>
+                                <p className="mt-2 text-gray-500 dark:text-gray-200">
                                     Jūs vēl neesat veicis nevienu pirkumu mūsu veikalā.
                                 </p>
                                 <div className="mt-6">

@@ -53,10 +53,10 @@ export default function Gallery({ auth }) {
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        // window.scrollTo({
+        //     top: 0,
+        //     behavior: 'smooth'
+        // });
     };
 
     const filteredImages = selectedSubcategory
@@ -112,9 +112,9 @@ export default function Gallery({ auth }) {
             <AuthenticatedLayout auth={auth}>
                 <div className="py-12">
                     <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                        <div className="overflow-hidden bg-white shadow-xl sm:rounded-lg">
+                        <div className="overflow-hidden bg-white shadow-xl sm:rounded-lg dark:bg-gray-800">
                             <div className="p-6">
-                                <h1 className="mb-8 text-3xl font-bold text-gray-800">Galerija</h1>
+                                <h1 className="mb-8 text-3xl font-bold text-gray-800 dark:text-gray-200">Galerija</h1>
 
                                 {loading ? (
                                     <div className="flex items-center justify-center h-64">
@@ -159,13 +159,13 @@ export default function Gallery({ auth }) {
 
                                         {/* Desktop Categories */}
                                         <div className="hidden mb-8 md:block">
-                                            <h2 className="mb-4 text-xl font-semibold text-gray-700">Izvēlies kategoriju:</h2>
+                                            <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200">Izvēlies kategoriju:</h2>
                                             <div className="flex flex-wrap gap-2">
                                                 <button
                                                     onClick={() => handleCategorySelect('')}
                                                     className={`px-4 py-2 rounded-full transition-colors ${!selectedSubcategory 
-                                                        ? 'bg-blue-600 text-white shadow-md' 
-                                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
+                                                        ? 'bg-blue-600 text-white shadow-md dark:bg-gray-400' 
+                                                        : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800'}`}
                                                 >
                                                     Visi attēli
                                                 </button>
@@ -174,8 +174,8 @@ export default function Gallery({ auth }) {
                                                         key={subcategory}
                                                         onClick={() => handleCategorySelect(subcategory)}
                                                         className={`px-4 py-2 rounded-full transition-colors ${selectedSubcategory === subcategory 
-                                                            ? 'bg-blue-600 text-white shadow-md' 
-                                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
+                                                            ? 'bg-blue-600 text-white shadow-md dark:bg-gray-400' 
+                                                            : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:text-white text-gray-800'}`}
                                                     >
                                                         {subcategory}
                                                     </button>

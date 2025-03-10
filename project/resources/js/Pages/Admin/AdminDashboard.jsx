@@ -8,6 +8,7 @@ import { MdPayment, MdSettings } from "react-icons/md";
 export default function AdminDashboard({ auth }) {
     return (
         <AdminLayout
+            auth={auth}
             user={auth.user}
         >
             <Head title="Admin Dashboard" />
@@ -20,8 +21,8 @@ export default function AdminDashboard({ auth }) {
                                 <div className="flex items-center gap-3">
                                     <FaBox className="w-5 h-5 text-blue-500" />
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Produkti</p>
-                                        <p className="text-xl font-semibold">245</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-200">Produkti</p>
+                                        <p className="text-xl font-semibold dark:text-gray-200">245</p>
                                     </div>
                                 </div>
                             </div>
@@ -29,8 +30,8 @@ export default function AdminDashboard({ auth }) {
                                 <div className="flex items-center gap-3">
                                     <FaUsers className="w-5 h-5 text-green-500" />
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Lietotāji</p>
-                                        <p className="text-xl font-semibold">1,234</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-200">Lietotāji</p>
+                                        <p className="text-xl font-semibold dark:text-gray-200">1,234</p>
                                     </div>
                                 </div>
                             </div>
@@ -38,8 +39,8 @@ export default function AdminDashboard({ auth }) {
                                 <div className="flex items-center gap-3">
                                     <FaShoppingBag className="w-5 h-5 text-purple-500" />
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Pasūtījumi</p>
-                                        <p className="text-xl font-semibold">89</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-200">Pasūtījumi</p>
+                                        <p className="text-xl font-semibold dark:text-gray-200">89</p>
                                     </div>
                                 </div>
                             </div>
@@ -47,8 +48,8 @@ export default function AdminDashboard({ auth }) {
                                 <div className="flex items-center gap-3">
                                     <FaChartLine className="w-5 h-5 text-red-500" />
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Ieņēmumi</p>
-                                        <p className="text-xl font-semibold">€3,456</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-200">Ieņēmumi</p>
+                                        <p className="text-xl font-semibold dark:text-gray-200">€3,456</p>
                                     </div>
                                 </div>
                             </div>

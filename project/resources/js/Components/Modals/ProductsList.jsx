@@ -1,4 +1,5 @@
 import OfferCard from '@/Components/Modals/OfferCard';
+import Paginator from "@/Components/Buttons/Paginator";
 
 const ProductList = ({
     paginatedProducts,
@@ -37,12 +38,17 @@ const ProductList = ({
         return 0;
     });
 
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+        window.scrollTo(0, 0);
+    };
+
     return (
-        <section className="w-full p-0 mr-8 sm:p-8 dark:bg-gray-700">
-            <h2 className="mb-4 text-xl font-semibold">{selectedCategoryName()}</h2>
+        <section className="w-full p-2 sm:p-8 dark:bg-gray-700">
+            <h2 className="mb-4 text-xl font-semibold dark:text-gray-200">{selectedCategoryName()}</h2>
 
             {sortedProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[70dvh]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[70dvh] ">
                     {sortedProducts.map(product => (
                         <div 
                             key={product.id} 
@@ -65,26 +71,14 @@ const ProductList = ({
                     ))}
                 </div>
             ) : (
-                <p>Netika atrasts neviens produkts.</p>
+                <p className="dark:text-gray-200">Netika atrasts neviens produkts.</p>
             )}
 
-            <div className="flex justify-center mt-4">
-                <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 mx-1 bg-gray-300 rounded disabled:opacity-50"
-                >
-                    Iepriekšējā lapa
-                </button>
-                <span className="px-3 py-1">{`Lapa ${currentPage} no ${totalPages}`}</span>
-                <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 mx-1 bg-gray-300 rounded disabled:opacity-50"
-                >
-                    Nākamā lapa
-                </button>
-            </div>
+            <Paginator 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </section>
     );
 };

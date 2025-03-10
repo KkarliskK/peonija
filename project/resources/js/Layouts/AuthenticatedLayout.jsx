@@ -90,7 +90,6 @@ export default function Authenticated({ auth, header, children}) {
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
-                            {/* Add CartIcon to desktop view */}
                             <div className="mr-4">
                                 <CartIcon />
                             </div>
@@ -123,6 +122,7 @@ export default function Authenticated({ auth, header, children}) {
                                     </Dropdown.Trigger>
                                     <Dropdown.Content>
                                         <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
+                                        <Dropdown.Link href="/blog" className="text-gray-700 dark:text-gray-200">Blogs / Jaunumi</Dropdown.Link>
                                         <Dropdown.Link href="/galerija" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
                                         
                                         <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
@@ -206,7 +206,6 @@ export default function Authenticated({ auth, header, children}) {
                             Galerija
                         </ResponsiveNavLink>
 
-                        {/* Cart Icon in Mobile View */}
                         {auth?.user && (
                             <div className="flex items-center justify-between p-2 text-lg text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">
                                 <CartIcon />
@@ -290,7 +289,7 @@ export default function Authenticated({ auth, header, children}) {
                         <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Bieži uzdotie jautājumi
                         </NavLink>
-                        <NavLink to="/privacy-policy" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                        <NavLink href="/private-rules" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Privātuma politika
                         </NavLink>
                         </nav>

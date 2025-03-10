@@ -4,24 +4,25 @@ export default function Special({ offers }) {
     return (
         <section 
             id='special_orders' 
-            className='relative min-h-screen py-16 bg-gradient-to-b from-accent to-primary-pink sm:py-24'
+            className='relative min-h-screen py-16 bg-gradient-to-b from-accent to-primary-pink dark:from-gray-800 dark:to-gray-900 sm:py-24'
         >
             <div className='container px-4 mx-auto sm:px-6 lg:px-8'>
-                {/* Header Section */}
                 <div className='max-w-3xl mx-auto mb-12 text-center sm:mb-16'>
-                    <h1 className='mb-6 text-4xl font-semibold tracking-tight text-white uppercase sm:text-5xl'>
-                        Populāri Piedāvājumi
-                    </h1>
-                    <p className='text-lg leading-relaxed sm:text-xl text-white/90'>
+                    <div className='mb-8 text-center'>
+                        <h1 className='relative inline-block mb-2 text-4xl font-bold tracking-wider text-white uppercase md:text-5xl dark:text-white'>
+                            Populāri piedāvājumi
+                            <span className='absolute left-0 w-full h-1 bg-gray-800 -bottom-2 dark:bg-white opacity-20'></span>
+                        </h1>
+                    </div>
+                    <p className='text-lg leading-relaxed sm:text-xl text-white/90 dark:text-gray-300'>
                         Mūsu veikalā ir pieejami dažādi grieztie ziedi, telpaugi un ar mīlestību veidoti ziedu pušķi. 
                         Mēs lepojamies ar mūsu spēju radīt ziedu kompozīcijas, kas atspoguļo mūsu klientu individuālās 
                         vēlmes un emocijas.
                     </p>
                 </div>
 
-                {/* Cards Grid */}
                 {offers.length === 0 ? (
-                    <div className='text-xl text-center text-white'>
+                    <div className='text-xl text-center text-white dark:text-gray-200'>
                         Nav pieejamu produktu
                     </div>
                 ) : (

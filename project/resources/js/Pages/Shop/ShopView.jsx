@@ -1,11 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/Components/Modals/Sidebar';
 import ProductList from '@/Components/Modals/ProductsList';
 import ProductModal from '@/Components/Modals/ProductModal';
 import PostNotification from '@/Components/Modals/Notification';
+import { FaBars } from "react-icons/fa";
 
 export default function ShopView({ auth, categories = [], products = [] }) {
     const [selectedParentCategory, setSelectedParentCategory] = useState(null);
@@ -21,12 +22,27 @@ export default function ShopView({ auth, categories = [], products = [] }) {
     const [notifType, setNotifType] = useState('success');
     const itemsPerPage = 8;
     const [currentPage, setCurrentPage] = useState(1);
+    const [isMobile, setIsMobile] = useState(false);
     
     const parentCategories = categories.filter(category => !category.parent_id); 
 
     useEffect(() => {
         setCurrentPage(1);
     }, [selectedParentCategory, selectedSubCategory, filter, searchQuery]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            if (mobile) {
+                setIsSidebarMinimized(true);
+            }
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const filteredProducts = products.filter(product => {
         if (selectedParentCategory) {
@@ -62,86 +78,76 @@ export default function ShopView({ auth, categories = [], products = [] }) {
         setIsModalOpen(true);
     };
     
-    
     const closeModal = () => {
         setSelectedProduct(null);
         setIsModalOpen(false);
     };
 
-    const addToCart = async (product, quantity) => {
-        try {
-            await Inertia.post('/cart/add', {
-                product_id: product.id,
-                quantity,
-            });
-            setCart(prevCart => {
-                const existingItem = prevCart.find(item => item.product.id === product.id);
-                if (existingItem) {
-                    return prevCart.map(item => item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item);
-                }
-                return [...prevCart, { product, quantity }];
-            });
-            setNotifMessage(<>Pasūtījums veiksmīgi pievienots <Link className='underline' href="/cart">grozam</Link>!</>);
-            setNotifType('success');
-            setIsNotifOpen(true);
-        } catch (error) {
-            setNotifMessage('Neizdevās pievienot pasūtījumu.');
-            setNotifType('error');
-            setIsNotifOpen(true);
-        }
-    };
-
     return (
         <>
             <Head title="Veikals" />
-            <GuestLayout auth={auth}>
-                <div className={`flex w-full h-auto min-h-screen relative ${isModalOpen ? '' : ''}`}>
-                    {/* Sidebar */}
-                    <Sidebar
-                        isSidebarMinimized={isSidebarMinimized}
-                        setIsSidebarMinimized={setIsSidebarMinimized}
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        filter={filter}
-                        setFilter={setFilter}
-                        categories={categories}
-                        selectedParentCategory={selectedParentCategory}
-                        setSelectedParentCategory={setSelectedParentCategory}
-                        selectedSubCategory={selectedSubCategory}
-                        setSelectedSubCategory={setSelectedSubCategory}
-                    />
+            <AuthenticatedLayout auth={{ user: auth }}>
+                <div className="relative flex flex-col w-full h-auto min-h-screen">
+                    <div className="flex w-full">
+                        <Sidebar
+                            isSidebarMinimized={isSidebarMinimized}
+                            setIsSidebarMinimized={setIsSidebarMinimized}
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            filter={filter}
+                            setFilter={setFilter}
+                            categories={categories}
+                            selectedParentCategory={selectedParentCategory}
+                            setSelectedParentCategory={setSelectedParentCategory}
+                            selectedSubCategory={selectedSubCategory}
+                            setSelectedSubCategory={setSelectedSubCategory}
+                            className="flex-shrink-0"
+                        />
 
-                    {/* Products section */}
-                    <ProductList 
-                        paginatedProducts={paginatedProducts}
-                        openModal={openModal}
-                        currentPage={currentPage}
-                        setCurrentPage={setCurrentPage}
-                        totalPages={totalPages}
-                        selectedParentCategory={selectedParentCategory} 
-                        selectedSubCategory={selectedSubCategory}
-                        filter={filter} 
-                        searchQuery={searchQuery} 
-                        categories={categories}
-                    />
+                        <div className="flex-1">
+                            <ProductList 
+                                paginatedProducts={paginatedProducts}
+                                openModal={openModal}
+                                currentPage={currentPage}
+                                setCurrentPage={setCurrentPage}
+                                totalPages={totalPages}
+                                selectedParentCategory={selectedParentCategory} 
+                                selectedSubCategory={selectedSubCategory}
+                                filter={filter} 
+                                searchQuery={searchQuery} 
+                                categories={categories}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Mobile Toggle sidebar Button */}
+                    {isMobile && isSidebarMinimized && (
+                        <button 
+                            onClick={() => setIsSidebarMinimized(false)}
+                            className="fixed z-50 p-3 text-white transition-all duration-300 bg-blue-900 rounded-full shadow-lg bottom-8 right-8 hover:bg-blue-950"
+                            aria-label="Open sidebar"
+                        >
+                            <FaBars size={20} />
+                        </button>
+                    )}
 
                     {/* Product Modal Popup */}
-                    {/* {isModalOpen && (
+                    {isModalOpen && (
                         <ProductModal 
                             product={selectedProduct} 
                             closeModal={closeModal} 
-                            addToCart={addToCart} 
                             auth={auth} 
                         />
-                    )} */}
+                    )}
                 </div>
+                
                 <PostNotification
                     isOpen={isNotifOpen}
                     message={notifMessage}
                     type={notifType}
                     onClose={closeNotif}
                 />
-            </GuestLayout>
+            </AuthenticatedLayout>
         </>
     );
 }

@@ -10,6 +10,7 @@ export default defineConfig({
         }),
         react(),
     ],
+    base: '/',
     build: {
         outDir: 'public/build',  
     },

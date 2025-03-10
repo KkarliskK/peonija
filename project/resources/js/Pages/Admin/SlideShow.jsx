@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { namedays, extNamedays } from 'vardadienas'; // Use ES6 import instead of require
+import { namedays, extNamedays } from 'vardadienas'; 
 
 
 export default function Slideshow({ auth, categories }) {
@@ -54,7 +54,7 @@ export default function Slideshow({ auth, categories }) {
         if (isSlideshowActive && images.length > 0) {
             timer = setInterval(() => {
                 setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-            }, 3000); // Change image every 3 seconds
+            }, 3000); 
         }
         return () => clearInterval(timer);
     }, [isSlideshowActive, images]);
@@ -161,26 +161,27 @@ export default function Slideshow({ auth, categories }) {
     
 
         return (
-        <AdminLayout
+            <AdminLayout
+                auth={auth}
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Slaidrāde</h2>}
+            header={<h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">Slaidrāde</h2>}
         >
             <Head title="Slaidrāde" />
 
             {/* Cards  */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4 px-4">
+            <div className="grid grid-cols-2 gap-4 px-4 my-4 md:grid-cols-3 lg:grid-cols-4">
                 {categoryPreviews.map(({ category, previewImage }) => (
                     <div 
                         key={category}
                         onClick={() => fetchCategoryImages(category)}
-                        className="cursor-pointer border rounded-lg shadow-md overflow-hidden group transition-all ease-in-out hover:shadow-lg"
+                        className="overflow-hidden transition-all ease-in-out border rounded-lg shadow-md cursor-pointer group hover:shadow-lg"
                     >
                         <img 
                             src={previewImage} 
                             alt={`${category} priekšskats`} 
                             className="object-cover w-full h-32 sm:h-48 md:h-64"
                         />
-                        <div className="p-2 text-center bg-gradient-to-br from-violet-200 to-pink-100 text-black">
+                        <div className="p-2 text-center text-black bg-gradient-to-br from-violet-200 to-pink-100 dark:from-violet-700 dark:to-pink-900 dark:text-white">
                             <p className="font-bold">{category}</p>
                             <p className="text-sm italic">Noklikšķini šeit, lai skatītu slaidrādi.</p>
                         </div>
@@ -192,7 +193,7 @@ export default function Slideshow({ auth, categories }) {
             {isSlideshowActive && images.length > 0 && (
                 <div 
                     ref={imageContainerRef} 
-                    className="cursor-pointer fixed inset-0 bg-black flex items-center justify-center"
+                    className="fixed inset-0 flex items-center justify-center bg-black cursor-pointer"
                     onClick={enterFullscreen}
                 >
                     <img 
@@ -200,14 +201,14 @@ export default function Slideshow({ auth, categories }) {
                         alt="Slideshow" 
                         className="object-contain max-w-full max-h-full rounded"
                     />
-                    <p className="absolute bottom-8 text-center text-white">
+                    <p className="absolute text-center text-white bottom-8">
                         Bilde {currentIndex + 1} no {images.length}
                     </p>
 
                     {/* Back to categories button */}
                     {!isFullscreen && (
                         <button 
-                            className="absolute top-4 left-4 bg-blue-500 text-white px-4 py-2 rounded-md"
+                            className="absolute px-4 py-2 text-white bg-blue-500 rounded-md top-4 left-4"
                             onClick={goBackToCategories}
                         >
                             Atpakaļ uz kategorijām
@@ -216,12 +217,12 @@ export default function Slideshow({ auth, categories }) {
 
                     {/* Small popup with date and clock */}
                     {isFullscreen && (
-                        <div className="absolute flex justify-around w-2/6 h-24 top-0 right-0 bg-gradient-to-br from-violet-200 to-pink-100 text-black p-2 rounded-md shadow-lg">
-                            <div className='flex justify-center items-center flex-col'>
+                        <div className="absolute top-0 right-0 flex justify-around w-2/6 h-24 p-2 text-black rounded-md shadow-lg bg-gradient-to-br from-violet-200 to-pink-100">
+                            <div className='flex flex-col items-center justify-center'>
                                 <p className='text-2xl'>{currentDate}</p>
                                 <p className='text-xl'><strong>Šodien vārda dienu svin:</strong> {todayNamedays}</p>
                             </div>
-                            <div className='flex justify-center items-center h-full'>
+                            <div className='flex items-center justify-center h-full'>
                                 <p className='text-4xl'>{currentTime}</p>
                             </div>
                         </div>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import NavLink from '@/Components/Buttons/NavLink';
+
 
 export default function SitePreferences({ auth, top_products }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -60,7 +62,7 @@ export default function SitePreferences({ auth, top_products }) {
             Nepiekrītu
           </button>
           
-          <NavLink to="/privacy-policy" 
+          <NavLink href="/private-rules" 
             className="px-4 py-2 text-accent hover:underline"
           >
             Lasīt vairāk

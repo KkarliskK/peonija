@@ -48,12 +48,12 @@ export default function Success({ auth, order }) {
         <>
             <Head title="Order Success" />
             <AuthenticatedLayout auth={auth || {}}>
-                <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-gray-50">
+                <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
                     <div className="max-w-3xl mx-auto">
-                        <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-600">
                             {/* Header (unchanged) */}
-                            <div className="px-6 py-8 text-center border-b border-green-100 bg-green-50">
-                                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full">
+                            <div className="px-6 py-8 text-center border-b border-green-100 bg-green-50 dark:bg-gray-700">
+                                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full ">
                                     <svg className="w-8 h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     </svg>
@@ -66,15 +66,15 @@ export default function Success({ auth, order }) {
                                 </p>
                             </div>
                             
-                            <div className="px-4 py-5 sm:p-6">
+                            <div className="px-4 py-5 sm:p-6 dark:bg-gray-800 ">
                                 <div className="flex flex-col pb-4 mb-5 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
-                                        <h2 className="text-sm text-gray-500">Pasūtījuma numurs</h2>
-                                        <p className="text-lg font-medium text-gray-900">#{safeOrder.id || 'N/A'}</p>
+                                        <h2 className="text-sm text-gray-500 dark:text-gray-200">Pasūtījuma numurs</h2>
+                                        <p className="text-lg font-medium text-gray-900 dark:text-gray-200">#{safeOrder.id || 'N/A'}</p>
                                     </div>
                                     <div className="mt-2 sm:mt-0">
-                                        <h2 className="text-sm text-gray-500">Datums</h2>
-                                        <p className="text-lg font-medium text-gray-900">
+                                        <h2 className="text-sm text-gray-500 dark:text-gray-200">Datums</h2>
+                                        <p className="text-lg font-medium text-gray-900 dark:text-gray-200">
                                             {safeOrder.created_at 
                                                 ? new Date(safeOrder.created_at).toLocaleDateString('lv-LV', {
                                                     year: 'numeric',
@@ -88,53 +88,53 @@ export default function Success({ auth, order }) {
                                 </div>
                                 
                                 <div className="mb-6">
-                                    <h3 className="mb-3 text-lg font-medium text-gray-900">Pircēja informācija</h3>
-                                    <div className="grid grid-cols-1 gap-3 p-4 rounded-lg bg-gray-50 sm:grid-cols-2">
+                                    <h3 className="mb-3 text-lg font-medium text-gray-900 dark:text-gray-200">Pircēja informācija</h3>
+                                    <div className="grid grid-cols-1 gap-3 p-4 rounded-lg bg-gray-50 sm:grid-cols-2 dark:bg-gray-800">
                                         <div>
-                                            <h4 className="text-xs font-medium text-gray-500 uppercase">Vārds</h4>
-                                            <p className="mt-1 text-gray-900">{safeOrder.name || 'N/A'}</p>
+                                            <h4 className="text-xs font-medium text-gray-500 uppercase dark:text-gray-200">Vārds</h4>
+                                            <p className="mt-1 text-gray-900 dark:text-gray-200">{safeOrder.name || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <h4 className="text-xs font-medium text-gray-500 uppercase">E-pasts</h4>
-                                            <p className="mt-1 text-gray-900">{safeOrder.email || 'N/A'}</p>
+                                            <h4 className="text-xs font-medium text-gray-500 uppercase dark:text-gray-200">E-pasts</h4>
+                                            <p className="mt-1 text-gray-900 dark:text-gray-200">{safeOrder.email || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <h4 className="text-xs font-medium text-gray-500 uppercase">Telefona numurs</h4>
-                                            <p className="mt-1 text-gray-900">{safeOrder.mobile || 'N/A'}</p>
+                                            <h4 className="text-xs font-medium text-gray-500 uppercase dark:text-gray-200">Telefona numurs</h4>
+                                            <p className="mt-1 text-gray-900 dark:text-gray-200">{safeOrder.mobile || 'N/A'}</p>
                                         </div>
-                                        <div className="sm:col-span-2">
-                                            <h4 className="text-xs font-medium text-gray-500 uppercase">Saņemšanas adrese</h4>
-                                            <p className="mt-1 text-gray-900">{safeOrder.address || 'N/A'}</p>
+                                        <div>
+                                            <h4 className="text-xs font-medium text-gray-500 uppercase dark:text-gray-200">Saņemšanas adrese</h4>
+                                            <p className="mt-1 text-gray-900 dark:text-gray-200">{safeOrder.address || 'N/A'}</p>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div className="mb-6">
-                                    <h3 className="mb-3 text-lg font-medium text-gray-900">Pasūtītās preces</h3>
+                                    <h3 className="mb-3 text-lg font-medium text-gray-900 dark:text-gray-200">Pasūtītās preces</h3>
                                     {orderItems.length === 0 ? (
                                         <div className="p-4 text-center border border-yellow-200 rounded-lg bg-yellow-50">
                                             <p className="text-yellow-700">Nav pasūtītu preču</p>
                                         </div>
                                     ) : (
-                                        <div className="overflow-hidden border border-gray-200 rounded-lg">
+                                        <div className="overflow-hidden border border-gray-200 rounded-lg dark:border-gray-600">
                                             <table className="min-w-full divide-y divide-gray-200">
-                                                <thead className="bg-gray-50">
+                                                <thead className="bg-gray-50 dark:bg-gray-800">
                                                     <tr>
-                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-200">
                                                             Preces nosaukums
                                                         </th>
-                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase">
+                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-200">
                                                             Daudzums
                                                         </th>
-                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-200">
                                                             Cena
                                                         </th>
-                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                                                        <th scope="col" className="px-4 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase dark:text-gray-200">
                                                             Summa
                                                         </th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 ">
                                                     {orderItems.map((item) => {
                                                         const price = parseFloat(item.price || 0);
                                                         const quantity = item.quantity || 0;
@@ -142,16 +142,16 @@ export default function Success({ auth, order }) {
 
                                                         return (
                                                             <tr key={item.id} className="hover:bg-gray-50">
-                                                                <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                                                                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-200">
                                                                     {item.product?.name || 'N/A'}
                                                                 </td>
-                                                                <td className="px-4 py-3 text-sm text-center text-gray-500">
+                                                                <td className="px-4 py-3 text-sm text-center text-gray-500 dark:text-gray-200">
                                                                     {quantity}
                                                                 </td>
-                                                                <td className="px-4 py-3 text-sm text-right text-gray-500">
+                                                                <td className="px-4 py-3 text-sm text-right text-gray-500 dark:text-gray-200">
                                                                     €{price.toFixed(2)}
                                                                 </td>
-                                                                <td className="px-4 py-3 text-sm font-medium text-right text-gray-900">
+                                                                <td className="px-4 py-3 text-sm font-medium text-right text-gray-900 dark:text-gray-200">
                                                                     €{itemTotal.toFixed(2)}
                                                                 </td>
                                                             </tr>
@@ -161,19 +161,19 @@ export default function Success({ auth, order }) {
                                                 <tfoot>
                                                     {deliveryFee > 0 && (
                                                         <tr>
-                                                            <td colSpan="3" className="px-4 py-3 text-sm font-medium text-right text-gray-900">Piegādes maksa:</td>
-                                                            <td className="px-4 py-3 text-sm font-bold text-right text-gray-900">€{deliveryFee.toFixed(2)}</td>
+                                                            <td colSpan="3" className="px-4 py-3 text-sm font-medium text-right text-gray-900 dark:text-gray-200">Piegādes maksa:</td>
+                                                            <td className="px-4 py-3 text-sm font-bold text-right text-gray-900 dark:text-gray-200">€{deliveryFee.toFixed(2)}</td>
                                                         </tr>
                                                     )}
                                                     {discount > 0 && (
                                                         <tr>
-                                                            <td colSpan="3" className="px-4 py-3 text-sm font-medium text-right text-gray-900">Atlaide:</td>
+                                                            <td colSpan="3" className="px-4 py-3 text-sm font-medium text-right text-gray-900 dark:text-gray-200">Atlaide:</td>
                                                             <td className="px-4 py-3 text-sm font-bold text-right text-red-600">-€{discount.toFixed(2)}</td>
                                                         </tr>
                                                     )}
                                                     <tr>
-                                                        <td colSpan="3" className="px-4 py-3 text-sm font-medium text-right text-gray-900">Maksājuma summa:</td>
-                                                        <td className="px-4 py-3 text-lg font-bold text-right text-green-700">€{totalPrice}</td>
+                                                        <td colSpan="3" className="px-4 py-3 text-sm font-medium text-right text-gray-900 dark:text-gray-200">Maksājuma summa:</td>
+                                                        <td className="px-4 py-3 text-lg font-bold text-right text-green-700">€{totalPrice.toFixed(2)}</td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
@@ -182,12 +182,12 @@ export default function Success({ auth, order }) {
                                 </div>
                             </div>
                             
-                            <div className="flex flex-col items-center justify-center px-4 py-5 border-t border-gray-200 bg-gray-50 sm:px-6 sm:flex-row sm:justify-between">
-                                <p className="mb-4 text-sm text-gray-500 sm:mb-0">
+                            <div className="flex flex-col items-center justify-center px-4 py-5 border-t border-gray-200 bg-gray-50 sm:px-6 sm:flex-row sm:justify-between dark:bg-gray-800 dark:border-gray-600">
+                                <p className="mb-4 text-sm text-gray-500 dark:text-gray-200 sm:mb-0">
                                     Paldies par jūsu pasūtījumu!
                                 </p>
                                 <div className="flex space-x-4">
-                                    <Link href={route('order.history')} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">
+                                    <Link href={route('order.history')} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent dark:bg-gray-600 dark:text-gray-200">
                                         Pirkumu vēsture
                                     </Link>
                                     <Link href={route('shop.index')} className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition ease-in-out border border-transparent rounded-md shadow-sm bg-primary-pink hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2-all focus:ring-accent">

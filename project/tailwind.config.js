@@ -28,6 +28,8 @@ export default {
         colors: {
           accent: '#d6016d',
           'primary-pink': '#fc61b6',
+          'primary-dark': '#670067',
+          'dark-accent': '',
         },
         gradientColorStopPositions: {
           33: '33%',

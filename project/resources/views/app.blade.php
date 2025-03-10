@@ -23,6 +23,16 @@
 
     <!-- Inertia Head for Dynamic Meta Tags -->
     @inertiaHead
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BWS6Z558YH"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BWS6Z558YH');
+    </script>
 </head>
 
 <body class="font-sans antialiased h-dvh dark:bg-gray-900">

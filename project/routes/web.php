@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\BlogController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\PageController;
@@ -47,7 +48,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['get', 'post'], '/admin/manageproducts/', [ProductController::class, 'index'])->name('products.index');
     Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/admin/products', [ProductController::class, 'store'])->name('products.store');
+    //Edit product
     Route::put('/admin/products/{id}', [ProductController::class, 'update']);
+    // Toggle product availability
+    Route::patch('/products/{product}/toggle-availability', [ProductController::class, 'toggleAvailability'])->name('products.toggle-availability');
+    // Delete product
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
     //Cart routes disabled becuase of better implementation
     // Route::post('/cart/add', [CartController::class, 'store'])->name('cart.store');
@@ -65,6 +71,9 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::get('/check-first-purchase', [CartController::class, 'checkFirstPurchaseRoute']);
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 
+// Blog routes
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 //shop routes
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');

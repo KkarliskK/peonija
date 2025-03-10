@@ -27,8 +27,8 @@ export default function Register() {
         <>
             <Head title="Reģistrēties" />
             
-            <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
-                <div className="flex flex-col w-full max-w-5xl overflow-hidden transition-all duration-300 ease-in-out bg-white shadow-xl rounded-2xl md:flex-row">
+            <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100 dark:bg-gray-900">
+                <div className="flex flex-col w-full max-w-5xl overflow-hidden transition-all duration-300 ease-in-out bg-white shadow-xl rounded-2xl md:flex-row dark:bg-gray-800">
                     {/* Left side with background */}
                     <div 
                         className="relative flex flex-col items-center justify-between w-full py-8 bg-center bg-no-repeat bg-cover md:w-1/2 md:py-0"
@@ -74,7 +74,7 @@ export default function Register() {
                     {/* Right side with form */}
                     <div className="w-full p-6 md:w-1/2 md:p-10 lg:p-12">
                         <div className="max-w-md mx-auto">
-                            <h2 className="mb-6 text-2xl font-semibold text-gray-800">Reģistrēties</h2>
+                            <h2 className="mb-6 text-2xl font-semibold text-gray-800 dark:text-gray-200">Reģistrēties</h2>
                             
                             <form onSubmit={submit}>
                                 <div className="mb-4">

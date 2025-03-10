@@ -1,13 +1,57 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import logo from '../../assets/Peonija_logo.png';
 import Dropdown from '@/Components/Buttons/Dropdown';
 import NavLink from '@/Components/Buttons/NavLink';
 import ResponsiveNavLink from '@/Components/Input/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 
-export default function Authenticated({ user, header, children }) {
+export default function Authenticated({ user, header, children, auth }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem('theme') === 'dark';
+    });
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+
+        if (darkMode) {
+            root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            root.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [darkMode]);
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+    };
+
+    const [isDropOpen, setIsDropOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const toggleDropdown = () => {
+        setIsDropOpen(!isDropOpen);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropOpen(false);
+            }
+        };
+
+        if (isDropOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropOpen]);
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav className="py-4 bg-white border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
@@ -40,34 +84,59 @@ export default function Authenticated({ user, header, children }) {
                             <div className="relative ms-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md dark:text-gray-400 dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+                                        <button
+                                            ref={dropdownRef}
+                                            onClick={toggleDropdown}
+                                            className="relative inline-flex items-center w-full p-3 text-black rounded-3xl sm:py-2 dark:text-gray-200"
+                                        >
+                                            Vairāk
+                                            <svg
+                                                className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropOpen ? 'rotate-180' : 'rotate-0'}`}
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 10 6"
                                             >
-                                                {user.name}
-
-                                                <svg
-                                                    className="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
+                                                <path
+                                                    stroke="currentColor"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="m1 1 4 4 4-4"
+                                                />
+                                            </svg>
+                                        </button>
                                     </Dropdown.Trigger>
-
                                     <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Izrakstīties
+                                        <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
+                                        <Dropdown.Link href="/galerija" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
+                                        
+                                        <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
+                                            {darkMode ? 'Gaišais' : 'Tumšais'} Režīms
                                         </Dropdown.Link>
+                                        
+                                        {auth?.user ? (
+                                            <>
+                                                <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Admin panelis</Dropdown.Link>
+                                                <Dropdown.Link
+                                                    href={route('logout')}
+                                                    method="post"
+                                                    as="button"
+                                                    className="text-lg text-red-500 dark:text-red-400"
+                                                >
+                                                    Izrakstīties
+                                                </Dropdown.Link>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Dropdown.Link href="/login" className="text-gray-700 dark:text-gray-200 ">
+                                                    Pierakstīties
+                                                </Dropdown.Link>
+                                                <Dropdown.Link href="/register" className="text-gray-700 dark:text-gray-200 ">
+                                                    Reģistrēties
+                                                </Dropdown.Link>
+                                            </>
+                                        )}
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
