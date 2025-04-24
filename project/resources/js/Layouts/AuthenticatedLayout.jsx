@@ -6,6 +6,7 @@ import ResponsiveNavLink from '@/Components/Input/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
 import CartIcon from '@/Components/Modals/CartIcon';
 import SitePreferences from "@/Components/Modals/SitePreferences";
+import SiteMessage from "@/Components/Modals/SiteMessage";
 
 export default function Authenticated({ auth, header, children}) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -69,7 +70,7 @@ export default function Authenticated({ auth, header, children}) {
                             {auth?.user && (
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                        Panelis
+                                        Mans profils
                                     </NavLink>
                                 </div>
                             )}
@@ -121,12 +122,11 @@ export default function Authenticated({ auth, header, children}) {
                                         </button>
                                     </Dropdown.Trigger>
                                     <Dropdown.Content>
-                                        <Dropdown.Link href="/shop" className="text-gray-700 dark:text-gray-200">Interneta veikals</Dropdown.Link>
                                         <Dropdown.Link href="/blog" className="text-gray-700 dark:text-gray-200">Blogs / Jaunumi</Dropdown.Link>
                                         <Dropdown.Link href="/galerija" className="text-gray-700 dark:text-gray-200">Galerija</Dropdown.Link>
                                         
                                         <Dropdown.Link onClick={toggleDarkMode} className="text-gray-700 dark:text-gray-200">
-                                            {darkMode ? 'Gaišais' : 'Tumšais'} Režīms
+                                            Pāriet uz {darkMode ? 'gaišo' : 'tumšo'} Režīmu
                                         </Dropdown.Link>
                                         
                                         {auth?.user ? (
@@ -186,7 +186,7 @@ export default function Authenticated({ auth, header, children}) {
                     <div className="pt-2 pb-3 space-y-1">
                         {auth?.user && (
                             <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                Profila Panelis
+                                Mans profils 
                             </ResponsiveNavLink>
                         )}
                         <ResponsiveNavLink href={route('shop.index')} active={route().current('shop.index')}>
@@ -241,7 +241,8 @@ export default function Authenticated({ auth, header, children}) {
 
             <main>
                 {children}
-                <SitePreferences />   
+                <SitePreferences />  
+                <SiteMessage />
             </main>
 
 
@@ -267,13 +268,13 @@ export default function Authenticated({ auth, header, children}) {
                             className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Par Mums
                         </NavLink>
-                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                        <NavLink href="/blog" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Blogs
                         </NavLink>
-                        <NavLink to="/galerija" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                        <NavLink href="/galerija" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Galerija
                         </NavLink>
-                        <NavLink to="/shop" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
+                        <NavLink href="/shop" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
                             Interneta Veikals
                         </NavLink>
                         </nav>
@@ -324,12 +325,8 @@ export default function Authenticated({ auth, header, children}) {
                         <hr className="h-px mb-4 border-0 bg-black/20 dark:bg-white/20" />
                         </div>
                         <nav className="flex flex-col items-center space-y-2 sm:items-start">
-                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
-                            Facebook
-                        </NavLink>
-                        <NavLink to="#" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">
-                            Instagram
-                        </NavLink>
+                            <NavLink href="https://www.facebook.com/Peoniijaa/?locale=lv_LV" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Facebook</NavLink>
+                            <NavLink href="https://www.instagram.com/ziedu.veikals.peonija" className="text-gray-600 w-fit dark:text-gray-300 hover:text-black dark:hover:text-white">Instagram</NavLink>
                         </nav>
                     </div>
                     </div>

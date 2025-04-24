@@ -1,7 +1,7 @@
 import { Link, Head } from '@inertiajs/react';
 import { lazy, Suspense } from 'react';
 import { TiArrowSortedDown } from "react-icons/ti";
-import GuestLayout from '@/Layouts/GuestLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import peony from '../../assets/peony.webp';
 
 const About = lazy(() => import('./About'));
@@ -17,8 +17,8 @@ export default function Welcome({ auth, top_products }) {
     return (
         <>
             <Head title="Sveicināti" />
-            <GuestLayout auth={auth}>
-                <main className="mt-6 bg-white text-black/50 dark:bg-gray-900 dark:text-gray-200">
+            <AuthenticatedLayout auth={auth}>
+                <main className="bg-white text-black/50 dark:bg-gray-900 dark:text-gray-200">
                     <div className="min-h-[75dvh] relative overflow-hidden">
                         <div className="grid w-full h-full grid-cols-1 gap-8 lg:grid-cols-2">
                             <div className="relative items-center justify-center hidden lg:flex">
@@ -74,12 +74,12 @@ export default function Welcome({ auth, top_products }) {
                 </main>
 
                 <Suspense fallback={<div className="flex items-center justify-center h-32">Loading...</div>}>
-                    <Special offers={top_products} id="special_orders" />
+                    <Special offers={top_products} id="special_orders" auth={auth} />
                     <About id="about" />
                     <Graphic />
                     <Contact id="contact" />
                 </Suspense>
-            </GuestLayout>
+            </AuthenticatedLayout>
         </>
     );
 }

@@ -3,7 +3,7 @@ import { IoMdClose } from "react-icons/io";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import Cookies from 'js-cookie';
 
-export default function ProductModal({ product, closeModal, auth }) {
+export default function ProductModal({ product, closeModal, auth, onLikeUpdate }) {
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isFilled, setIsFilled] = useState(product.is_liked || false);
@@ -18,6 +18,13 @@ export default function ProductModal({ product, closeModal, auth }) {
         setIsFilled(product.is_liked);
         setLikeCount(product.likes_count);
     }, [product.is_liked, product.likes_count]);
+
+//     useEffect(() => {
+//     console.log("Auth object:", auth);
+//     setIsFilled(product.is_liked);
+//     setLikeCount(product.likes_count);
+// }, [product.is_liked, product.likes_count, auth]);
+
 
     const showToast = (message, color = 'bg-green-600') => {
         setNotificationMessage(message);
@@ -36,6 +43,17 @@ export default function ProductModal({ product, closeModal, auth }) {
         }
 
         setIsLiking(true);
+        
+        const newLikeState = !isFilled;
+        const newLikeCount = newLikeState ? likeCount + 1 : likeCount - 1;
+        
+        setIsFilled(newLikeState);
+        setLikeCount(newLikeCount);
+        
+        if (onLikeUpdate) {
+            onLikeUpdate(newLikeState, newLikeCount);
+        }
+        
         try {
             const response = await fetch(`/products/${product.id}/like`, {
                 method: 'POST',
@@ -48,11 +66,23 @@ export default function ProductModal({ product, closeModal, auth }) {
             if (!response.ok) throw new Error('Network response was not ok');
 
             const data = await response.json();
-
+            
             setIsFilled(data.liked);
             setLikeCount(data.likesCount);
+            
+            if (onLikeUpdate) {
+                onLikeUpdate(data.liked, data.likesCount);
+            }
+            
             showToast(data.liked ? 'Pievienots izlasei' : 'Noņemts no izlases');
         } catch (error) {
+            setIsFilled(!newLikeState);
+            setLikeCount(newLikeState ? likeCount - 1 : likeCount + 1);
+            
+            if (onLikeUpdate) {
+                onLikeUpdate(!newLikeState, newLikeState ? likeCount - 1 : likeCount + 1);
+            }
+            
             showToast('Kļūda! Lūdzu, mēģiniet vēlreiz.', 'bg-red-600');
         } finally {
             setIsLiking(false);
@@ -112,6 +142,22 @@ export default function ProductModal({ product, closeModal, auth }) {
         }
     };
 
+    const getCategoryName = () => {
+        if (product.category) {
+            const catObj = typeof product.category === 'string' ? JSON.parse(product.category) : product.category;
+            if (catObj && catObj.name) return catObj.name;
+        }
+        
+        if (product.category_name) return product.category_name;
+        
+        if (product.category_id && window.categories) {
+            const category = window.categories.find(cat => cat.id === product.category_id);
+            if (category) return category.name;
+        }
+        
+        return "Produkts";
+    };
+    
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/40 backdrop-blur-sm" onClick={closeModal}>
             <div 
@@ -169,7 +215,7 @@ export default function ProductModal({ product, closeModal, auth }) {
                     <div className="flex flex-col w-full p-6 lg:w-1/2">
                         <div className="mb-4">
                             <span className="px-2.5 py-1 text-xs font-semibold tracking-wide text-purple-800 bg-purple-100 rounded-full dark:bg-purple-900 dark:text-purple-100">
-                                {product.category || "Produkts"}
+                                {getCategoryName()}
                             </span>
                             <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">{product.name}</h2>
                             <div className="inline-block px-4 py-2 mt-2 text-lg font-bold rounded-full bg-violet-100 dark:bg-violet-900 text-violet-800 dark:text-violet-100">

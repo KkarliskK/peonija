@@ -14,8 +14,10 @@ use App\Http\Controllers\ProductLikeController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\BlogController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NewsController;
 use Inertia\Inertia;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\StoreToggleController; 
 
 
 Route::get('/', function () {
@@ -28,7 +30,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [UsrDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\UsrDashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/admindashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard'); 
     
     // Categories Routes
@@ -37,13 +39,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::put('/admin/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
 
-    //for saving image path
-    Route::get('/products/images', [ProductController::class, 'fetchImages']);
+    //Dashboard routes
+    Route::get('/dashboard', [NewsController::class, 'index'])->name('dashboard'); 
 
     //to get images for the slideshow
     Route::get('/slideshow', [ImageController::class, 'index'])->name('slideshow.index');
-    Route::get('/categories/{category}/images', [ImageController::class, 'getCategoryImages'])->name('categories.images');
-
+    Route::get('/categories/{category}/images', [ImageController::class, 'getCategoryImages'])->name('categories.images'); 
+    
     // Manage Products Routes
     Route::match(['get', 'post'], '/admin/manageproducts/', [ProductController::class, 'index'])->name('products.index');
     Route::get('/admin/products/create', [ProductController::class, 'create'])->name('products.create');
@@ -55,16 +57,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Delete product
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
+    //news managing routes
+    Route::post('/news', [NewsController::class, 'store'])->name('admin.news.store'); 
+    Route::get('/news', [NewsController::class, 'adminIndex'])->name('admin.news.index');
+    Route::post('/admin/news/{id}', [NewsController::class, 'update'])->name('admin.news.update');
+    Route::post('/admin/news/{id}/delete', [NewsController::class, 'destroy'])->name('admin.news.destroy');
+    
     //Cart routes disabled becuase of better implementation
     // Route::post('/cart/add', [CartController::class, 'store'])->name('cart.store');
     // Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     // Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     // Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-
+    
     //product routes
     Route::get('/order-history', [CheckoutController::class, 'history'])->name('order.history');
     Route::get('/saved-products', [ProductController::class, 'savedProducts'])->name('products.savedProducts');
+
+    //store time managing routes
+    Route::get('/admin/store-status', [App\Http\Controllers\StoreToggleController::class, 'showStoreStatus'])->name('store.status');
+    Route::post('/admin/store-status/toggle', [App\Http\Controllers\StoreToggleController::class, 'toggleStatus'])->name('store.toggleStatus');
+    Route::post('/admin/store-status/hours', [App\Http\Controllers\StoreToggleController::class, 'updateHours'])->name('store.updateHours');
 });
+//for saving image path
+Route::get('/products/images', [ProductController::class, 'fetchImages']);
 
 //cart routes for guest / authenticated users
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -74,6 +89,16 @@ Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add')
 // Blog routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+//blog routes for admin
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/blogs', [BlogController::class, 'adminIndex'])->name('admin.blogs.index');
+    Route::get('/blogs/create', [BlogController::class, 'create'])->name('admin.blogs.create');
+    Route::post('/blogs', [BlogController::class, 'store'])->name('admin.blogs.store');
+    Route::get('/blogs/{blog}/edit', [BlogController::class, 'edit'])->name('admin.blogs.edit');
+    Route::put('/blogs/{blog}', [BlogController::class, 'update'])->name('admin.blogs.update');
+    Route::delete('/blogs/{blog}', [BlogController::class, 'destroy'])->name('admin.blogs.destroy');
+});
 
 //shop routes
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');

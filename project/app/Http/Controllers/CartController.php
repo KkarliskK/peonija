@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use DateTime;
+use DateTimeZone;
 use App\Models\Cart;
+use App\Models\StoreSetting;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\Order;
@@ -92,64 +95,119 @@ class CartController extends Controller
     }
 
     public function index(Request $request)
-{
-    try {
-        if (Auth::check()) {
-            $cart = Cart::firstOrCreate([
-                'user_id' => Auth::id()
-            ]);
-
-            $cartItems = CartItem::where('cart_id', $cart->id)
-                ->with('product')
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'id' => $item->id,
-                        'cart_id' => $item->cart_id,
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                        'product' => $item->product ? [
-                            'id' => $item->product->id,
-                            'name' => $item->product->name,
-                            'price' => $item->product->price,
-                            'image' => $item->product->image,
-                            'quantity' => $item->product->quantity
-                        ] : null
-                    ];
-                });
-
-            if ($request->expectsJson()) {
-                return response()->json(['cartItems' => $cartItems]);
-            }
-
-            return Inertia::render('Shop/CartView', [
-                'cartItems' => $cartItems,
-            ]);
-        } else {
-            $guestCart = json_decode($request->cookie('guest_cart', '[]'), true);
+    {
+        try {
+            $storeSettings = StoreSetting::first();
+            $storeClosed = false;
+            $closureReason = '';
             
+            if ($storeSettings && !$storeSettings->is_open) {
+                $storeClosed = true;
+                $closureReason = 'Veikals šobrīd ir slēgts.';
+            }
+            
+            if ($storeSettings && $storeSettings->special_closures) {
+                $today = now()->format('Y-m-d');
+                foreach ($storeSettings->special_closures as $closure) {
+                    if ($closure['date'] === $today) {
+                        $storeClosed = true;
+                        $closureReason = $closure['reason'];
+                        break;
+                    }
+                }
+            }
+            
+            if ($storeSettings && $storeSettings->working_hours && !$storeClosed) {
+                $now = new DateTime('now', new DateTimeZone('Europe/Riga'));
+                $today = $now->format('l');
+                $currentTime = $now->format('H:i');
+                
+                foreach ($storeSettings->working_hours as $hours) {
+                    if ($hours['day'] === $today) {
+                        if (!$hours['is_open']) {
+                            $storeClosed = true;
+                            $closureReason = 'Veikals šodien ir slēgts.';
+                        } else {
+                            if ($currentTime < $hours['open_time'] || $currentTime > $hours['close_time']) {
+                                $storeClosed = true;
+                                $closureReason = 'Veikals šobrīd ir slēgts. Darba laiks: ' . $hours['open_time'] . ' - ' . $hours['close_time'];
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (Auth::check()) {
+                $cart = Cart::firstOrCreate([
+                    'user_id' => Auth::id()
+                ]);
+
+                $cartItems = CartItem::where('cart_id', $cart->id)
+                    ->with('product')
+                    ->get()
+                    ->map(function($item) {
+                        return [
+                            'id' => $item->id,
+                            'cart_id' => $item->cart_id,
+                            'product_id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'product' => $item->product ? [
+                                'id' => $item->product->id,
+                                'name' => $item->product->name,
+                                'price' => $item->product->price,
+                                'image' => $item->product->image,
+                                'quantity' => $item->product->quantity
+                            ] : null
+                        ];
+                    });
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'cartItems' => $cartItems,
+                        'storeClosed' => $storeClosed,
+                        'closureReason' => $closureReason
+                    ]);
+                }
+
+                return Inertia::render('Shop/CartView', [
+                    'cartItems' => $cartItems,
+                    'storeClosed' => $storeClosed,
+                    'closureReason' => $closureReason
+                ]);
+            } else {
+                $guestCart = json_decode($request->cookie('guest_cart', '[]'), true);
+                
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'cartItems' => $guestCart,
+                        'storeClosed' => $storeClosed,
+                        'closureReason' => $closureReason
+                    ]);
+                }
+
+                return Inertia::render('Shop/CartView', [
+                    'cartItems' => $guestCart,
+                    'storeClosed' => $storeClosed,
+                    'closureReason' => $closureReason
+                ]);
+            }
+        } catch (\Exception $e) {
             if ($request->expectsJson()) {
-                return response()->json(['cartItems' => $guestCart]);
+                return response()->json([
+                    'error' => 'Unable to retrieve cart',
+                    'message' => $e->getMessage()
+                ], 500);
             }
 
             return Inertia::render('Shop/CartView', [
-                'cartItems' => $guestCart,
+                'error' => 'Unable to retrieve cart',
+                'message' => $e->getMessage(),
+                'storeClosed' => $storeClosed ?? false,
+                'closureReason' => $closureReason ?? ''
             ]);
         }
-    } catch (\Exception $e) {
-        if ($request->expectsJson()) {
-            return response()->json([
-                'error' => 'Unable to retrieve cart',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-
-        return Inertia::render('Shop/CartView', [
-            'error' => 'Unable to retrieve cart',
-            'message' => $e->getMessage()
-        ]);
     }
-}
 
 
     //for updating item in cart

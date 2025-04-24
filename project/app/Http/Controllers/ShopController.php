@@ -4,32 +4,68 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\StoreSetting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ShopController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch categories with their children and product counts
+        $storeSettings = StoreSetting::first();
+        $storeClosed = false;
+        $closureReason = '';
+        
+        if ($storeSettings && !$storeSettings->is_open) {
+            $storeClosed = true;
+            $closureReason = 'Veikals šobrīd ir slēgts.';
+        }
+        
+        if ($storeSettings && $storeSettings->special_closures) {
+            $today = now()->format('Y-m-d');
+            foreach ($storeSettings->special_closures as $closure) {
+                if ($closure['date'] === $today) {
+                    $storeClosed = true;
+                    $closureReason = $closure['reason'];
+                    break;
+                }
+            }
+        }
+        
+        if ($storeSettings && $storeSettings->working_hours && !$storeClosed) {
+            $today = now()->format('l'); 
+            $currentTime = now()->format('H:i');
+            
+            foreach ($storeSettings->working_hours as $hours) {
+                if ($hours['day'] === $today) {
+                    if (!$hours['is_open']) {
+                        $storeClosed = true;
+                        $closureReason = 'Veikals šodien ir slēgts.';
+                    } else {
+                        if ($currentTime < $hours['open_time'] || $currentTime > $hours['close_time']) {
+                            $storeClosed = true;
+                            $closureReason = 'Veikals šobrīd ir slēgts. Darba laiks: ' . $hours['open_time'] . ' - ' . $hours['close_time'];
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
         $categories = Category::with(['children' => function($query) {
             $query->withCount('products');
         }])->withCount('products')->get();
 
         foreach ($categories as $category) {
-            // Calculate total products including children
             $childProductsCount = $category->children->sum('products_count'); 
             $category->total_products_count = $category->products_count + $childProductsCount;
         }
 
-        // Get all products
-        $products = Product::withCount('likes')->get(); // Get products with like counts
+        $products = Product::withCount('likes')->get();
 
-        // If you want to check if the user has liked each product
         $user = Auth::user();
         if ($user) {
             $products->map(function ($product) use ($user) {
-                // Check if the authenticated user has liked the product
                 $product->is_liked = $product->likes()->where('user_id', $user->id)->exists();
                 return $product;
             });
@@ -38,7 +74,9 @@ class ShopController extends Controller
         return Inertia::render('Shop/ShopView', [
             'products' => $products, 
             'categories' => $categories,
-            'auth' => $user, // Passing the authenticated user, if available
+            'storeClosed' => $storeClosed,
+            'closureReason' => $closureReason,
+            'auth' => $user, 
         ]);
     }
 }

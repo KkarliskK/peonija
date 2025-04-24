@@ -113,22 +113,26 @@ class ProductController extends Controller
     {
         $baseDirectory = public_path('gallery'); 
         $files = File::allFiles($baseDirectory); 
-    
-        $imagesByCategory = [];
-    
+        
+        $imagesBySubcategory = [];
+        
         foreach ($files as $file) {
+            $extension = strtolower($file->getExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                continue;
+            }
 
             $pathParts = explode('/', $file->getRelativePathname());
-            $category = $pathParts[0]; 
-    
-            if (!isset($imagesByCategory[$category])) {
-                $imagesByCategory[$category] = [];
+            $subcategory = $pathParts[0]; 
+        
+            if (!isset($imagesBySubcategory[$subcategory])) {
+                $imagesBySubcategory[$subcategory] = [];
             }
-    
-            $imagesByCategory[$category][] = asset('gallery/' . $file->getRelativePathname());
+        
+            $imagesBySubcategory[$subcategory][] = asset('gallery/' . $file->getRelativePathname());
         }
-    
-        return response()->json($imagesByCategory);
+        
+        return response()->json($imagesBySubcategory);
     }
     
 

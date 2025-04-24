@@ -9,14 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('carts', function (Blueprint $table) {
+        Schema::create('news', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); 
+            $table->string('title');
+            $table->text('content');
+            $table->string('from_color')->default('blue-500');
+            $table->string('to_color')->default('purple-500'); 
+            $table->string('icon')->nullable();
             $table->timestamps();
-            
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('carts');
+        Schema::dropIfExists('news');
     }
 };

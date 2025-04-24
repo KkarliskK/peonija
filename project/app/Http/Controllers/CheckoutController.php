@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\OrderConfirmation;
-use App\Mail\NewOrderNotification;
+// use App\Mail\OrderConfirmation;
+// use App\Mail\NewOrderNotification;
+use App\Services\BrevoEmailService;
 
 
 
@@ -123,13 +124,12 @@ public function createCheckoutSession(Request $request)
             return response()->json(['error' => 'Cart is empty'], 400);
         }
         
-        // Convert to float to avoid rounding issues
         $totalAmount = array_reduce($cartItems, function($total, $item) {
             return $total + ($item['price'] * $item['quantity']);
         }, 0);
         
         $deliveryFee = $validatedData['deliveryOption'] === 'delivery' ? 2.99 : 0;
-        $discount = $validatedData['discount'] ?? 0; // Get discount directly from frontend
+        $discount = $validatedData['discount'] ?? 0; 
         
         $totalAmountWithDelivery = $totalAmount + $deliveryFee - $discount;
 
@@ -148,7 +148,7 @@ public function createCheckoutSession(Request $request)
                     'product_data' => [
                         'name' => $item['name'] ?? 'Product',
                     ],
-                    'unit_amount' => intval(round($item['price'] * 100)), // Convert to cents
+                    'unit_amount' => intval(round($item['price'] * 100)), 
                 ],
                 'quantity' => $item['quantity'] ?? 1,
             ];
@@ -161,20 +161,19 @@ public function createCheckoutSession(Request $request)
                     'product_data' => [
                         'name' => 'Piegādes maksa',
                     ],
-                    'unit_amount' => intval(round($deliveryFee * 100)), // Convert to cents
+                    'unit_amount' => intval(round($deliveryFee * 100)), 
                 ],
                 'quantity' => 1,
             ];
         }
 
-        // Use a Stripe coupon instead of a line item for the discount
         $discounts = [];
         if ($discount > 0) {
             $coupon = \Stripe\Coupon::create([
-                'amount_off' => intval(round($discount * 100)), // Convert to cents
+                'amount_off' => intval(round($discount * 100)), 
                 'currency' => 'eur',
             ]);
-            $discounts[] = ['coupon' => $coupon->id]; // Apply coupon to Stripe session
+            $discounts[] = ['coupon' => $coupon->id]; 
         }
 
         $session = Session::create([
@@ -186,7 +185,7 @@ public function createCheckoutSession(Request $request)
             'metadata' => [
                 'delivery_option' => $validatedData['deliveryOption']
             ],
-            'discounts' => $discounts // Apply discount properly
+            'discounts' => $discounts
         ]);
 
         $order = Order::create([
@@ -272,7 +271,6 @@ public function success(Request $request)
                     'stripe_payment_intent' => $paymentIntent->id
                 ]);
                 
-                // Send confirmation emails
                 $this->sendOrderEmails($order);
                 
                 $response = redirect()->route('order.success', ['sessionId' => $order->session_id]);
@@ -295,18 +293,31 @@ public function success(Request $request)
     private function sendOrderEmails(Order $order)
     {
         try {
-            Log::info('Attempting to send customer email', ['email' => $order->email]);
-            Mail::to($order->email)->send(new OrderConfirmation($order));
-            Log::info('Customer email sent successfully');
+            $brevoService = new \App\Services\BrevoEmailService();
             
-            $adminEmail = env('MAIL_ADMIN_EMAIL', 'zieduveikalspeonija@gmail.com');
-            Log::info('Attempting to send admin email', ['email' => $adminEmail]);
-            Mail::to($adminEmail)->send(new NewOrderNotification($order));
-            Log::info('Admin email sent successfully');
+            Log::info('Attempting to send customer email via Brevo', ['email' => $order->email]);
+            $customerEmailSent = $brevoService->sendOrderConfirmation($order);
             
-            Log::info('All order confirmation emails sent successfully', ['order_id' => $order->id]);
+            if ($customerEmailSent) {
+                Log::info('Customer email sent successfully via Brevo');
+            } else {
+                Log::warning('Failed to send customer email via Brevo');
+            }
+            
+            Log::info('Attempting to send admin email via Brevo');
+            $adminEmailSent = $brevoService->sendAdminNotification($order);
+            
+            if ($adminEmailSent) {
+                Log::info('Admin email sent successfully via Brevo');
+            } else {
+                Log::warning('Failed to send admin email via Brevo');
+            }
+            
+            if ($customerEmailSent && $adminEmailSent) {
+                Log::info('All order confirmation emails sent successfully via Brevo', ['order_id' => $order->id]);
+            }
         } catch (\Exception $e) {
-            Log::error('Failed to send order confirmation emails', [
+            Log::error('Unexpected error in Brevo email service', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()

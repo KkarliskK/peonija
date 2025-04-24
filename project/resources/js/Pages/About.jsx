@@ -23,7 +23,7 @@ export default function About({ auth }) {
                         
                         Mēs sekojam līdzi jaunākajām tendencēm floristikā, vienlaikus saglabājot pārbaudītas vērtības un tehnikas.
                         
-                        Mēs esam gatavi palīdzēt jums izvēlēties ziedus jūsu nākamajam īpašajam notikumam vai vienkārši kā dāvanu sev.
+                        Mēs esam gatavi palīdzēt jums izvēlēties ziedus jūsu nākamajam īpašajam notikumam vai vienkārši kā dāvanu sev. 
                     </p>
                 </div>
                 <div className="flex items-center justify-center w-full">

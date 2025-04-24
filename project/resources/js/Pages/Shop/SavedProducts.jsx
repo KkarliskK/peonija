@@ -6,7 +6,7 @@ import ProductList from '@/Components/Modals/ProductsList';
 import ProductModal from '@/Components/Modals/ProductModal';
 import PostNotification from '@/Components/Modals/Notification';
 
-export default function SavedProducts({ auth, categories = [], likedProducts = [] }) {
+export default function SavedProducts({ auth, categories = [], likedProducts = [], storeClosed = false, closureReason = '' }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [notifMessage, setNotifMessage] = useState('');
@@ -92,6 +92,8 @@ export default function SavedProducts({ auth, categories = [], likedProducts = [
                                     filter="all" 
                                     searchQuery="" 
                                     categories={categories}
+                                    storeClosed={storeClosed}
+                                    closureReason={closureReason}
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center w-full p-8 mt-8 text-center">

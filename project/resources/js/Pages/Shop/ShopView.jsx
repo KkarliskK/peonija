@@ -8,7 +8,7 @@ import ProductModal from '@/Components/Modals/ProductModal';
 import PostNotification from '@/Components/Modals/Notification';
 import { FaBars } from "react-icons/fa";
 
-export default function ShopView({ auth, categories = [], products = [] }) {
+export default function ShopView({ auth, categories = [], products = [], storeClosed = false, closureReason = '' }) {
     const [selectedParentCategory, setSelectedParentCategory] = useState(null);
     const [selectedSubCategory, setSelectedSubCategory] = useState(null);
     const [filter, setFilter] = useState('all');
@@ -20,11 +20,30 @@ export default function ShopView({ auth, categories = [], products = [] }) {
     const [notifMessage, setNotifMessage] = useState('');
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [notifType, setNotifType] = useState('success');
+    const [localProducts, setLocalProducts] = useState([]);
     const itemsPerPage = 8;
     const [currentPage, setCurrentPage] = useState(1);
     const [isMobile, setIsMobile] = useState(false);
     
     const parentCategories = categories.filter(category => !category.parent_id); 
+
+    useEffect(() => {
+        if (products && products.length > 0) {
+            const normalizedProducts = products.map(product => {
+                const normalizedProduct = { ...product };
+                
+                if (product.category_id) {
+                    const category = categories.find(cat => cat.id === product.category_id);
+                    normalizedProduct.category_name = category ? category.name : '';
+                    normalizedProduct.category = category;
+                }
+                
+                return normalizedProduct;
+            });
+            
+            setLocalProducts(normalizedProducts);
+        }
+    }, [products, categories]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -44,7 +63,7 @@ export default function ShopView({ auth, categories = [], products = [] }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = localProducts.filter(product => {
         if (selectedParentCategory) {
             const subCategoryIds = categories
                 .filter(category => category.parent_id === selectedParentCategory)
@@ -73,6 +92,12 @@ export default function ShopView({ auth, categories = [], products = [] }) {
 
     const closeNotif = () => setIsNotifOpen(false);
 
+    const showNotification = (message, type = 'success') => {
+        setNotifMessage(message);
+        setNotifType(type);
+        setIsNotifOpen(true);
+    };
+
     const openModal = (product) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
@@ -81,6 +106,28 @@ export default function ShopView({ auth, categories = [], products = [] }) {
     const closeModal = () => {
         setSelectedProduct(null);
         setIsModalOpen(false);
+    };
+
+    const updateProductLike = (productId, isLiked, newLikesCount) => {
+        setLocalProducts(currentProducts => 
+            currentProducts.map(product => 
+                product.id === productId 
+                    ? { 
+                        ...product, 
+                        is_liked: isLiked,
+                        likes_count: newLikesCount
+                    } 
+                    : product
+            )
+        );
+
+        if (selectedProduct && selectedProduct.id === productId) {
+            setSelectedProduct(current => ({
+                ...current,
+                is_liked: isLiked,
+                likes_count: newLikesCount
+            }));
+        }
     };
 
     return (
@@ -116,6 +163,8 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                                 filter={filter} 
                                 searchQuery={searchQuery} 
                                 categories={categories}
+                                storeClosed={storeClosed}
+                                closureReason={closureReason}
                             />
                         </div>
                     </div>
@@ -131,12 +180,16 @@ export default function ShopView({ auth, categories = [], products = [] }) {
                         </button>
                     )}
 
-                    {/* Product Modal Popup */}
-                    {isModalOpen && (
+                    {isModalOpen && selectedProduct && (
                         <ProductModal 
                             product={selectedProduct} 
                             closeModal={closeModal} 
-                            auth={auth} 
+                            auth={auth}  
+                            showNotification={showNotification}
+                            onLikeUpdate={(isLiked, likesCount) => 
+                                updateProductLike(selectedProduct.id, isLiked, likesCount)
+                            }
+                            storeClosed={storeClosed}
                         />
                     )}
                 </div>

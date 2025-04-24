@@ -1,11 +1,28 @@
 import DashboardBox from '@/Components/Modals/DashboardBox';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Head } from '@inertiajs/react';
 import { FiShoppingCart, FiPackage, FiTag, FiBell } from "react-icons/fi";
 import { FaUserEdit } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({ auth, news }) {  
+    
+        const getIconComponent = (iconName) => {
+        const iconComponents = {
+            'FiBell': FiBell,
+            'FiTag': FiTag,
+            'FiPackage': FiPackage,
+            'FiShoppingCart': FiShoppingCart,
+            'FaUserEdit': FaUserEdit,
+            'CiHeart': CiHeart
+            //more icons coming soon
+        };
+        
+        return iconComponents[iconName] || FiBell; 
+        };
+    
     return (
             <AuthenticatedLayout auth={auth}>
             <Head title="Dashboard" />
@@ -43,36 +60,28 @@ export default function Dashboard({ auth }) {
                         />
                     </div>
 
-                    {/* Current Promotions */}
+                    {/* News Section */}
                     <div className="mx-auto mt-16 max-w-7xl">
-                        <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">Aktīvās akcijas</h2>
+                        <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">Jaunumi</h2>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <div className="p-6 text-white shadow-md bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl">
-                                <FiTag className="w-8 h-8 mb-4" />
-                                <h3 className="mb-2 text-xl font-semibold">Jauno klientu atlaide</h3>
-                                <p>Saņemiet 10% atlaidi savam pirmajam pirkumam</p>
-                            </div>
-                            <div className="p-6 text-white shadow-md bg-gradient-to-r from-green-500 to-teal-500 rounded-xl">
-                                <FiPackage className="w-8 h-8 mb-4" />
-                                <h3 className="mb-2 text-xl font-semibold">Bezmaksas piegāde</h3>
-                                <p>Pasūtījumiem virs 50€</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Notifications Section */}
-                    <div className="mx-auto mt-16 mb-16 max-w-7xl">
-                        <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">Paziņojumi</h2>
-                        <div className="overflow-hidden bg-white shadow-md dark:bg-gray-800 rounded-xl">
-                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                <div className="flex items-start gap-4 p-6">
-                                    <FiBell className="w-6 h-6 mt-1 text-accent" />
-                                    <div>
-                                        <h3 className="font-medium text-gray-900 dark:text-white">Laipni lūdzam mūsu veikalā!</h3>
-                                        <p className="mt-1 text-gray-500 dark:text-gray-400">Izpētiet mūsu jaunāko produktu klāstu un īpašos piedāvājumus.</p>
+                            {news && news.length > 0 ? news.map((item) => {
+                                const IconComponent = getIconComponent(item.icon || 'FiBell');
+                                
+                                return (
+                                    <div 
+                                        key={item.id}
+                                        className={`p-6 text-white shadow-md bg-gradient-to-r from-${item.from_color} to-${item.to_color} rounded-xl`}
+                                    >
+                                        {IconComponent && <IconComponent className="w-8 h-8 mb-4" />}
+                                        <h3 className="mb-2 text-xl font-semibold">{item.title}</h3>
+                                        <p>{item.content}</p>
                                     </div>
+                                );
+                            }) : (
+                                <div className="col-span-2 p-6 text-center bg-white shadow-md dark:bg-gray-800 rounded-xl">
+                                    <p className="text-gray-500 dark:text-gray-400">Nav jaunu ziņu.</p>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>

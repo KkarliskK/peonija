@@ -5,14 +5,26 @@ export default function SiteMessage({ auth, top_products }) {
   const [isVisible, setIsVisible] = useState(true);
   
   useEffect(() => {
-    const hasSeenMessage = localStorage.getItem('hasSeenDisclaimer');
-    if (!hasSeenMessage) {
-      setIsVisible(true);
+    const disclaimerTimestamp = localStorage.getItem('disclaimerTimestamp');
+    
+    if (disclaimerTimestamp) {
+      const expiryTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      const currentTime = new Date().getTime();
+      const storedTime = parseInt(disclaimerTimestamp);
+      
+      // Check if 24 hours have passed since acceptance
+      if (currentTime - storedTime < expiryTime) {
+        setIsVisible(false);
+      } else {
+        // If expired, remove the item so it shows again
+        localStorage.removeItem('disclaimerTimestamp');
+      }
     }
   }, []);
   
   const handleAccept = () => {
-    localStorage.setItem('hasSeenDisclaimer', 'true');
+    const currentTime = new Date().getTime();
+    localStorage.setItem('disclaimerTimestamp', currentTime.toString());
     setIsVisible(false);
   };
 

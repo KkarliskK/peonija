@@ -4,6 +4,7 @@ import Dropdown from '@/Components/Buttons/Dropdown';
 import NavLink from '@/Components/Buttons/NavLink';
 import ResponsiveNavLink from '@/Components/Input/ResponsiveNavLink';
 import { Link } from '@inertiajs/react';
+import SiteMessage from "@/Components/Modals/SiteMessage";
 
 export default function Authenticated({ user, header, children, auth }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -65,7 +66,7 @@ export default function Authenticated({ user, header, children, auth }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                <NavLink href={route('admin.dashboard')} active={route().current('admin.dashboard')}>
                                     Admin Dashboard
                                 </NavLink>
                                 <NavLink href={route('products.index')} active={route().current('dashboard')}>
@@ -74,7 +75,7 @@ export default function Authenticated({ user, header, children, auth }) {
                                 <NavLink href={route('categories.index')} active={route().current('dashboard')}>
                                     Pārvaldīt kategorijas
                                 </NavLink>
-                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                <NavLink href={route('store.status')} active={route().current('dashboard')}>
                                     Veikala statuss
                                 </NavLink>
                             </div>
@@ -117,7 +118,7 @@ export default function Authenticated({ user, header, children, auth }) {
                                         
                                         {auth?.user ? (
                                             <>
-                                                <Dropdown.Link href="/dashboard" className="text-gray-700 dark:text-gray-200">Admin panelis</Dropdown.Link>
+                                                <Dropdown.Link href="/admin/admindashboard" className="text-gray-700 dark:text-gray-200">Admin panelis</Dropdown.Link>
                                                 <Dropdown.Link
                                                     href={route('logout')}
                                                     method="post"
@@ -170,7 +171,7 @@ export default function Authenticated({ user, header, children, auth }) {
 
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
+                        <ResponsiveNavLink href={route('admin.dashboard')} active={route().current('admin.dashboard')}>
                             Admin Panelis
                         </ResponsiveNavLink>
                     </div>
